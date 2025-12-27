@@ -1,155 +1,159 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Twitter Auto Unfollow</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="lib/chartist.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Auto Unfollow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="lib/chartist.min.css">
 </head>
+
 <body>
-  <div class="container">
-    <!-- Header with Dark Mode Toggle -->
-    <div class="header">
-      <div class="header-content">
-        <h1>🔴 Twitter Auto Unfollow</h1>
-        <button id="themeToggle" class="theme-toggle" title="Dark Mode">🌙</button>
-      </div>
-      <p class="subtitle">Seni takip etmeyenleri otomatik bul ve takipten çık</p>
+    <div class="container">
+        <!-- Header with Dark Mode Toggle -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🔴 Twitter Auto Unfollow</h1>
+                <button id="themeToggle" class="theme-toggle" title="Dark Mode">🌙</button>
+            </div>
+            <p class="subtitle">Seni takip etmeyenleri otomatik bul ve takipten çık</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="main">Ana</button>
+            <button class="tab-btn" data-tab="filters">Filtreler</button>
+            <button class="tab-btn" data-tab="stats">İstatistikler</button>
+        </div>
+
+        <!-- Main Tab -->
+        <div class="tab-content active" id="main-tab">
+            <!-- Stats Cards -->
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">24 Saatlik Limit</span>
+                    <span class="stat-value" id="sessionCount">0/100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Toplam Çıkarılan</span>
+                    <span class="stat-value" id="totalCount">0</span>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-indicator" id="statusIndicator">●</span>
+                <span id="statusText">Hazır</span>
+            </div>
+
+            <!-- Detailed Progress -->
+            <div class="progress-details" id="progressDetails" style="display: none;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-stats" id="progressStats">
+                    0/100 (0%) • 0 users/min • --
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div id="testModeAlert" class="alert alert-warning" style="display: none;">
+                <p><strong>⚠️ Batch Tamamlandı</strong></p>
+                <p>50 kişi takipten çıkarıldı. Devam etmek istiyor musunuz?</p>
+                <button id="continueBtn" class="btn btn-success">✓ Devam Et (50 kişi daha)</button>
+            </div>
+
+            <div id="rateLimitAlert" class="alert alert-danger" style="display: none;">
+                <p><strong>🚫 Rate Limit!</strong></p>
+                <p id="rateLimitText">Twitter tarafından hız sınırına takıldınız.</p>
+                <p id="rateLimitCountdown" style="font-weight: bold;">--</p>
+            </div>
+
+            <div id="limitReachedAlert" class="alert alert-info" style="display: none;">
+                <p><strong>✋ 24 Saatlik Limit Doldu</strong></p>
+                <p>Son 24 saatte 100 kişiden takipten çıktınız. Yeni oturum için 24 saat beklemeniz gerekiyor.</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="control-row">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="dryRunMode">
+                    <span>Dry Run Mode (Test)</span>
+                </label>
+            </div>
+
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary">▶ Başlat</button>
+                <button id="stopBtn" class="btn btn-danger" style="display: none;">■ Durdur</button>
+            </div>
+
+            <div class="control-row">
+                <button id="undoBtn" class="btn btn-secondary" style="display: none;">↶ Geri Al (<span
+                        id="undoCount">0</span>)</button>
+                <button id="resetBtn" class="btn btn-secondary">🔄 Sıfırla</button>
+            </div>
+
+            <!-- Real-time User List -->
+            <div class="user-list-container">
+                <h3>İşlenen Kullanıcılar</h3>
+                <ul class="user-list" id="userList"></ul>
+            </div>
+
+            <div class="info">
+                <p class="last-run">Son çalıştırma: <span id="lastRun">-</span></p>
+            </div>
+        </div>
+
+        <!-- Filters Tab -->
+        <div class="tab-content" id="filters-tab">
+            <!-- Keywords Section -->
+            <div class="filter-section">
+                <h3>🔍 Anahtar Kelimeler</h3>
+                <p class="filter-desc">Bu kelimeleri içeren kullanıcılar atlanacak</p>
+                <div class="input-group">
+                    <input type="text" id="keywordInput" placeholder="Örn: crypto, nft, bot">
+                    <button id="addKeywordBtn" class="btn btn-primary">Ekle</button>
+                </div>
+                <ul class="filter-list" id="keywordList"></ul>
+            </div>
+
+            <!-- Whitelist Section -->
+            <div class="filter-section">
+                <h3>⭐ Whitelist</h3>
+                <p class="filter-desc">Bu kullanıcılar asla takipten çıkarılmayacak</p>
+                <div class="input-group">
+                    <input type="text" id="whitelistInput" placeholder="@kullaniciadi">
+                    <button id="addWhitelistBtn" class="btn btn-primary">Ekle</button>
+                </div>
+                <ul class="filter-list" id="whitelistList"></ul>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div class="tab-content" id="stats-tab">
+            <div class="stats-section">
+                <h3>📊 Son 30 Gün</h3>
+                <div class="ct-chart" id="chart"></div>
+                <button id="exportCsvBtn" class="btn btn-primary">📥 CSV İndir</button>
+            </div>
+        </div>
+
+        <!-- Footer Warning -->
+        <div class="warning">
+            <p><strong>⚠️ Uyarı:</strong></p>
+            <ul>
+                <li>Sadece "Following" sayfasında çalışır</li>
+                <li>2-5 saniye gecikme ile çalışır</li>
+                <li>İlk 50 kişide durup onay ister</li>
+                <li>24 saatte maksimum 100 kişi limiti</li>
+                <li>24 saat sonra limit otomatik sıfırlanır</li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="main">Ana</button>
-      <button class="tab-btn" data-tab="filters">Filtreler</button>
-      <button class="tab-btn" data-tab="stats">İstatistikler</button>
-    </div>
-
-    <!-- Main Tab -->
-    <div class="tab-content active" id="main-tab">
-      <!-- Stats Cards -->
-      <div class="stats">
-        <div class="stat-item">
-          <span class="stat-label">Oturum</span>
-          <span class="stat-value" id="sessionCount">0/100</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Toplam</span>
-          <span class="stat-value" id="totalCount">0</span>
-        </div>
-      </div>
-
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <span class="status-indicator" id="statusIndicator">●</span>
-        <span id="statusText">Hazır</span>
-      </div>
-
-      <!-- Detailed Progress -->
-      <div class="progress-details" id="progressDetails" style="display: none;">
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div class="progress-stats" id="progressStats">
-          0/100 (0%) • 0 users/min • --
-        </div>
-      </div>
-
-      <!-- Alerts -->
-      <div id="testModeAlert" class="alert alert-warning" style="display: none;">
-        <p><strong>⚠️ Batch Tamamlandı</strong></p>
-        <p>50 kişi takipten çıkarıldı. Devam etmek istiyor musunuz?</p>
-        <button id="continueBtn" class="btn btn-success">✓ Devam Et (50 kişi daha)</button>
-      </div>
-
-      <div id="rateLimitAlert" class="alert alert-danger" style="display: none;">
-        <p><strong>🚫 Rate Limit!</strong></p>
-        <p id="rateLimitText">Twitter tarafından hız sınırına takıldınız.</p>
-        <p id="rateLimitCountdown" style="font-weight: bold;">--</p>
-      </div>
-
-      <div id="limitReachedAlert" class="alert alert-info" style="display: none;">
-        <p><strong>✓ Limit Doldu</strong></p>
-        <p>Oturum limiti (100) doldu. 24 saat sonra tekrar deneyin.</p>
-      </div>
-
-      <!-- Controls -->
-      <div class="control-row">
-        <label class="checkbox-container">
-          <input type="checkbox" id="dryRunMode">
-          <span>Dry Run Mode (Test)</span>
-        </label>
-      </div>
-
-      <div class="controls">
-        <button id="startBtn" class="btn btn-primary">▶ Başlat</button>
-        <button id="stopBtn" class="btn btn-danger" style="display: none;">■ Durdur</button>
-      </div>
-
-      <div class="control-row">
-        <button id="undoBtn" class="btn btn-secondary" style="display: none;">↶ Geri Al (<span id="undoCount">0</span>)</button>
-        <button id="resetBtn" class="btn btn-secondary">🔄 Sıfırla</button>
-      </div>
-
-      <!-- Real-time User List -->
-      <div class="user-list-container">
-        <h3>İşlenen Kullanıcılar</h3>
-        <ul class="user-list" id="userList"></ul>
-      </div>
-
-      <div class="info">
-        <p class="last-run">Son çalıştırma: <span id="lastRun">-</span></p>
-      </div>
-    </div>
-
-    <!-- Filters Tab -->
-    <div class="tab-content" id="filters-tab">
-      <!-- Keywords Section -->
-      <div class="filter-section">
-        <h3>🔍 Anahtar Kelimeler</h3>
-        <p class="filter-desc">Bu kelimeleri içeren kullanıcılar atlanacak</p>
-        <div class="input-group">
-          <input type="text" id="keywordInput" placeholder="Örn: crypto, nft, bot">
-          <button id="addKeywordBtn" class="btn btn-primary">Ekle</button>
-        </div>
-        <ul class="filter-list" id="keywordList"></ul>
-      </div>
-
-      <!-- Whitelist Section -->
-      <div class="filter-section">
-        <h3>⭐ Whitelist</h3>
-        <p class="filter-desc">Bu kullanıcılar asla takipten çıkarılmayacak</p>
-        <div class="input-group">
-          <input type="text" id="whitelistInput" placeholder="@kullaniciadi">
-          <button id="addWhitelistBtn" class="btn btn-primary">Ekle</button>
-        </div>
-        <ul class="filter-list" id="whitelistList"></ul>
-      </div>
-    </div>
-
-    <!-- Stats Tab -->
-    <div class="tab-content" id="stats-tab">
-      <div class="stats-section">
-        <h3>📊 Son 30 Gün</h3>
-        <div class="ct-chart" id="chart"></div>
-        <button id="exportCsvBtn" class="btn btn-primary">📥 CSV İndir</button>
-      </div>
-    </div>
-
-    <!-- Footer Warning -->
-    <div class="warning">
-      <p><strong>⚠️ Uyarı:</strong></p>
-      <ul>
-        <li>Sadece "Following" sayfasında çalışır</li>
-        <li>2-5 saniye gecikme ile çalışır</li>
-        <li>İlk 50'den sonra onay ister</li>
-        <li>Oturum başına max 100 kişi</li>
-        <li>24 saatte otomatik sıfırlanır</li>
-      </ul>
-    </div>
-  </div>
-
-  <script src="lib/chartist.min.js"></script>
-  <script src="popup.js"></script>
+    <script src="lib/chartist.min.js"></script>
+    <script src="popup.js"></script>
 </body>
+
 </html>
