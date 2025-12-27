@@ -147,15 +147,3 @@ Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
    - Category: Productivity
 5. "Submit for review" ile gözden geçirmeye gönderin
 6. ~1-3 gün içinde onaylanır
-
-## 📸 Screenshot Önerileri
-
-Store için şu ekran görüntülerini hazırlayın:
-1. Ana tab - Popup arayüzü (istatistikler ve progress bar gösterilirken)
-2. Filtreler tab - Keywords ve whitelist ayarları
-3. İstatistikler tab - 30 günlük chart ve CSV export
-4. Twitter Following sayfasında çalışırken (user list aktif)
-5. Dark mode görünümü
-6. Batch modu onay ekranı (50 kişi sonrası)
-
-Her screenshot 1280x800px olmalı ve Chrome store'da iyi görünmeli.
