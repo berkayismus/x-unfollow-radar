@@ -34,12 +34,17 @@
   box-sizing: border-box;
 }
 
+p, span, div, label {
+  color: inherit;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   padding: 20px;
   background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   min-width: 400px;
   transition: background 0.3s ease;
+  color: var(--text-primary);
 }
 
 .container {
@@ -151,6 +156,10 @@ h1 {
   color: var(--text-primary);
 }
 
+.status-box * {
+  color: var(--text-primary);
+}
+
 .status-indicator {
   display: inline-block;
   width: 8px;
@@ -242,6 +251,10 @@ button:disabled {
   color: var(--text-primary);
 }
 
+.alert * {
+  color: var(--text-primary);
+}
+
 .alert-warning {
   background: rgba(255, 193, 7, 0.15);
   border-left: 4px solid var(--warning-color);
@@ -296,6 +309,7 @@ button:disabled {
   border-radius: 8px;
   padding: 10px;
   border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 #userList {
@@ -341,6 +355,10 @@ button:disabled {
 
 .filter-section {
   margin-bottom: 20px;
+}
+
+h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
 }
 
 .filter-section h3 {
@@ -426,7 +444,7 @@ button:disabled {
 
 .checkbox-group label {
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   cursor: pointer;
 }
 
