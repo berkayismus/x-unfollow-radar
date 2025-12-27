@@ -548,12 +548,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function checkPage() {
     const url = window.location.href;
     if (url.includes('/following')) {
-        console.log('Twitter Auto Unfollow extension ready');
+        console.log('🚀 Twitter Auto Unfollow Extension LOADED and READY');
+        console.log('Extension version: 1.0.0');
         initStorage().then(() => {
             sendStatus('ready');
+            console.log('✅ Storage initialized');
         });
+    } else {
+        console.log('⚠️ Twitter Auto Unfollow Extension loaded but not on following page');
     }
 }
 
 // Initialize
+console.log('🔵 Twitter Auto Unfollow Extension - content.js executing...');
 checkPage();
