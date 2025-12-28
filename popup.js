@@ -10,7 +10,7 @@ const elements = {
   // Tabs
   tabBtns: document.querySelectorAll('.tab-btn'),
   tabContents: document.querySelectorAll('.tab-content'),
-  
+
   // Main tab
   startBtn: document.getElementById('startBtn'),
   stopBtn: document.getElementById('stopBtn'),
@@ -19,55 +19,61 @@ const elements = {
   undoBtn: document.getElementById('undoBtn'),
   undoCount: document.getElementById('undoCount'),
   dryRunMode: document.getElementById('dryRunMode'),
-  
+
   sessionCount: document.getElementById('sessionCount'),
   totalCount: document.getElementById('totalCount'),
   lastRun: document.getElementById('lastRun'),
-  
+
   statusText: document.getElementById('statusText'),
   statusIndicator: document.getElementById('statusIndicator'),
-  
+
   progressDetails: document.getElementById('progressDetails'),
   progressBar: document.getElementById('progressBar'),
   progressStats: document.getElementById('progressStats'),
-  
+
   userList: document.getElementById('userList'),
-  
+
   testModeAlert: document.getElementById('testModeAlert'),
   rateLimitAlert: document.getElementById('rateLimitAlert'),
   rateLimitCountdown: document.getElementById('rateLimitCountdown'),
   limitReachedAlert: document.getElementById('limitReachedAlert'),
-  
+
   // Filters tab
   keywordInput: document.getElementById('keywordInput'),
   addKeywordBtn: document.getElementById('addKeywordBtn'),
   keywordList: document.getElementById('keywordList'),
-  
+
   whitelistInput: document.getElementById('whitelistInput'),
   addWhitelistBtn: document.getElementById('addWhitelistBtn'),
   whitelistList: document.getElementById('whitelistList'),
-  
+
   // Stats tab
   chartContainer: document.getElementById('chart'),
   exportCsvBtn: document.getElementById('exportCsvBtn'),
-  
+
   // Theme
-  themeToggle: document.getElementById('themeToggle')
+  themeToggle: document.getElementById('themeToggle'),
+
+  // Language
+  langToggle: document.getElementById('langToggle')
 };
 
 // Initialize
 async function init() {
+  // Initialize i18n first
+  await I18n.init();
+
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tabs[0];
 
   if (!currentTab.url.includes('twitter.com') && !currentTab.url.includes('x.com')) {
-    updateStatus('error', '❌ Twitter/X sayfasında değilsiniz');
+    updateStatus('error', `❌ ${I18n.t('messages.notOnTwitter') || 'Twitter/X sayfasında değilsiniz'}`);
     elements.startBtn.disabled = true;
     return;
   }
 
   if (!currentTab.url.includes('/following')) {
-    updateStatus('error', '❌ Following sayfasına gidin (örn: x.com/kullaniciadi/following)');
+    updateStatus('error', `❌ ${I18n.t('messages.goToFollowing') || 'Following sayfasına gidin'}`);
     elements.startBtn.disabled = true;
     return;
   }
@@ -78,16 +84,16 @@ async function init() {
   await loadTheme();
   await loadDryRunMode();
   await loadUndoQueue();
-  
+
   setupEventListeners();
-  
+
   // Check if content script is loaded
   try {
     await chrome.tabs.sendMessage(currentTab.id, { action: 'GET_STATUS' });
-    updateStatus('ready', '✓ Hazır');
+    updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
   } catch (error) {
     console.log('Content script not loaded yet');
-    updateStatus('ready', '⚠️ Hazır (Sayfayı yenilerseniz daha iyi çalışabilir)');
+    updateStatus('ready', `⚠️ ${I18n.t('status.ready')}`);
   }
 }
 
@@ -97,7 +103,7 @@ function setupEventListeners() {
   elements.tabBtns.forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-  
+
   // Main controls
   elements.startBtn.addEventListener('click', handleStart);
   elements.stopBtn.addEventListener('click', handleStop);
@@ -105,24 +111,27 @@ function setupEventListeners() {
   elements.resetBtn.addEventListener('click', handleReset);
   elements.undoBtn.addEventListener('click', handleUndo);
   elements.dryRunMode.addEventListener('change', handleDryRunToggle);
-  
+
   // Filters
   elements.addKeywordBtn.addEventListener('click', handleAddKeyword);
   elements.keywordInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleAddKeyword();
   });
-  
+
   elements.addWhitelistBtn.addEventListener('click', handleAddWhitelist);
   elements.whitelistInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleAddWhitelist();
   });
-  
+
   // Stats
   elements.exportCsvBtn.addEventListener('click', handleExportCsv);
-  
+
   // Theme
   elements.themeToggle.addEventListener('click', handleThemeToggle);
-  
+
+  // Language
+  elements.langToggle.addEventListener('click', handleLanguageToggle);
+
   // Listen for messages from content script
   chrome.runtime.onMessage.addListener(handleMessage);
 }
@@ -132,11 +141,11 @@ function switchTab(tabName) {
   elements.tabBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabName);
   });
-  
+
   elements.tabContents.forEach(content => {
     content.classList.toggle('active', content.id === `${tabName}-tab`);
   });
-  
+
   if (tabName === 'stats') {
     renderChart();
   }
@@ -157,7 +166,7 @@ async function loadStats() {
 
   elements.sessionCount.textContent = `${sessionCount}/100`;
   elements.totalCount.textContent = totalUnfollowed;
-  
+
   if (lastRun !== '-') {
     const date = new Date(lastRun);
     elements.lastRun.textContent = date.toLocaleString('tr-TR');
@@ -167,12 +176,12 @@ async function loadStats() {
     const now = Date.now();
     const sessionStart = data.sessionStart || now;
     const timeLeft = 24 * 60 * 60 * 1000 - (now - sessionStart);
-    
+
     if (timeLeft > 0) {
       elements.limitReachedAlert.style.display = 'block';
       elements.startBtn.disabled = true;
       const hoursLeft = Math.ceil(timeLeft / (60 * 60 * 1000));
-      elements.limitReachedAlert.querySelector('p:last-child').textContent = 
+      elements.limitReachedAlert.querySelector('p:last-child').textContent =
         `Oturum limiti doldu. ${hoursLeft} saat sonra tekrar deneyin.`;
     }
   }
@@ -216,8 +225,8 @@ async function loadUndoQueue() {
 function updateStatus(type, message) {
   elements.statusText.textContent = message;
   elements.statusIndicator.className = 'status-indicator';
-  
-  switch(type) {
+
+  switch (type) {
     case 'active':
       elements.statusIndicator.classList.add('active');
       break;
@@ -244,14 +253,14 @@ async function handleStart() {
     elements.stopBtn.style.display = 'block';
     elements.progressDetails.style.display = 'block';
     elements.userList.innerHTML = '';
-    updateStatus('active', '🔄 Çalışıyor...');
+    updateStatus('active', `🔄 ${I18n.t('status.processing') || 'Çalışıyor'}...`);
   } catch (error) {
     console.error('Failed to start:', error);
-    if (confirm('Extension henüz yüklenmedi. Sayfayı yenilemek ister misiniz?')) {
+    if (confirm(I18n.t('messages.confirmReload'))) {
       await chrome.tabs.reload(currentTab.id);
-      updateStatus('ready', '🔄 Sayfa yenilendi - Tekrar deneyin');
+      updateStatus('ready', `🔄 ${I18n.t('messages.pageReloaded') || 'Sayfa yenilendi'}`);
     } else {
-      updateStatus('error', '❌ Başlatılamadı - Sayfayı yenileyin');
+      updateStatus('error', `❌ ${I18n.t('messages.startFailed') || 'Başlatılamadı'}`);
     }
   }
 }
@@ -284,7 +293,7 @@ async function handleContinue() {
 }
 
 async function handleReset() {
-  if (confirm('Tüm istatistikler sıfırlanacak. Emin misiniz?')) {
+  if (confirm(I18n.t('messages.confirmReset'))) {
     await chrome.storage.local.set({
       sessionCount: 0,
       totalUnfollowed: 0,
@@ -293,7 +302,7 @@ async function handleReset() {
       testComplete: false,
       undoQueue: []
     });
-    
+
     elements.sessionCount.textContent = '0/100';
     elements.totalCount.textContent = '0';
     elements.lastRun.textContent = '-';
@@ -301,8 +310,8 @@ async function handleReset() {
     elements.startBtn.disabled = false;
     elements.userList.innerHTML = '';
     updateUndoButton(0);
-    
-    updateStatus('ready', '✓ Sıfırlandı');
+
+    updateStatus('ready', `✓ ${I18n.t('status.reset') || 'Sıfırlandı'}`);
   }
 }
 
@@ -312,10 +321,10 @@ async function handleUndo() {
   try {
     const response = await chrome.tabs.sendMessage(currentTab.id, { action: 'UNDO_LAST' });
     if (response.success) {
-      updateStatus('ready', `↶ Geri alındı: @${response.username}`);
+      updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${response.username}`);
       await loadUndoQueue();
     } else {
-      alert(response.message || 'Geri alınacak işlem yok');
+      alert(response.message || I18n.t('messages.noUndoAction'));
     }
   } catch (error) {
     console.error('Failed to undo:', error);
@@ -324,22 +333,22 @@ async function handleUndo() {
 
 async function handleDryRunToggle(e) {
   const enabled = e.target.checked;
-  
+
   await chrome.storage.local.set({ dryRunMode: enabled });
-  
+
   try {
-    await chrome.tabs.sendMessage(currentTab.id, { 
+    await chrome.tabs.sendMessage(currentTab.id, {
       action: 'TOGGLE_DRY_RUN',
-      enabled 
+      enabled
     });
   } catch (error) {
     console.log('Content script not loaded, but settings saved');
   }
-  
+
   if (enabled) {
-    updateStatus('ready', '🧪 Dry Run Mode aktif');
+    updateStatus('ready', `🧪 ${I18n.t('messages.dryRunActive')}`);
   } else {
-    updateStatus('ready', '✓ Normal mode');
+    updateStatus('ready', `✓ ${I18n.t('messages.normalMode')}`);
   }
 }
 
@@ -347,45 +356,45 @@ async function handleDryRunToggle(e) {
 async function handleAddKeyword() {
   const keyword = elements.keywordInput.value.trim();
   if (!keyword) return;
-  
+
   const data = await chrome.storage.local.get(['keywords']);
   const keywords = data.keywords || [];
-  
+
   if (!keywords.includes(keyword.toLowerCase())) {
     keywords.push(keyword.toLowerCase());
     await chrome.storage.local.set({ keywords });
-    
+
     try {
-      await chrome.tabs.sendMessage(currentTab.id, { 
+      await chrome.tabs.sendMessage(currentTab.id, {
         action: 'UPDATE_KEYWORDS',
-        keywords 
+        keywords
       });
     } catch (error) {
       console.log('Content script not loaded, but settings saved');
     }
-    
+
     renderKeywordList(keywords);
   }
-  
+
   elements.keywordInput.value = '';
 }
 
 async function handleRemoveKeyword(keyword) {
   const data = await chrome.storage.local.get(['keywords']);
   const keywords = data.keywords || [];
-  
+
   const filtered = keywords.filter(k => k !== keyword);
   await chrome.storage.local.set({ keywords: filtered });
-  
+
   try {
-    await chrome.tabs.sendMessage(currentTab.id, { 
+    await chrome.tabs.sendMessage(currentTab.id, {
       action: 'UPDATE_KEYWORDS',
-      keywords: filtered 
+      keywords: filtered
     });
   } catch (error) {
     console.log('Content script not loaded, but settings saved');
   }
-  
+
   renderKeywordList(filtered);
 }
 
@@ -406,47 +415,47 @@ function renderKeywordList(keywords) {
 async function handleAddWhitelist() {
   let username = elements.whitelistInput.value.trim();
   if (!username) return;
-  
+
   username = username.replace('@', '').toLowerCase();
-  
+
   const data = await chrome.storage.local.get(['whitelist']);
   const whitelist = data.whitelist || {};
-  
+
   if (!whitelist[username]) {
     whitelist[username] = { addedDate: Date.now() };
     await chrome.storage.local.set({ whitelist });
-    
+
     try {
-      await chrome.tabs.sendMessage(currentTab.id, { 
+      await chrome.tabs.sendMessage(currentTab.id, {
         action: 'UPDATE_WHITELIST',
-        whitelist 
+        whitelist
       });
     } catch (error) {
       console.log('Content script not loaded, but settings saved');
     }
-    
+
     renderWhitelistList(whitelist);
   }
-  
+
   elements.whitelistInput.value = '';
 }
 
 async function handleRemoveWhitelist(username) {
   const data = await chrome.storage.local.get(['whitelist']);
   const whitelist = data.whitelist || {};
-  
+
   delete whitelist[username];
   await chrome.storage.local.set({ whitelist });
-  
+
   try {
-    await chrome.tabs.sendMessage(currentTab.id, { 
+    await chrome.tabs.sendMessage(currentTab.id, {
       action: 'UPDATE_WHITELIST',
-      whitelist 
+      whitelist
     });
   } catch (error) {
     console.log('Content script not loaded, but settings saved');
   }
-  
+
   renderWhitelistList(whitelist);
 }
 
@@ -467,7 +476,7 @@ function renderWhitelistList(whitelist) {
 async function handleThemeToggle() {
   const current = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
   const newTheme = current === 'light' ? 'dark' : 'light';
-  
+
   await chrome.storage.local.set({ theme: newTheme });
   applyTheme(newTheme);
 }
@@ -482,23 +491,28 @@ function applyTheme(theme) {
   }
 }
 
+// Language toggle handler
+async function handleLanguageToggle() {
+  await I18n.toggleLocale();
+}
+
 // Chart rendering
 async function renderChart() {
   const data = await chrome.storage.local.get(['unfollowStats']);
   const stats = data.unfollowStats || { daily: {} };
-  
+
   const labels = [];
   const series = [];
-  
+
   const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-  
+
   for (let i = 29; i >= 0; i--) {
     const date = new Date(Date.now() - (i * 24 * 60 * 60 * 1000));
     const dateStr = date.toISOString().split('T')[0];
     labels.push(date.getDate() + '/' + (date.getMonth() + 1));
     series.push(stats.daily[dateStr]?.unfollowed || 0);
   }
-  
+
   if (chart) {
     chart.update({ labels, series: [series] });
   } else {
@@ -518,12 +532,12 @@ async function renderChart() {
 async function handleExportCsv() {
   const data = await chrome.storage.local.get(['unfollowHistory']);
   const history = data.unfollowHistory || [];
-  
+
   if (history.length === 0) {
-    alert('Henüz işlem geçmişi yok');
+    alert(I18n.t('messages.noHistory'));
     return;
   }
-  
+
   const csvContent = '\uFEFF' + [
     ['Username', 'Date', 'Reason'].join(','),
     ...history.map(item => [
@@ -532,7 +546,7 @@ async function handleExportCsv() {
       item.reason
     ].join(','))
   ].join('\n');
-  
+
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -543,16 +557,22 @@ async function handleExportCsv() {
 }
 
 // User list
-function addUserToList(username, action, timestamp) {
+async function addUserToList(username, action, timestamp) {
   const li = document.createElement('li');
-  const time = new Date(timestamp).toLocaleTimeString('tr-TR', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  const time = new Date(timestamp).toLocaleTimeString('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit'
   });
-  
+
+  // Check if user is already in whitelist
+  const data = await chrome.storage.local.get(['whitelist']);
+  const whitelist = data.whitelist || {};
+  const cleanUsername = username.replace('@', '').toLowerCase();
+  const isInWhitelist = !!whitelist[cleanUsername];
+
   let icon = '';
   let className = '';
-  
+
   if (action === 'unfollowed') {
     icon = '✓';
     className = 'unfollowed';
@@ -563,21 +583,114 @@ function addUserToList(username, action, timestamp) {
     icon = '⊘';
     className = 'skipped';
   }
-  
+
   li.className = className;
+  li.dataset.username = username;
+  li.dataset.action = action;
+
+  const undoBtnTitle = I18n.t('userList.undoBtn');
+  const whitelistBtnTitle = I18n.t('userList.addToWhitelist');
+
   li.innerHTML = `
     <span class="user-icon">${icon}</span>
     <span class="user-name">@${username}</span>
     <span class="user-time">${time}</span>
+    <div class="user-actions">
+      ${action === 'unfollowed' ? `<button class="action-btn undo-btn" title="${undoBtnTitle}">↶</button>` : ''}
+      ${!isInWhitelist ? `<button class="action-btn whitelist-btn" title="${whitelistBtnTitle}">⭐</button>` : ''}
+    </div>
   `;
-  
+
+  // Add event listeners for action buttons
+  const undoBtn = li.querySelector('.undo-btn');
+  if (undoBtn) {
+    undoBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleUndoSingleUser(username, li);
+    });
+  }
+
+  const whitelistBtn = li.querySelector('.whitelist-btn');
+  if (whitelistBtn) {
+    whitelistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleAddToWhitelistFromList(username, whitelistBtn);
+    });
+  }
+
   elements.userList.appendChild(li);
-  
+
   if (elements.userList.children.length > 100) {
     elements.userList.removeChild(elements.userList.firstChild);
   }
-  
+
   elements.userList.scrollTop = elements.userList.scrollHeight;
+}
+
+// Handle undo for single user from list
+async function handleUndoSingleUser(username, liElement) {
+  if (!currentTab) return;
+
+  try {
+    const response = await chrome.tabs.sendMessage(currentTab.id, {
+      action: 'UNDO_SINGLE',
+      username: username
+    });
+
+    if (response.success) {
+      updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${username}`);
+      // Update the list item to show it was undone
+      liElement.classList.remove('unfollowed');
+      liElement.classList.add('undone');
+      liElement.querySelector('.user-icon').textContent = '↶';
+      // Remove undo button since it's already undone
+      const undoBtn = liElement.querySelector('.undo-btn');
+      if (undoBtn) undoBtn.remove();
+      await loadUndoQueue();
+    } else {
+      alert(response.message || I18n.t('messages.undoFailed'));
+    }
+  } catch (error) {
+    console.error('Failed to undo single user:', error);
+    alert(I18n.t('messages.undoFailedDetail'));
+  }
+}
+
+// Handle adding user to whitelist from list
+async function handleAddToWhitelistFromList(username, btnElement) {
+  const cleanUsername = username.replace('@', '').toLowerCase();
+
+  const data = await chrome.storage.local.get(['whitelist']);
+  const whitelist = data.whitelist || {};
+
+  if (!whitelist[cleanUsername]) {
+    whitelist[cleanUsername] = { addedDate: Date.now() };
+    await chrome.storage.local.set({ whitelist });
+
+    try {
+      await chrome.tabs.sendMessage(currentTab.id, {
+        action: 'UPDATE_WHITELIST',
+        whitelist
+      });
+    } catch (error) {
+      console.log('Content script not loaded, but settings saved');
+    }
+
+    // Update the whitelist display in Filters tab
+    renderWhitelistList(whitelist);
+
+    // Update button to show it was added
+    btnElement.textContent = '✓';
+    btnElement.disabled = true;
+    btnElement.classList.add('added');
+    btnElement.title = I18n.t('userList.addedToWhitelist');
+
+    updateStatus('ready', `⭐ ${I18n.t('messages.addedToWhitelist')}: @${cleanUsername}`);
+  } else {
+    btnElement.textContent = '✓';
+    btnElement.disabled = true;
+    btnElement.classList.add('added');
+  }
 }
 
 // Update undo button
@@ -605,12 +718,12 @@ function handleStatusUpdate(data) {
   if (data.sessionCount !== undefined) {
     elements.sessionCount.textContent = `${data.sessionCount}/100`;
   }
-  
+
   if (data.totalUnfollowed !== undefined) {
     elements.totalCount.textContent = data.totalUnfollowed;
   }
 
-  switch(data.status) {
+  switch (data.status) {
     case 'started':
       updateStatus('active', '🔄 Başlatıldı...');
       break;
@@ -666,23 +779,23 @@ function handleRateLimit(data) {
   isRunning = false;
   elements.startBtn.style.display = 'block';
   elements.stopBtn.style.display = 'none';
-  
+
   let remainingSeconds = data.remainingMinutes * 60;
-  
+
   if (rateLimitInterval) {
     clearInterval(rateLimitInterval);
   }
-  
+
   rateLimitInterval = setInterval(() => {
     remainingSeconds--;
-    
+
     if (remainingSeconds <= 0) {
       clearInterval(rateLimitInterval);
       elements.rateLimitAlert.style.display = 'none';
       updateStatus('ready', '✓ Rate limit sona erdi');
       return;
     }
-    
+
     const minutes = Math.floor(remainingSeconds / 60);
     const seconds = remainingSeconds % 60;
     elements.rateLimitCountdown.textContent = `${minutes}:${seconds.toString().padStart(2, '0')} sonra otomatik devam edilecek`;

@@ -540,6 +540,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } else {
             sendResponse({ success: false, message: 'No users to undo' });
         }
+    } else if (message.action === 'UNDO_SINGLE') {
+        const username = message.username;
+        const userIndex = undoQueue.findIndex(u => u.username === username);
+        if (userIndex !== -1) {
+            undoQueue.splice(userIndex, 1);
+            refollowUser(username);
+            chrome.storage.local.set({ undoQueue });
+            sendResponse({ success: true, username: username });
+        } else {
+            // User not in undo queue, but still try to refollow
+            refollowUser(username);
+            sendResponse({ success: true, username: username, message: 'Refollowed (not in queue)' });
+        }
     }
     return true;
 });
