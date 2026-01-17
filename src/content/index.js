@@ -376,10 +376,11 @@ const TwitterUnfollowContent = (function () {
 
     /**
      * Scans currently visible users and adds non-followers to the queue
+     * Only scans users in the primary column (excludes "Who to follow" sidebar)
      * @returns {void}
      */
     function scanUsers() {
-        const userCells = document.querySelectorAll(Constants.SELECTORS.USER_CELL);
+        const userCells = document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN);
         let newUsersFound = 0;
 
         userCells.forEach(cell => {
@@ -412,7 +413,7 @@ const TwitterUnfollowContent = (function () {
     /**
      * Scrolls the page to load more users
      * @async
-     * @returns {Promise<number>} The current count of user cells
+     * @returns {Promise<number>} The current count of user cells in primary column
      */
     async function autoScroll() {
         console.log('Scrolling...');
@@ -422,7 +423,7 @@ const TwitterUnfollowContent = (function () {
             Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA
         );
 
-        const userCellsCount = document.querySelectorAll(Constants.SELECTORS.USER_CELL).length;
+        const userCellsCount = document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN).length;
         console.log('UserCells count:', userCellsCount);
         return userCellsCount;
     }

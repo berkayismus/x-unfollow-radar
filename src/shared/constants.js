@@ -101,8 +101,12 @@ const Constants = (function () {
      * @constant {Object}
      */
     const SELECTORS = Object.freeze({
+        /** Primary column container (main content area, excludes sidebar) */
+        PRIMARY_COLUMN: '[data-testid="primaryColumn"]',
         /** User cell container */
         USER_CELL: '[data-testid="UserCell"]',
+        /** User cell within primary column only (excludes "Who to follow" sidebar) */
+        USER_CELL_MAIN: '[data-testid="primaryColumn"] [data-testid="UserCell"]',
         /** Confirmation button for unfollow dialog */
         CONFIRM_BUTTON: '[data-testid="confirmationSheetConfirm"]',
         /** Button with role attribute */
