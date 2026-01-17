@@ -21,8 +21,7 @@ Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chro
 - 📥 **CSV Export**: İşlem geçmişini CSV olarak indir
 - 🌙 **Dark Mode**: Karanlık tema desteği
 - 🌐 **Çoklu Dil Desteği**: Türkçe ve İngilizce arayüz (TR/EN)
-- 📈 **Progress Bar**: Gerçek zamanlı ilerleme ve ETA
-- 📋 **User List**: İşlenen kullanıcıların canlı listesi
+-  **User List**: İşlenen kullanıcıların canlı listesi
   - ↶ Tek tıkla geri al butonu
   - ⭐ Tek tıkla whitelist'e ekle butonu
 - 🧪 **Dry-Run Mode**: Gerçekte takipten çıkmadan test et
@@ -88,24 +87,37 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 ### Dosya Yapısı
 ```
 twitter-unfollow-extension/
-├── manifest.json          # Extension configuration (Manifest V3)
-├── background.js          # Service worker for message relay
-├── content.js             # Main automation logic
-├── popup.html             # 3-tab UI (Ana/Filtreler/İstatistikler)
-├── popup.js               # UI controller and handlers
-├── styles.css             # CSS with dark mode support
-├── i18n.js                # Internationalization module
-├── locales/               # Language files
-│   ├── tr.json           # Turkish translations
-│   └── en.json           # English translations
-├── lib/                   # External libraries
-│   ├── chartist.min.js   # Chart library
-│   └── chartist.min.css  # Chart styles
-├── icons/                 # Extension icons
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md              # This file
+├── manifest.json              # Extension configuration (Manifest V3)
+├── README.md                  # This file
+├── PRIVACY_POLICY.md          # Privacy policy
+├── STORE_LISTING.md           # Chrome Web Store listing
+│
+├── src/                       # Source code
+│   ├── background/
+│   │   └── index.js           # Service worker for message relay
+│   ├── content/
+│   │   └── index.js           # Main automation logic
+│   ├── popup/
+│   │   ├── popup.html         # 3-tab UI (Ana/Filtreler/İstatistikler)
+│   │   ├── popup.js           # UI controller and handlers
+│   │   └── popup.css          # CSS with dark mode support
+│   └── shared/
+│       ├── constants.js       # Centralized configuration
+│       └── i18n.js            # Internationalization module
+│
+├── assets/                    # Static assets
+│   └── icons/
+│       ├── icon16.png
+│       ├── icon48.png
+│       └── icon128.png
+│
+├── vendor/                    # Third-party libraries
+│   ├── chartist.min.js        # Chart library
+│   └── chartist.min.css       # Chart styles
+│
+└── locales/                   # Language files
+    ├── tr.json                # Turkish translations
+    └── en.json                # English translations
 ```
 
 ### Güvenlik Önlemleri
@@ -126,8 +138,7 @@ Bu proje kişisel kullanım içindir. Ticari kullanım için iletişime geçin.
 ## 🐛 Bilinen Sorunlar
 
 - Twitter/X sayfa yapısı değişirse selektörler güncellenmelidir
-- Virtual scrolling bazen tüm kullanıcıları yüklemeyebilir
-- Rate limit durumunda manuel bekleme gerekir
+- Rate limit durumunda 15 dakika otomatik bekleme yapılır
 
 ## 📞 Destek
 
