@@ -1,4 +1,4 @@
-# Twitter/X Auto Unfollow - Chrome Extension
+# X Unfollow Radar - Chrome Extension
 
 Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chrome eklentisi.
 
@@ -86,7 +86,7 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 
 ### Dosya Yapısı
 ```
-twitter-unfollow-extension/
+x_unfollow_radar/
 ├── manifest.json              # Extension configuration (Manifest V3)
 ├── README.md                  # This file
 ├── PRIVACY_POLICY.md          # Privacy policy

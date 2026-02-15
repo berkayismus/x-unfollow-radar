@@ -1,5 +1,5 @@
 /**
- * @fileoverview Internationalization module for Twitter Auto Unfollow Extension
+ * @fileoverview Internationalization module for X Unfollow Radar Extension
  * @description Handles loading and applying translations for multiple languages
  * @version 2.0.0
  */

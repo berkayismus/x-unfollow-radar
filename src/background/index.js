@@ -1,14 +1,14 @@
 /**
- * @fileoverview Twitter Auto Unfollow - Background Service Worker
+ * @fileoverview X Unfollow Radar - Background Service Worker
  * @description Handles message relay between content script and popup
  * @version 2.0.0
  */
 
 /**
- * Twitter Unfollow Background Module
- * @namespace TwitterUnfollowBackground
+ * X Unfollow Radar Background Module
+ * @namespace XUnfollowRadarBackground
  */
-const TwitterUnfollowBackground = (function () {
+const XUnfollowRadarBackground = (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════════
@@ -101,4 +101,4 @@ const TwitterUnfollowBackground = (function () {
 })();
 
 // Auto-initialize
-TwitterUnfollowBackground.init();
+XUnfollowRadarBackground.init();

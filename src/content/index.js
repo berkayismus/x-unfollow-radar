@@ -1,14 +1,14 @@
 /**
- * @fileoverview Twitter/X Auto Unfollow - Content Script
- * @description Handles the automatic unfollowing of non-followers on Twitter/X
+ * @fileoverview X Unfollow Radar - Content Script
+ * @description Handles the automatic unfollowing of non-followers on X
  * @version 2.0.0
  */
 
 /**
- * Twitter Unfollow Content Script Module
- * @namespace TwitterUnfollowContent
+ * X Unfollow Radar Content Script Module
+ * @namespace XUnfollowRadarContent
  */
-const TwitterUnfollowContent = (function () {
+const XUnfollowRadarContent = (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════════
@@ -766,4 +766,4 @@ const TwitterUnfollowContent = (function () {
 })();
 
 // Auto-initialize
-TwitterUnfollowContent.init();
+XUnfollowRadarContent.init();

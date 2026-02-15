@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Twitter/X Auto Unfollow",
+    "name": "X Unfollow Radar",
     "version": "2.0.0",
     "description": "Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkarır",
     "permissions": [

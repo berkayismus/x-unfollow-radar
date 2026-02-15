@@ -1,14 +1,14 @@
 /**
- * @fileoverview Twitter Auto Unfollow - Popup Script
+ * @fileoverview X Unfollow Radar - Popup Script
  * @description Handles the popup UI, user interactions, and communication with content script
  * @version 2.0.0
  */
 
 /**
- * Twitter Unfollow Popup Module
- * @namespace TwitterUnfollowPopup
+ * X Unfollow Radar Popup Module
+ * @namespace XUnfollowRadarPopup
  */
-const TwitterUnfollowPopup = (function () {
+const XUnfollowRadarPopup = (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════════
@@ -741,7 +741,7 @@ const TwitterUnfollowPopup = (function () {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `twitter-unfollow-history-${Date.now()}.csv`;
+        link.download = `x-unfollow-radar-history-${Date.now()}.csv`;
         link.click();
         URL.revokeObjectURL(url);
     }
@@ -1231,5 +1231,5 @@ const TwitterUnfollowPopup = (function () {
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    TwitterUnfollowPopup.init();
+    XUnfollowRadarPopup.init();
 });
