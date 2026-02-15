@@ -149,3 +149,5 @@ Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
 ---
 
 **⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
+
+*Son güncelleme: Şubat 2025*
