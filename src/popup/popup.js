@@ -998,6 +998,12 @@ const XUnfollowRadarPopup = (function () {
             case Constants.STATUS.READY:
                 updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
                 break;
+            case Constants.STATUS.IDLE:
+                isRunning = false;
+                elements.startBtn.style.display = 'block';
+                elements.stopBtn.style.display = 'none';
+                updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
+                break;
         }
 
         loadStats();
@@ -1210,12 +1216,24 @@ const XUnfollowRadarPopup = (function () {
         // Apply ARIA labels
         applyAriaLabels();
 
-        // Check if content script is loaded
+        // Check if content script is loaded and sync button state
         try {
-            await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.GET_STATUS });
+            const response = await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.GET_STATUS });
+            if (response && response.isRunning) {
+                isRunning = true;
+                elements.startBtn.style.display = 'none';
+                elements.stopBtn.style.display = 'block';
+            } else {
+                isRunning = false;
+                elements.startBtn.style.display = 'block';
+                elements.stopBtn.style.display = 'none';
+            }
             updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
         } catch (error) {
             console.log('Content script not loaded yet');
+            isRunning = false;
+            elements.startBtn.style.display = 'block';
+            elements.stopBtn.style.display = 'none';
             updateStatus('ready', `⚠️ ${I18n.t('status.ready')}`);
         }
     }

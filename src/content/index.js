@@ -428,6 +428,16 @@ const XUnfollowRadarContent = (function () {
         return userCellsCount;
     }
 
+    /**
+     * Checks if the page scroll is at the bottom (with small threshold)
+     * @returns {boolean}
+     */
+    function isScrollAtBottom() {
+        const el = document.documentElement;
+        const threshold = 150;
+        return (el.scrollTop + el.clientHeight) >= (el.scrollHeight - threshold);
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Main Loop
     // ═══════════════════════════════════════════════════════════════
@@ -444,6 +454,11 @@ const XUnfollowRadarContent = (function () {
         sendStatus(Constants.STATUS.STARTED);
 
         let consecutiveEmptyScans = 0;
+        /** Persist across iterations so we detect when scroll no longer loads new users */
+        let lastUserCellCount = 0;
+        let sameCountStreak = 0;
+        /** Track how many times we've been at scroll bottom with no new users */
+        let atBottomStreak = 0;
 
         while (isRunning) {
             if (isPaused) {
@@ -499,9 +514,6 @@ const XUnfollowRadarContent = (function () {
             if (!isRunning || isPaused) continue;
 
             // Scroll to load more users
-            let lastUserCellCount = 0;
-            let sameCountStreak = 0;
-
             const currentUserCellCount = await autoScroll();
 
             if (currentUserCellCount === lastUserCellCount) {
@@ -513,9 +525,18 @@ const XUnfollowRadarContent = (function () {
                 lastUserCellCount = currentUserCellCount;
             }
 
-            // Check if we should stop (no new users loading)
-            if (sameCountStreak >= Constants.LIMITS.MAX_SAME_COUNT_STREAK ||
-                consecutiveEmptyScans >= Constants.LIMITS.MAX_EMPTY_SCANS) {
+            // If we're at scroll bottom and count didn't increase, count it
+            if (isScrollAtBottom() && currentUserCellCount <= lastUserCellCount) {
+                atBottomStreak++;
+            } else {
+                atBottomStreak = 0;
+            }
+
+            // Check if we should stop (no new users loading, or explicitly at bottom)
+            const noNewUsers = sameCountStreak >= Constants.LIMITS.MAX_SAME_COUNT_STREAK ||
+                consecutiveEmptyScans >= Constants.LIMITS.MAX_EMPTY_SCANS;
+            const atBottomNoGrowth = atBottomStreak >= 2;
+            if (noNewUsers || atBottomNoGrowth) {
                 // One final scan after last scroll
                 scanUsers();
 
@@ -669,7 +690,7 @@ const XUnfollowRadarContent = (function () {
 
                 case Constants.ACTIONS.GET_STATUS:
                     sendStatus(Constants.STATUS.IDLE);
-                    sendResponse({ success: true });
+                    sendResponse({ success: true, isRunning });
                     break;
 
                 case Constants.ACTIONS.UPDATE_KEYWORDS:
