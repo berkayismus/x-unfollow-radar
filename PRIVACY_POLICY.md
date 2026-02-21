@@ -1,6 +1,6 @@
-# Privacy Policy - Twitter/X Auto Unfollow Extension
+# Privacy Policy - X Unfollow Radar
 
-**Last updated: December 27, 2025**
+**Last updated: February 2025**
 
 ## Data Collection
 
@@ -65,8 +65,8 @@ We may update this privacy policy from time to time. Any changes will be reflect
 
 For questions about this privacy policy, please contact:
 
-- **Email**: [Your email here]
-- **GitHub**: [Your GitHub repository]
+- **GitHub**: https://github.com/berkayismus/x-unfollow-radar (open an Issue for support)
+- **Chrome Web Store**: Use the support email listed on the extension's store listing
 
 ## Compliance
 
