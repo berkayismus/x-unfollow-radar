@@ -1,54 +1,53 @@
 {
-    "manifest_version": 3,
-    "name": "X Unfollow Radar",
-    "version": "2.0.0",
-    "description": "Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkarır",
-    "permissions": [
-        "storage",
-        "activeTab",
-        "scripting"
-    ],
-    "host_permissions": [
-        "https://twitter.com/*",
-        "https://x.com/*"
-    ],
-    "icons": {
-        "16": "assets/icons/icon16.png",
-        "48": "assets/icons/icon48.png",
-        "128": "assets/icons/icon128.png"
-    },
-    "action": {
-        "default_popup": "src/popup/popup.html",
-        "default_icon": {
-            "16": "assets/icons/icon16.png",
-            "48": "assets/icons/icon48.png",
-            "128": "assets/icons/icon128.png"
-        }
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://twitter.com/*/following",
-                "https://x.com/*/following"
-            ],
-            "js": [
-                "src/shared/constants.js",
-                "src/content/index.js"
-            ],
-            "run_at": "document_idle"
-        }
-    ],
-    "background": {
-        "service_worker": "src/background/index.js"
-    },
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "locales/*.json"
-            ],
-            "matches": [
-                "<all_urls>"
-            ]
-        }
-    ]
+  "manifest_version": 3,
+  "name": "X Unfollow Radar",
+  "version": "2.0.1",
+  "description": "Seni takip etmeyen kullan\u0131c\u0131lar\u0131 otomatik tespit edip takipten \u00e7\u0131kar\u0131r",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://twitter.com/*",
+    "https://x.com/*"
+  ],
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://twitter.com/*/following",
+        "https://x.com/*/following"
+      ],
+      "js": [
+        "src/shared/constants.js",
+        "src/content/index.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "src/background/index.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "locales/*.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }
