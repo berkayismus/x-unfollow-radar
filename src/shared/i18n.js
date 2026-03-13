@@ -22,7 +22,7 @@ const I18n = (function () {
     let translations = {};
 
     /** @type {string[]} List of supported locale codes */
-    const supportedLocales = ['tr', 'en'];
+    const supportedLocales = ['tr', 'en', 'de'];
 
     /** @type {Object<string, Object>} Cache for loaded translations */
     const translationCache = {};
@@ -129,7 +129,7 @@ const I18n = (function () {
      * Fallback order:
      * 1) navigator.languages / navigator.language
      * 2) 'en' (if nothing detected)
-     * Returns 'tr' if browser dili Türkçe ise, aksi halde 'en'.
+     * Returns 'tr' if browser dili Türkçe, 'de' ise Almanca, aksi halde 'en'.
      * @returns {string}
      */
     function detectBrowserLocale() {
@@ -151,11 +151,10 @@ const I18n = (function () {
             }
 
             const lower = lang.toLowerCase();
-            if (lower.startsWith('tr')) {
-                return 'tr';
-            }
+            if (lower.startsWith('tr')) return 'tr';
+            if (lower.startsWith('de')) return 'de';
 
-            // Şimdilik TR dışındaki tüm diller için EN
+            // Diğer tüm diller için EN
             return 'en';
         } catch (error) {
             console.warn('Failed to detect browser locale, falling back to EN:', error);

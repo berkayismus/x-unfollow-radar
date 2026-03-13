@@ -1,0 +1,125 @@
+{
+    "app": {
+        "title": "X Unfollow Radar",
+        "subtitle": "Finde und entfolge automatisch Nicht-Zurückfolger"
+    },
+    "tabs": {
+        "main": "Übersicht",
+        "filters": "Filter",
+        "stats": "Statistiken"
+    },
+    "stats": {
+        "dailyLimit": "24‑Stunden‑Limit",
+        "totalUnfollowed": "Insgesamt entfolgt"
+    },
+    "status": {
+        "ready": "Bereit",
+        "scanning": "Scanne",
+        "processing": "Verarbeite",
+        "paused": "Pausiert",
+        "stopped": "Gestoppt",
+        "reset": "Zurücksetzen abgeschlossen",
+        "completed": "Abgeschlossen"
+    },
+    "alerts": {
+        "batchComplete": "Batch abgeschlossen",
+        "batchCompleteDesc": "50 Benutzer wurden entfolgt. Möchtest du fortfahren?",
+        "rateLimit": "Rate-Limit!",
+        "rateLimitDesc": "Du hast das Twitter-Rate-Limit erreicht.",
+        "dailyLimitReached": "24‑Stunden‑Limit erreicht",
+        "dailyLimitDesc": "Du hast in den letzten 24 Stunden 100 Benutzern entfolgt. Bitte warte 24 Stunden für eine neue Sitzung."
+    },
+    "buttons": {
+        "start": "Start",
+        "stop": "Stopp",
+        "continue": "Weiter (50 mehr)",
+        "undo": "Rückgängig",
+        "reset": "Zurücksetzen",
+        "add": "Hinzufügen",
+        "exportCsv": "CSV exportieren"
+    },
+    "controls": {
+        "dryRunMode": "Dry‑Run‑Modus (Test)"
+    },
+    "filters": {
+        "keywordsTitle": "Schlüsselwörter",
+        "keywordsDesc": "Benutzer, die diese Wörter enthalten, werden übersprungen",
+        "keywordsPlaceholder": "z. B. crypto, nft, bot",
+        "whitelistTitle": "Whitelist",
+        "whitelistDesc": "Diese Benutzer werden niemals entfolgt",
+        "whitelistPlaceholder": "@benutzername"
+    },
+    "statsTab": {
+        "last30Days": "Letzte 30 Tage"
+    },
+    "userList": {
+        "title": "Verarbeitete Benutzer",
+        "undoBtn": "Rückgängig",
+        "addToWhitelist": "Zur Whitelist hinzufügen",
+        "addedToWhitelist": "Zur Whitelist hinzugefügt"
+    },
+    "info": {
+        "lastRun": "Letzter Lauf"
+    },
+    "warning": {
+        "title": "Hinweis:",
+        "item1": "Funktioniert nur auf der \"Following\"‑Seite",
+        "item2": "Arbeitet mit 2–5 Sekunden Verzögerung",
+        "item3": "Hält nach den ersten 50 Benutzern zur Bestätigung an",
+        "item4": "Maximal 100 Benutzer pro 24 Stunden",
+        "item5": "Limit wird nach 24 Stunden automatisch zurückgesetzt"
+    },
+    "messages": {
+        "confirmReset": "Alle Statistiken werden zurückgesetzt. Bist du sicher?",
+        "confirmReload": "Die Erweiterung ist noch nicht geladen. Seite neu laden?",
+        "noUndoAction": "Keine Aktion zum Rückgängig machen",
+        "undoFailed": "Rückgängig fehlgeschlagen",
+        "undoFailedDetail": "Rückgängig fehlgeschlagen. Stelle sicher, dass die Seite geöffnet ist und du auf der \"Following\"‑Seite bist.",
+        "noHistory": "Noch kein Verlauf",
+        "undone": "Rückgängig gemacht",
+        "addedToWhitelist": "Zur Whitelist hinzugefügt",
+        "dryRunActive": "Dry‑Run‑Modus aktiv",
+        "normalMode": "Normaler Modus",
+        "notOnTwitter": "Du befindest dich nicht auf Twitter/X",
+        "goToFollowing": "Zur Following‑Seite wechseln",
+        "pageReloaded": "Seite neu geladen – versuche es erneut",
+        "startFailed": "Start fehlgeschlagen – Seite neu laden"
+    },
+    "theme": {
+        "toggle": "Theme wechseln"
+    },
+    "language": {
+        "toggle": "Sprache ändern",
+        "current": "DE"
+    },
+    "aria": {
+        "startButton": "Automatisches Entfolgen starten",
+        "stopButton": "Automatisches Entfolgen stoppen",
+        "continueButton": "Weiter 50 weitere Benutzer entfolgen",
+        "resetButton": "Alle Statistiken zurücksetzen",
+        "undoButton": "{count} Aktionen können rückgängig gemacht werden",
+        "themeToggle": "Theme umschalten (hell/dunkel)",
+        "languageToggle": "Sprache ändern",
+        "exportButton": "Entfolge‑Verlauf als CSV exportieren",
+        "exportCsvButton": "Statistiken als CSV‑Datei exportieren",
+        "keywordInput": "Schlüsselwort zum Überspringen eingeben",
+        "whitelistInput": "Benutzernamen zum Schützen eingeben",
+        "addKeywordButton": "Schlüsselwort zur Überspring‑Liste hinzufügen",
+        "addWhitelistButton": "Benutzer zur Schutzliste hinzufügen",
+        "removeKeyword": "Schlüsselwort {keyword} entfernen",
+        "removeWhitelist": "@{username} aus der Schutzliste entfernen",
+        "undoUser": "Entfolgen für @{username} rückgängig machen",
+        "whitelistUser": "@{username} zur Schutzliste hinzufügen",
+        "tabMain": "Übersichts‑Tab",
+        "tabFilters": "Filter‑Tab",
+        "tabStats": "Statistik‑Tab",
+        "statusReady": "Bereit",
+        "statusProcessing": "Verarbeite",
+        "statusStopped": "Gestoppt",
+        "userListRegion": "Liste der verarbeiteten Benutzer",
+        "rateLimitCountdown": "automatisch fortsetzen in",
+        "found": "gefunden",
+        "chartDescription": "Diagramm mit der Anzahl der entfolgten Benutzer in den letzten 30 Tagen"
+    }
+}
+
