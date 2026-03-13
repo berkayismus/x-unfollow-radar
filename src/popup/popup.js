@@ -86,8 +86,10 @@ const XUnfollowRadarPopup = (function () {
             // Theme
             themeToggle: document.getElementById('themeToggle'),
 
-            // Language
-            langToggle: document.getElementById('langToggle')
+            // Language dropdown
+            langToggle: document.getElementById('langToggle'),
+            langMenu: document.getElementById('langMenu'),
+            langOptions: document.querySelectorAll('.lang-option')
         };
     }
 
@@ -667,13 +669,56 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles language toggle
-     * @async
-     * @returns {Promise<void>}
+     * Handles language dropdown button click (open/close menu)
+     * @param {MouseEvent} e
      */
-    async function handleLanguageToggle() {
-        await I18n.toggleLocale();
+    function handleLanguageToggle(e) {
+        e.stopPropagation();
+        if (!elements.langMenu) return;
+        const isHidden = elements.langMenu.hasAttribute('hidden');
+        if (isHidden) {
+            elements.langMenu.removeAttribute('hidden');
+            elements.langToggle.setAttribute('aria-expanded', 'true');
+        } else {
+            elements.langMenu.setAttribute('hidden', '');
+            elements.langToggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    /**
+     * Handles selecting a specific locale from dropdown
+     * @param {MouseEvent} e
+     */
+    async function handleLanguageSelect(e) {
+        const btn = e.currentTarget;
+        const locale = btn?.dataset?.locale;
+        if (!locale) return;
+
+        await I18n.setLocale(locale);
         applyAriaLabels();
+
+        if (elements.langMenu) {
+            elements.langMenu.setAttribute('hidden', '');
+        }
+        if (elements.langToggle) {
+            elements.langToggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    /**
+     * Closes language dropdown when clicking outside
+     * @param {MouseEvent} e
+     */
+    function handleDocumentClick(e) {
+        if (!elements.langMenu || !elements.langToggle) return;
+        if (elements.langMenu.hasAttribute('hidden')) return;
+
+        const target = e.target;
+        if (target === elements.langToggle || elements.langMenu.contains(target)) {
+            return;
+        }
+        elements.langMenu.setAttribute('hidden', '');
+        elements.langToggle.setAttribute('aria-expanded', 'false');
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1164,6 +1209,11 @@ const XUnfollowRadarPopup = (function () {
 
         // Language
         elements.langToggle.addEventListener('click', handleLanguageToggle);
+        elements.langOptions.forEach(option => {
+            option.addEventListener('click', handleLanguageSelect);
+        });
+
+        document.addEventListener('click', handleDocumentClick);
 
         // Listen for messages from content script
         chrome.runtime.onMessage.addListener(handleMessage);

@@ -92,7 +92,11 @@ h1 {
     align-items: center;
 }
 
-#langToggle {
+.lang-dropdown {
+    position: relative;
+}
+
+.lang-toggle {
     background: var(--surface-bg);
     border: 1px solid var(--border-color);
     padding: 6px 10px;
@@ -102,12 +106,51 @@ h1 {
     font-weight: 600;
     color: var(--text-primary);
     transition: all 0.3s ease;
+    min-width: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#langToggle:hover {
+.lang-toggle::after {
+    content: '▾';
+    font-size: 9px;
+    margin-left: 4px;
+}
+
+.lang-toggle:hover {
     background: var(--primary-color);
     color: #ffffff;
     border-color: var(--primary-color);
+}
+
+.lang-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--container-bg);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px var(--shadow);
+    border: 1px solid var(--border-color);
+    padding: 4px;
+    min-width: 80px;
+    z-index: 20;
+}
+
+.lang-option {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.lang-option:hover {
+    background: var(--surface-bg);
 }
 
 .tabs {
