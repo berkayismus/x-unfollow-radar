@@ -125,19 +125,62 @@ const I18n = (function () {
     // ═══════════════════════════════════════════════════════════════
 
     /**
+     * Detects the best locale based on browser language.
+     * Fallback order:
+     * 1) navigator.languages / navigator.language
+     * 2) 'en' (if nothing detected)
+     * Returns 'tr' if browser dili Türkçe ise, aksi halde 'en'.
+     * @returns {string}
+     */
+    function detectBrowserLocale() {
+        try {
+            const nav = typeof navigator !== 'undefined' ? navigator : null;
+            let lang = null;
+
+            if (nav?.languages && Array.isArray(nav.languages) && nav.languages.length > 0) {
+                lang = nav.languages[0];
+            } else if (nav?.language) {
+                lang = nav.language;
+            } else if (nav?.userLanguage) {
+                lang = nav.userLanguage;
+            }
+
+            if (!lang || typeof lang !== 'string' || !lang.trim()) {
+                // Tarayıcı dili boş ise İngilizce varsay
+                return 'en';
+            }
+
+            const lower = lang.toLowerCase();
+            if (lower.startsWith('tr')) {
+                return 'tr';
+            }
+
+            // Şimdilik TR dışındaki tüm diller için EN
+            return 'en';
+        } catch (error) {
+            console.warn('Failed to detect browser locale, falling back to EN:', error);
+            return 'en';
+        }
+    }
+
+    /**
      * Initializes the i18n system
      * @async
      * @returns {Promise<string>} The current locale after initialization
      */
     async function init() {
-        // Load saved language preference
+        // Load saved language preference (if any)
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.LANGUAGE]);
-        currentLocale = data[Constants.STORAGE_KEYS.LANGUAGE] || 'tr';
+        const savedLocale = data[Constants.STORAGE_KEYS.LANGUAGE];
 
-        // Validate locale
-        if (!supportedLocales.includes(currentLocale)) {
-            console.warn(`Unsupported locale: ${currentLocale}, falling back to Turkish`);
-            currentLocale = 'tr';
+        if (savedLocale && supportedLocales.includes(savedLocale)) {
+            currentLocale = savedLocale;
+        } else {
+            // No saved locale or unsupported: detect from browser language
+            const detected = detectBrowserLocale();
+            currentLocale = supportedLocales.includes(detected) ? detected : 'en';
+            // Persist detected locale so sonraki açılışlarda aynı kalsın
+            await chrome.storage.local.set({ [Constants.STORAGE_KEYS.LANGUAGE]: currentLocale });
         }
 
         // Load translations for current locale
