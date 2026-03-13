@@ -117,7 +117,7 @@ h1 {
     border-bottom: 2px solid var(--border-color);
 }
 
-.tab {
+.tab-btn {
     padding: 10px 20px;
     background: transparent;
     border: none;
@@ -127,15 +127,19 @@ h1 {
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
     transition: all 0.3s ease;
+    border-radius: 10px 10px 0 0;
 }
 
-.tab:hover {
+.tab-btn:hover {
     color: var(--primary-color);
+    background: rgba(29, 161, 242, 0.06);
 }
 
-.tab.active {
+.tab-btn.active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);
+    background: #ffffff;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .tab-content {
@@ -586,7 +590,7 @@ h6 {
     box-shadow: 0 0 0 4px rgba(29, 161, 242, 0.3);
 }
 
-.tab:focus-visible {
+.tab-btn:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: -2px;
     background: var(--surface-bg);
