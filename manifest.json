@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Unfollow Radar",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Seni takip etmeyen kullan\u0131c\u0131lar\u0131 otomatik tespit edip takipten \u00e7\u0131kar\u0131r",
   "permissions": [
     "storage",
