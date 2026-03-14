@@ -81,6 +81,7 @@ const XUnfollowRadarPopup = (function () {
 
             // Stats tab
             chartContainer: document.getElementById('chart'),
+            statsEmptyState: document.getElementById('statsEmptyState'),
             exportCsvBtn: document.getElementById('exportCsvBtn'),
 
             // Theme
@@ -243,7 +244,10 @@ const XUnfollowRadarPopup = (function () {
 
         if (lastRun !== '-') {
             const date = new Date(lastRun);
-            elements.lastRun.textContent = date.toLocaleString('tr-TR');
+            const locale = I18n.getLocale?.() || 'en';
+            elements.lastRun.textContent = date.toLocaleString(locale);
+        } else {
+            elements.lastRun.textContent = '-';
         }
 
         if (sessionCount >= Constants.LIMITS.MAX_SESSION) {
@@ -744,6 +748,21 @@ const XUnfollowRadarPopup = (function () {
             series.push(stats.daily[dateStr]?.unfollowed || 0);
         }
 
+        const hasAnyData = series.some(v => v > 0);
+        if (elements.statsEmptyState) {
+            elements.statsEmptyState.style.display = hasAnyData ? 'none' : 'block';
+        }
+        if (elements.chartContainer) {
+            elements.chartContainer.style.display = hasAnyData ? 'block' : 'none';
+        }
+        if (elements.exportCsvBtn) {
+            elements.exportCsvBtn.disabled = !hasAnyData;
+        }
+
+        if (!hasAnyData) {
+            return;
+        }
+
         if (chart) {
             chart.update({ labels, series: [series] });
         } else {
@@ -754,7 +773,14 @@ const XUnfollowRadarPopup = (function () {
                 fullWidth: true,
                 chartPadding: { right: 20 },
                 low: 0,
-                showArea: true
+                showArea: true,
+                axisX: {
+                    labelInterpolationFnc: function (value, index) {
+                        // Keep labels readable: show roughly weekly ticks
+                        const step = 7;
+                        return index % step === 0 ? value : null;
+                    }
+                }
             });
         }
     }
@@ -1138,7 +1164,7 @@ const XUnfollowRadarPopup = (function () {
 
         // Export button
         if (elements.exportCsvBtn) {
-            elements.exportCsvBtn.setAttribute('aria-label', I18n.t('aria.exportButton'));
+            elements.exportCsvBtn.setAttribute('aria-label', I18n.t('aria.exportCsvButton'));
         }
 
         // Keyword input

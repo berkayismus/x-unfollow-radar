@@ -1,7 +1,12 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Finde und entfolge automatisch Nicht-Zurückfolger"
+        "subtitle": "Finde Nicht‑Zurückfolger und entfolge sicher"
+    },
+    "trust": {
+        "worksOnFollowing": "Funktioniert auf „Following“",
+        "rateLimitSafe": "Rate‑Limit‑sicher",
+        "dryRun": "Dry‑Run"
     },
     "tabs": {
         "main": "Übersicht",
@@ -30,16 +35,19 @@
         "dailyLimitDesc": "Du hast in den letzten 24 Stunden 100 Benutzern entfolgt. Bitte warte 24 Stunden für eine neue Sitzung."
     },
     "buttons": {
-        "start": "Start",
+        "start": "Entfolgen starten",
         "stop": "Stopp",
         "continue": "Weiter (50 mehr)",
         "undo": "Rückgängig",
         "reset": "Zurücksetzen",
         "add": "Hinzufügen",
+        "addKeyword": "Wort hinzufügen",
+        "addUser": "Benutzer hinzufügen",
         "exportCsv": "CSV exportieren"
     },
     "controls": {
-        "dryRunMode": "Dry‑Run‑Modus (Test)"
+        "dryRunMode": "Dry‑Run (ohne Entfolgen)",
+        "dryRunDesc": "Simuliert das Entfolgen, ohne Änderungen vorzunehmen"
     },
     "filters": {
         "keywordsTitle": "Schlüsselwörter",
@@ -50,7 +58,10 @@
         "whitelistPlaceholder": "@benutzername"
     },
     "statsTab": {
-        "last30Days": "Letzte 30 Tage"
+        "last30Days": "Letzte 30 Tage",
+        "emptyTitle": "Noch keine Statistiken",
+        "emptyDesc": "Führe es einmal aus, um das Diagramm zu sehen.",
+        "exportHint": "Lade deinen Entfolge‑Verlauf als CSV herunter."
     },
     "userList": {
         "title": "Verarbeitete Benutzer",
@@ -68,6 +79,14 @@
         "item3": "Hält nach den ersten 50 Benutzern zur Bestätigung an",
         "item4": "Maximal 100 Benutzer pro 24 Stunden",
         "item5": "Limit wird nach 24 Stunden automatisch zurückgesetzt"
+    },
+    "footer": {
+        "requirementsTitle": "Voraussetzungen",
+        "requirement1": "Öffne X → Following‑Seite",
+        "safetyTitle": "Sicherheit",
+        "safety1": "2–5s Verzögerung zwischen Aktionen",
+        "safety2": "Bestätigung nach den ersten 50 Benutzern",
+        "safety3": "Max. 100 Benutzer pro 24 Stunden"
     },
     "messages": {
         "confirmReset": "Alle Statistiken werden zurückgesetzt. Bist du sicher?",

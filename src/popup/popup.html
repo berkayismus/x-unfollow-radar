@@ -33,6 +33,11 @@
                 </div>
             </div>
             <p class="subtitle" data-i18n="app.subtitle">Seni takip etmeyenleri otomatik bul ve takipten çık</p>
+            <div class="trust-row" role="note" aria-label="Product highlights">
+                <span class="trust-pill" data-i18n="trust.worksOnFollowing">Works on Following</span>
+                <span class="trust-pill" data-i18n="trust.rateLimitSafe">Rate-limit safe</span>
+                <span class="trust-pill" data-i18n="trust.dryRun">Dry run</span>
+            </div>
         </header>
 
         <!-- Tabs -->
@@ -61,7 +66,7 @@
 
             <!-- Status Bar -->
             <div class="status-bar" role="status" aria-live="polite">
-                <span class="status-indicator" id="statusIndicator" aria-hidden="true">●</span>
+                <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
                 <span id="statusText" data-i18n="status.ready">Hazır</span>
             </div>
 
@@ -89,15 +94,19 @@
                     saat beklemeniz gerekiyor.</p>
             </div>
 
-            <!-- Controls -->
+            <!-- Controls: Dry run + Reset on same row -->
             <div class="control-row">
                 <label class="checkbox-container">
                     <input type="checkbox" id="dryRunMode" aria-describedby="dryrun-desc">
                     <span data-i18n="controls.dryRunMode">Dry Run Mode (Test)</span>
                 </label>
-                <span id="dryrun-desc" class="sr-only">When enabled, simulates unfollowing without making changes</span>
+                <span id="dryrun-desc" class="sr-only" data-i18n="controls.dryRunDesc">When enabled, simulates unfollowing without making changes</span>
+                <button id="resetBtn" class="btn btn-ghost" type="button" data-i18n-aria="aria.resetButton">
+                    <span data-i18n="buttons.reset">Sıfırla</span>
+                </button>
             </div>
 
+            <!-- Primary action — full width -->
             <div class="controls" role="group" aria-label="Main controls">
                 <button id="startBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.startButton">▶ <span
                         data-i18n="buttons.start">Başlat</span></button>
@@ -105,12 +114,11 @@
                     data-i18n-aria="aria.stopButton">■ <span data-i18n="buttons.stop">Durdur</span></button>
             </div>
 
-            <div class="control-row" role="group" aria-label="Secondary controls">
-                <button id="undoBtn" class="btn btn-secondary" style="display: none;" type="button"
+            <!-- Undo — full width, only shown when items available -->
+            <div class="controls-undo">
+                <button id="undoBtn" class="btn" style="display: none;" type="button"
                     data-i18n-aria="aria.undoButton">↶ <span data-i18n="buttons.undo">Geri Al</span> (<span
                         id="undoCount" aria-hidden="true">0</span>)</button>
-                <button id="resetBtn" class="btn btn-secondary" type="button" data-i18n-aria="aria.resetButton">🔄 <span
-                        data-i18n="buttons.reset">Sıfırla</span></button>
             </div>
 
             <!-- Real-time User List -->
@@ -135,7 +143,7 @@
                     <input type="text" id="keywordInput" data-i18n-placeholder="filters.keywordsPlaceholder"
                         data-i18n-aria="aria.keywordInput" placeholder="Örn: crypto, nft, bot">
                     <button id="addKeywordBtn" class="btn btn-primary" type="button"
-                        data-i18n="buttons.add">Ekle</button>
+                        data-i18n="buttons.addKeyword">Ekle</button>
                 </div>
                 <ul class="filter-list" id="keywordList" role="list" aria-label="Keyword filter list"></ul>
             </section>
@@ -149,7 +157,7 @@
                     <input type="text" id="whitelistInput" data-i18n-placeholder="filters.whitelistPlaceholder"
                         data-i18n-aria="aria.whitelistInput" placeholder="@kullaniciadi">
                     <button id="addWhitelistBtn" class="btn btn-primary" type="button"
-                        data-i18n="buttons.add">Ekle</button>
+                        data-i18n="buttons.addUser">Ekle</button>
                 </div>
                 <ul class="filter-list" id="whitelistList" role="list" aria-label="Whitelist"></ul>
             </section>
@@ -159,24 +167,34 @@
         <div class="tab-content" id="stats-tab" role="tabpanel" aria-labelledby="statsTabBtn" hidden>
             <section class="stats-section" aria-labelledby="statsTitle">
                 <h3 id="statsTitle">📊 <span data-i18n="statsTab.last30Days">Son 30 Gün</span></h3>
-                <div class="ct-chart" id="chart" role="img" aria-label="Unfollow statistics chart for last 30 days">
+                <div id="statsEmptyState" class="empty-state" style="display:none;" role="note" aria-live="polite">
+                    <p class="empty-title" data-i18n="statsTab.emptyTitle">No stats yet</p>
+                    <p class="empty-desc" data-i18n="statsTab.emptyDesc">Run once to see your last 30 days chart.</p>
                 </div>
+                <div class="ct-chart" id="chart" role="img" aria-label="Unfollow statistics chart for last 30 days"></div>
                 <button id="exportCsvBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.exportCsvButton">📥
                     <span data-i18n="buttons.exportCsv">CSV
                         İndir</span></button>
+                <p class="hint" data-i18n="statsTab.exportHint">Download your unfollow history as CSV.</p>
             </section>
         </div>
 
-        <!-- Footer Warning -->
-        <aside class="warning" role="note" aria-labelledby="warningTitle">
-            <p><strong id="warningTitle">⚠️ <span data-i18n="warning.title">Uyarı:</span></strong></p>
-            <ul>
-                <li data-i18n="warning.item1">Sadece "Following" sayfasında çalışır</li>
-                <li data-i18n="warning.item2">2-5 saniye gecikme ile çalışır</li>
-                <li data-i18n="warning.item3">İlk 50 kişide durup onay ister</li>
-                <li data-i18n="warning.item4">24 saatte maksimum 100 kişi limiti</li>
-                <li data-i18n="warning.item5">24 saat sonra limit otomatik sıfırlanır</li>
-            </ul>
+        <!-- Footer Info -->
+        <aside class="footer-info" role="note" aria-label="Requirements and safety">
+            <div class="info-card">
+                <p class="info-title">✅ <span data-i18n="footer.requirementsTitle">Requirements</span></p>
+                <ul>
+                    <li data-i18n="footer.requirement1">Open X → Following page</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <p class="info-title">🛡️ <span data-i18n="footer.safetyTitle">Safety</span></p>
+                <ul>
+                    <li data-i18n="footer.safety1">2–5s delay between actions</li>
+                    <li data-i18n="footer.safety2">Confirmation after first 50 users</li>
+                    <li data-i18n="footer.safety3">Max 100 users per 24 hours</li>
+                </ul>
+            </div>
         </aside>
     </div>
 

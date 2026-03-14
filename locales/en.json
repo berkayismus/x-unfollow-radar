@@ -1,7 +1,12 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Automatically find and unfollow non-followers"
+        "subtitle": "Find non-followers and unfollow safely"
+    },
+    "trust": {
+        "worksOnFollowing": "Works on Following",
+        "rateLimitSafe": "Rate-limit safe",
+        "dryRun": "Dry run"
     },
     "tabs": {
         "main": "Main",
@@ -30,16 +35,19 @@
         "dailyLimitDesc": "You've unfollowed 100 users in the last 24 hours. Please wait 24 hours for a new session."
     },
     "buttons": {
-        "start": "Start",
+        "start": "Start unfollow",
         "stop": "Stop",
         "continue": "Continue (50 more)",
         "undo": "Undo",
         "reset": "Reset",
         "add": "Add",
+        "addKeyword": "Add keyword",
+        "addUser": "Add user",
         "exportCsv": "Export CSV"
     },
     "controls": {
-        "dryRunMode": "Dry Run Mode (Test)"
+        "dryRunMode": "Dry run (no unfollow)",
+        "dryRunDesc": "When enabled, simulates unfollowing without making changes"
     },
     "filters": {
         "keywordsTitle": "Keywords",
@@ -50,7 +58,10 @@
         "whitelistPlaceholder": "@username"
     },
     "statsTab": {
-        "last30Days": "Last 30 Days"
+        "last30Days": "Last 30 Days",
+        "emptyTitle": "No stats yet",
+        "emptyDesc": "Run once to see your last 30 days chart.",
+        "exportHint": "Download your unfollow history as CSV."
     },
     "userList": {
         "title": "Processed Users",
@@ -68,6 +79,14 @@
         "item3": "Pauses after first 50 users for confirmation",
         "item4": "Maximum 100 users per 24 hours",
         "item5": "Limit resets automatically after 24 hours"
+    },
+    "footer": {
+        "requirementsTitle": "Requirements",
+        "requirement1": "Open X → Following page",
+        "safetyTitle": "Safety",
+        "safety1": "2–5s delay between actions",
+        "safety2": "Confirmation after first 50 users",
+        "safety3": "Max 100 users per 24 hours"
     },
     "messages": {
         "confirmReset": "All statistics will be reset. Are you sure?",

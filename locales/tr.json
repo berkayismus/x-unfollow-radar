@@ -1,7 +1,12 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Seni takip etmeyenleri otomatik bul ve takipten çık"
+        "subtitle": "Seni takip etmeyenleri bul ve güvenle takipten çık"
+    },
+    "trust": {
+        "worksOnFollowing": "Following sayfasında çalışır",
+        "rateLimitSafe": "Rate limit güvenli",
+        "dryRun": "Dry run"
     },
     "tabs": {
         "main": "Ana",
@@ -30,16 +35,19 @@
         "dailyLimitDesc": "Son 24 saatte 100 kişiden takipten çıktınız. Yeni oturum için 24 saat beklemeniz gerekiyor."
     },
     "buttons": {
-        "start": "Başlat",
+        "start": "Takipten çıkarmayı başlat",
         "stop": "Durdur",
         "continue": "Devam Et (50 kişi daha)",
         "undo": "Geri Al",
         "reset": "Sıfırla",
         "add": "Ekle",
+        "addKeyword": "Kelime ekle",
+        "addUser": "Kullanıcı ekle",
         "exportCsv": "CSV İndir"
     },
     "controls": {
-        "dryRunMode": "Dry Run Mode (Test)"
+        "dryRunMode": "Dry run (takipten çıkarma yok)",
+        "dryRunDesc": "Açıkken takipten çıkarmayı simüle eder, gerçek değişiklik yapmaz"
     },
     "filters": {
         "keywordsTitle": "Anahtar Kelimeler",
@@ -50,7 +58,10 @@
         "whitelistPlaceholder": "@kullaniciadi"
     },
     "statsTab": {
-        "last30Days": "Son 30 Gün"
+        "last30Days": "Son 30 Gün",
+        "emptyTitle": "Henüz istatistik yok",
+        "emptyDesc": "Grafiği görmek için en az bir kez çalıştırın.",
+        "exportHint": "Takipten çıkma geçmişini CSV olarak indir."
     },
     "userList": {
         "title": "İşlenen Kullanıcılar",
@@ -68,6 +79,14 @@
         "item3": "İlk 50 kişide durup onay ister",
         "item4": "24 saatte maksimum 100 kişi limiti",
         "item5": "24 saat sonra limit otomatik sıfırlanır"
+    },
+    "footer": {
+        "requirementsTitle": "Gereksinimler",
+        "requirement1": "X → Following sayfasını açın",
+        "safetyTitle": "Güvenlik",
+        "safety1": "İşlemler arası 2–5sn gecikme",
+        "safety2": "İlk 50 kullanıcıdan sonra onay",
+        "safety3": "24 saatte en fazla 100 kullanıcı"
     },
     "messages": {
         "confirmReset": "Tüm istatistikler sıfırlanacak. Emin misiniz?",
