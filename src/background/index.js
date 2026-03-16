@@ -1,7 +1,7 @@
 /**
  * @fileoverview X Unfollow Radar - Background Service Worker
- * @description Handles message relay between content script and popup
- * @version 2.0.0
+ * @description Handles message relay between content script and popup, and Gumroad license verification
+ * @version 2.1.0
  */
 
 /**
@@ -12,7 +12,7 @@ const XUnfollowRadarBackground = (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════════
-    // PRIVATE METHODS
+    // PRIVATE METHODS — Message Relay
     // ═══════════════════════════════════════════════════════════════
 
     /**
@@ -31,6 +31,87 @@ const XUnfollowRadarBackground = (function () {
         }
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // PRIVATE METHODS — Gumroad License Verification
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Calls the Gumroad API to verify a license key
+     * @param {string} licenseKey - The license key entered by the user
+     * @returns {Promise<{success: boolean, plan: string|null, error: string|null}>}
+     */
+    async function verifyLicenseWithGumroad(licenseKey) {
+        const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
+        const PRODUCT_PERMALINK = 'YOUR_PRODUCT_PERMALINK';
+
+        try {
+            const body = new URLSearchParams({
+                product_permalink: PRODUCT_PERMALINK,
+                license_key: licenseKey.trim(),
+                increment_uses_count: 'false'
+            });
+
+            const response = await fetch(GUMROAD_VERIFY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            });
+
+            if (!response.ok) {
+                return { success: false, plan: null, error: 'network_error' };
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                return { success: true, plan: 'pro', error: null };
+            }
+
+            return { success: false, plan: null, error: data.message || 'invalid_key' };
+        } catch (error) {
+            console.error('Gumroad verification error:', error);
+            return { success: false, plan: null, error: 'network_error' };
+        }
+    }
+
+    /**
+     * Verifies a license key, stores the result, and responds to the popup
+     * @param {string} licenseKey
+     * @param {function} sendResponse
+     * @returns {Promise<void>}
+     */
+    async function handleVerifyLicense(licenseKey, sendResponse) {
+        const result = await verifyLicenseWithGumroad(licenseKey);
+
+        if (result.success) {
+            await chrome.storage.local.set({
+                plan: result.plan,
+                licenseKey: licenseKey.trim(),
+                licenseActivatedAt: Date.now()
+            });
+        }
+
+        sendResponse(result);
+    }
+
+    /**
+     * Reads the current plan from storage and responds
+     * @param {function} sendResponse
+     * @returns {Promise<void>}
+     */
+    async function handleGetPlan(sendResponse) {
+        const data = await chrome.storage.local.get(['plan', 'licenseKey', 'licenseActivatedAt']);
+        sendResponse({
+            plan: data.plan || 'free',
+            licenseKey: data.licenseKey || null,
+            licenseActivatedAt: data.licenseActivatedAt || null
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PRIVATE METHODS — Message Handler
+    // ═══════════════════════════════════════════════════════════════
+
     /**
      * Handles incoming messages from content script or popup
      * @param {Object} message - The message object
@@ -39,34 +120,41 @@ const XUnfollowRadarBackground = (function () {
      * @returns {boolean} True to indicate async response
      */
     function handleMessage(message, sender, sendResponse) {
-        // Log message for debugging
         console.log('Background received message:', message.type || message.action);
 
         switch (message.type) {
             case 'TEST_COMPLETE':
-                // Relay test completion to popup
                 relayMessage(message);
                 break;
 
             case 'STATUS_UPDATE':
-                // Relay status updates to popup
                 relayMessage(message);
                 break;
 
             case 'RATE_LIMIT_HIT':
-                // Relay rate limit warning to popup
                 relayMessage(message);
                 break;
 
             case 'USER_PROCESSED':
-                // Relay user processed notification to popup
                 relayMessage(message);
                 break;
 
             default:
-                // Unknown message type, log it
-                if (message.type) {
-                    console.log('Unknown message type:', message.type);
+                break;
+        }
+
+        switch (message.action) {
+            case 'VERIFY_LICENSE':
+                handleVerifyLicense(message.licenseKey, sendResponse);
+                return true;
+
+            case 'GET_PLAN':
+                handleGetPlan(sendResponse);
+                return true;
+
+            default:
+                if (message.action) {
+                    console.log('Unknown action:', message.action);
                 }
         }
 
@@ -82,12 +170,8 @@ const XUnfollowRadarBackground = (function () {
      * @returns {void}
      */
     function init() {
-        console.log('🔵 Twitter Auto Unfollow - Background Service Worker initialized');
-
-        // Set up message listener
+        console.log('🔵 X Unfollow Radar - Background Service Worker initialized');
         chrome.runtime.onMessage.addListener(handleMessage);
-
-        // Log when service worker starts
         console.log('✅ Message listener attached');
     }
 

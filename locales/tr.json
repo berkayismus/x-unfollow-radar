@@ -104,6 +104,27 @@
         "pageReloaded": "Sayfa yenilendi - Tekrar deneyin",
         "startFailed": "Başlatılamadı - Sayfayı yenileyin"
     },
+    "pro": {
+        "badge": "PRO",
+        "upgradeTitle": "Pro'ya yükselt",
+        "upgradeDesc": "500/gün limit + CSV dışa aktarma",
+        "upgradeCta": "Aktive Et"
+    },
+    "license": {
+        "sectionTitle": "Pro'yu Aktive Et",
+        "inputPlaceholder": "XXXX-XXXX-XXXX-XXXX",
+        "activate": "Aktive Et",
+        "activating": "Doğrulanıyor…",
+        "success": "Pro lisansı aktive edildi!",
+        "error": "Geçersiz veya kullanılmış lisans anahtarı. Lütfen kontrol edip tekrar deneyin.",
+        "activated": "Pro lisansı aktif",
+        "deactivate": "Kaldır",
+        "alreadyActive": "Pro plan zaten aktif"
+    },
+    "features": {
+        "csvLocked": "Pro özelliği",
+        "csvLockedDesc": "Takipten çıkma geçmişini CSV olarak dışa aktarmak için Pro'ya yükseltin."
+    },
     "theme": {
         "toggle": "Tema Değiştir"
     },

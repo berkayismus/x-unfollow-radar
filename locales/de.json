@@ -104,6 +104,27 @@
         "pageReloaded": "Seite neu geladen – versuche es erneut",
         "startFailed": "Start fehlgeschlagen – Seite neu laden"
     },
+    "pro": {
+        "badge": "PRO",
+        "upgradeTitle": "Auf Pro upgraden",
+        "upgradeDesc": "500/Tag Limit + CSV-Export",
+        "upgradeCta": "Aktivieren"
+    },
+    "license": {
+        "sectionTitle": "Pro aktivieren",
+        "inputPlaceholder": "XXXX-XXXX-XXXX-XXXX",
+        "activate": "Aktivieren",
+        "activating": "Prüfe…",
+        "success": "Pro-Lizenz aktiviert!",
+        "error": "Ungültiger oder bereits verwendeter Lizenzschlüssel. Bitte prüfen und erneut versuchen.",
+        "activated": "Pro-Lizenz ist aktiv",
+        "deactivate": "Entfernen",
+        "alreadyActive": "Pro-Plan ist bereits aktiv"
+    },
+    "features": {
+        "csvLocked": "Pro-Funktion",
+        "csvLockedDesc": "Upgrade auf Pro, um deinen Entfolge-Verlauf als CSV zu exportieren."
+    },
     "theme": {
         "toggle": "Theme wechseln"
     },

@@ -14,7 +14,7 @@
         <!-- Header with Dark Mode Toggle -->
         <header class="header">
             <div class="header-content">
-                <h1>🔴 <span data-i18n="app.title">X Unfollow Radar</span></h1>
+                <h1>🔴 <span data-i18n="app.title">X Unfollow Radar</span> <span id="proBadge" class="pro-badge" style="display:none;" aria-label="Pro plan active">PRO</span></h1>
                 <div class="header-buttons">
                     <div class="lang-dropdown">
                         <button id="langToggle" class="lang-toggle" type="button" role="button"
@@ -68,6 +68,15 @@
             <div class="status-bar" role="status" aria-live="polite">
                 <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
                 <span id="statusText" data-i18n="status.ready">Hazır</span>
+            </div>
+
+            <!-- Upgrade CTA — shown only on free plan -->
+            <div id="upgradeCta" class="upgrade-cta" style="display:none;" role="note">
+                <div class="upgrade-cta-text">
+                    <strong data-i18n="pro.upgradeTitle">Upgrade to Pro</strong>
+                    <span data-i18n="pro.upgradeDesc">500/day limit + CSV export</span>
+                </div>
+                <button id="showLicenseBtn" class="btn btn-upgrade" type="button" data-i18n="pro.upgradeCta">Activate</button>
             </div>
 
             <!-- Alerts -->
@@ -172,12 +181,35 @@
                     <p class="empty-desc" data-i18n="statsTab.emptyDesc">Run once to see your last 30 days chart.</p>
                 </div>
                 <div class="ct-chart" id="chart" role="img" aria-label="Unfollow statistics chart for last 30 days"></div>
-                <button id="exportCsvBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.exportCsvButton">📥
-                    <span data-i18n="buttons.exportCsv">CSV
-                        İndir</span></button>
+                <div class="pro-gate" id="csvProGate">
+                    <button id="exportCsvBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.exportCsvButton">📥
+                        <span data-i18n="buttons.exportCsv">CSV İndir</span></button>
+                    <div id="csvLockOverlay" class="csv-lock-overlay" style="display:none;" role="note" aria-label="Pro feature">
+                        <span class="lock-icon">🔒</span>
+                        <span data-i18n="features.csvLocked">Pro özelliği</span>
+                        <button id="csvUpgradeBtn" class="btn btn-upgrade btn-upgrade-sm" type="button" data-i18n="pro.upgradeCta">Activate</button>
+                    </div>
+                </div>
                 <p class="hint" data-i18n="statsTab.exportHint">Download your unfollow history as CSV.</p>
             </section>
         </div>
+
+        <!-- License Activation Section -->
+        <section id="licenseSection" class="license-section" aria-labelledby="licenseSectionTitle" style="display:none;">
+            <h3 id="licenseSectionTitle" data-i18n="license.sectionTitle">Activate Pro</h3>
+            <div id="licenseActivated" class="license-activated" style="display:none;" role="status" aria-live="polite">
+                ✓ <span data-i18n="license.activated">Pro license is active</span>
+                <button id="deactivateLicenseBtn" class="btn btn-ghost btn-sm" type="button" data-i18n="license.deactivate">Remove</button>
+            </div>
+            <div id="licenseForm">
+                <div class="input-group">
+                    <input type="text" id="licenseKeyInput" data-i18n-placeholder="license.inputPlaceholder"
+                        placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+                    <button id="activateLicenseBtn" class="btn btn-primary" type="button" data-i18n="license.activate">Activate</button>
+                </div>
+                <p id="licenseError" class="license-error" style="display:none;" role="alert" aria-live="assertive"></p>
+            </div>
+        </section>
 
         <!-- Footer Info -->
         <aside class="footer-info" role="note" aria-label="Requirements and safety">

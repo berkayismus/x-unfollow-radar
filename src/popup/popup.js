@@ -33,6 +33,9 @@ const XUnfollowRadarPopup = (function () {
     /** @type {Set<string>} Set of displayed users to prevent duplicates */
     let displayedUsers = new Set();
 
+    /** @type {string} Current plan tier ('free' or 'pro') */
+    let currentPlan = Constants.PLANS.FREE;
+
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - DOM Utilities
     // ═══════════════════════════════════════════════════════════════
@@ -90,7 +93,21 @@ const XUnfollowRadarPopup = (function () {
             // Language dropdown
             langToggle: document.getElementById('langToggle'),
             langMenu: document.getElementById('langMenu'),
-            langOptions: document.querySelectorAll('.lang-option')
+            langOptions: document.querySelectorAll('.lang-option'),
+
+            // Pro / License
+            proBadge: document.getElementById('proBadge'),
+            upgradeCta: document.getElementById('upgradeCta'),
+            showLicenseBtn: document.getElementById('showLicenseBtn'),
+            csvLockOverlay: document.getElementById('csvLockOverlay'),
+            csvUpgradeBtn: document.getElementById('csvUpgradeBtn'),
+            licenseSection: document.getElementById('licenseSection'),
+            licenseActivated: document.getElementById('licenseActivated'),
+            licenseForm: document.getElementById('licenseForm'),
+            licenseKeyInput: document.getElementById('licenseKeyInput'),
+            activateLicenseBtn: document.getElementById('activateLicenseBtn'),
+            deactivateLicenseBtn: document.getElementById('deactivateLicenseBtn'),
+            licenseError: document.getElementById('licenseError')
         };
     }
 
@@ -239,7 +256,10 @@ const XUnfollowRadarPopup = (function () {
         const totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
         const lastRun = data[Constants.STORAGE_KEYS.LAST_RUN] || '-';
 
-        elements.sessionCount.textContent = `${sessionCount}/${Constants.LIMITS.MAX_SESSION}`;
+        const maxSession = currentPlan === Constants.PLANS.PRO
+            ? Constants.LIMITS.PRO_MAX_SESSION
+            : Constants.LIMITS.FREE_MAX_SESSION;
+        elements.sessionCount.textContent = `${sessionCount}/${maxSession}`;
         elements.totalCount.textContent = totalUnfollowed;
 
         if (lastRun !== '-') {
@@ -319,6 +339,174 @@ const XUnfollowRadarPopup = (function () {
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNDO_QUEUE]);
         const queue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
         updateUndoButton(queue.length);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PRIVATE METHODS - Plan & License
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Loads the current plan from the background, updates UI accordingly
+     * @async
+     * @returns {Promise<void>}
+     */
+    async function loadPlan() {
+        try {
+            const result = await chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN });
+            currentPlan = result.plan || Constants.PLANS.FREE;
+        } catch (error) {
+            currentPlan = Constants.PLANS.FREE;
+        }
+
+        applyPlanUi();
+    }
+
+    /**
+     * Updates all plan-dependent UI elements based on currentPlan
+     * @returns {void}
+     */
+    function applyPlanUi() {
+        const isPro = currentPlan === Constants.PLANS.PRO;
+
+        if (elements.proBadge) {
+            elements.proBadge.style.display = isPro ? 'inline-flex' : 'none';
+        }
+        if (elements.upgradeCta) {
+            elements.upgradeCta.style.display = isPro ? 'none' : 'flex';
+        }
+
+        if (isPro) {
+            unlockCsvExport();
+            showLicenseActivatedState();
+        } else {
+            lockCsvExport();
+        }
+
+        const limitEl = elements.sessionCount;
+        if (limitEl) {
+            const maxSession = isPro ? Constants.LIMITS.PRO_MAX_SESSION : Constants.LIMITS.FREE_MAX_SESSION;
+            const parts = limitEl.textContent.split('/');
+            limitEl.textContent = `${parts[0] || '0'}/${maxSession}`;
+        }
+    }
+
+    /**
+     * Locks CSV export — shows lock overlay, disables the button
+     * @returns {void}
+     */
+    function lockCsvExport() {
+        if (elements.csvLockOverlay) {
+            elements.csvLockOverlay.style.display = 'flex';
+        }
+        if (elements.exportCsvBtn) {
+            elements.exportCsvBtn.style.visibility = 'hidden';
+        }
+    }
+
+    /**
+     * Unlocks CSV export — hides lock overlay, enables the button
+     * @returns {void}
+     */
+    function unlockCsvExport() {
+        if (elements.csvLockOverlay) {
+            elements.csvLockOverlay.style.display = 'none';
+        }
+        if (elements.exportCsvBtn) {
+            elements.exportCsvBtn.style.visibility = 'visible';
+        }
+    }
+
+    /**
+     * Shows the license section panel
+     * @returns {void}
+     */
+    function showLicenseSection() {
+        if (elements.licenseSection) {
+            elements.licenseSection.style.display = 'block';
+            elements.licenseSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    /**
+     * Updates the license section to show the activated state
+     * @returns {void}
+     */
+    function showLicenseActivatedState() {
+        if (elements.licenseSection) {
+            elements.licenseSection.style.display = 'block';
+        }
+        if (elements.licenseActivated) {
+            elements.licenseActivated.style.display = 'flex';
+        }
+        if (elements.licenseForm) {
+            elements.licenseForm.style.display = 'none';
+        }
+    }
+
+    /**
+     * Handles the Activate License button click
+     * @async
+     * @returns {Promise<void>}
+     */
+    async function handleActivateLicense() {
+        const key = elements.licenseKeyInput?.value?.trim();
+        if (!key) return;
+
+        elements.activateLicenseBtn.disabled = true;
+        elements.activateLicenseBtn.textContent = I18n.t('license.activating');
+        if (elements.licenseError) {
+            elements.licenseError.style.display = 'none';
+        }
+
+        try {
+            const result = await chrome.runtime.sendMessage({
+                action: Constants.ACTIONS.VERIFY_LICENSE,
+                licenseKey: key
+            });
+
+            if (result.success) {
+                currentPlan = Constants.PLANS.PRO;
+                applyPlanUi();
+                updateStatus('ready', `✓ ${I18n.t('license.success')}`);
+            } else {
+                if (elements.licenseError) {
+                    elements.licenseError.textContent = I18n.t('license.error');
+                    elements.licenseError.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            if (elements.licenseError) {
+                elements.licenseError.textContent = I18n.t('license.error');
+                elements.licenseError.style.display = 'block';
+            }
+        } finally {
+            elements.activateLicenseBtn.disabled = false;
+            elements.activateLicenseBtn.textContent = I18n.t('license.activate');
+        }
+    }
+
+    /**
+     * Handles the Deactivate License button click
+     * @async
+     * @returns {Promise<void>}
+     */
+    async function handleDeactivateLicense() {
+        await chrome.storage.local.remove([
+            Constants.STORAGE_KEYS.PLAN,
+            Constants.STORAGE_KEYS.LICENSE_KEY,
+            Constants.STORAGE_KEYS.LICENSE_ACTIVATED_AT
+        ]);
+        currentPlan = Constants.PLANS.FREE;
+        applyPlanUi();
+        if (elements.licenseActivated) {
+            elements.licenseActivated.style.display = 'none';
+        }
+        if (elements.licenseForm) {
+            elements.licenseForm.style.display = 'block';
+        }
+        if (elements.licenseKeyInput) {
+            elements.licenseKeyInput.value = '';
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -404,7 +592,10 @@ const XUnfollowRadarPopup = (function () {
                 [Constants.STORAGE_KEYS.UNDO_QUEUE]: []
             });
 
-            elements.sessionCount.textContent = `0/${Constants.LIMITS.MAX_SESSION}`;
+            const maxSession = currentPlan === Constants.PLANS.PRO
+                ? Constants.LIMITS.PRO_MAX_SESSION
+                : Constants.LIMITS.FREE_MAX_SESSION;
+            elements.sessionCount.textContent = `0/${maxSession}`;
             elements.totalCount.textContent = '0';
             elements.lastRun.textContent = '-';
             elements.limitReachedAlert.style.display = 'none';
@@ -1028,7 +1219,10 @@ const XUnfollowRadarPopup = (function () {
      */
     function handleStatusUpdate(data) {
         if (data.sessionCount !== undefined) {
-            elements.sessionCount.textContent = `${data.sessionCount}/${Constants.LIMITS.MAX_SESSION}`;
+            const maxSession = currentPlan === Constants.PLANS.PRO
+                ? Constants.LIMITS.PRO_MAX_SESSION
+                : Constants.LIMITS.FREE_MAX_SESSION;
+            elements.sessionCount.textContent = `${data.sessionCount}/${maxSession}`;
         }
 
         if (data.totalUnfollowed !== undefined) {
@@ -1230,6 +1424,20 @@ const XUnfollowRadarPopup = (function () {
         // Stats
         elements.exportCsvBtn.addEventListener('click', handleExportCsv);
 
+        // Pro / License
+        if (elements.showLicenseBtn) {
+            elements.showLicenseBtn.addEventListener('click', showLicenseSection);
+        }
+        if (elements.csvUpgradeBtn) {
+            elements.csvUpgradeBtn.addEventListener('click', showLicenseSection);
+        }
+        if (elements.activateLicenseBtn) {
+            elements.activateLicenseBtn.addEventListener('click', handleActivateLicense);
+        }
+        if (elements.deactivateLicenseBtn) {
+            elements.deactivateLicenseBtn.addEventListener('click', handleDeactivateLicense);
+        }
+
         // Theme
         elements.themeToggle.addEventListener('click', handleThemeToggle);
 
@@ -1277,6 +1485,9 @@ const XUnfollowRadarPopup = (function () {
             elements.startBtn.disabled = true;
             return;
         }
+
+        // Load plan first so plan-dependent renders are correct
+        await loadPlan();
 
         // Load data
         await loadStats();

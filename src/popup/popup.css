@@ -845,6 +845,148 @@ h2, h3, h4, h5, h6 {
 }
 
 /* =====================================================
+   PRO BADGE
+   ===================================================== */
+.pro-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a1a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+/* =====================================================
+   UPGRADE CTA BANNER
+   ===================================================== */
+.upgrade-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(247, 151, 30, 0.12), rgba(255, 210, 0, 0.12));
+    border: 1px solid rgba(247, 151, 30, 0.35);
+    margin-bottom: 12px;
+}
+
+.upgrade-cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.upgrade-cta-text strong {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.upgrade-cta-text span {
+    font-size: 12px;
+    color: var(--text-secondary-accessible);
+}
+
+.btn-upgrade {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    white-space: nowrap;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.btn-upgrade:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+.btn-upgrade-sm {
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+.btn-sm {
+    font-size: 12px;
+    padding: 5px 10px;
+    width: auto;
+}
+
+/* =====================================================
+   CSV PRO GATE & LOCK OVERLAY
+   ===================================================== */
+.pro-gate {
+    position: relative;
+}
+
+.csv-lock-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: rgba(var(--container-bg-rgb, 255, 255, 255), 0.88);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    border: 1px dashed var(--border-color);
+}
+
+:root.dark-mode .csv-lock-overlay {
+    background: rgba(15, 20, 25, 0.88);
+}
+
+.lock-icon {
+    font-size: 16px;
+}
+
+/* =====================================================
+   LICENSE SECTION
+   ===================================================== */
+.license-section {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: var(--radius);
+    background: var(--surface-bg);
+    border: 1px solid var(--border-color);
+}
+
+.license-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.license-activated {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--success-color);
+    font-weight: 600;
+    flex-wrap: wrap;
+}
+
+.license-error {
+    font-size: 12px;
+    color: var(--danger-color);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+/* =====================================================
    ACCESSIBILITY
    ===================================================== */
 .sr-only {

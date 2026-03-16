@@ -104,6 +104,27 @@
         "pageReloaded": "Page reloaded - Try again",
         "startFailed": "Failed to start - Reload the page"
     },
+    "pro": {
+        "badge": "PRO",
+        "upgradeTitle": "Upgrade to Pro",
+        "upgradeDesc": "500/day limit + CSV export",
+        "upgradeCta": "Activate"
+    },
+    "license": {
+        "sectionTitle": "Activate Pro",
+        "inputPlaceholder": "XXXX-XXXX-XXXX-XXXX",
+        "activate": "Activate",
+        "activating": "Verifying…",
+        "success": "Pro license activated!",
+        "error": "Invalid or already-used license key. Please check and try again.",
+        "activated": "Pro license is active",
+        "deactivate": "Remove",
+        "alreadyActive": "Pro plan is already active"
+    },
+    "features": {
+        "csvLocked": "Pro feature",
+        "csvLockedDesc": "Upgrade to Pro to export your unfollow history as CSV."
+    },
     "theme": {
         "toggle": "Toggle Theme"
     },

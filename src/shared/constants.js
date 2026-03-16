@@ -57,6 +57,10 @@ const Constants = (function () {
     const LIMITS = Object.freeze({
         /** Maximum unfollows per 24-hour session */
         MAX_SESSION: 100,
+        /** Free plan daily unfollow limit */
+        FREE_MAX_SESSION: 100,
+        /** Pro plan daily unfollow limit */
+        PRO_MAX_SESSION: 500,
         /** Batch size for test mode confirmation */
         BATCH_SIZE: 50,
         /** Maximum items in undo queue */
@@ -153,7 +157,10 @@ const Constants = (function () {
         UNFOLLOW_STATS: 'unfollowStats',
         UNFOLLOW_HISTORY: 'unfollowHistory',
         THEME: 'theme',
-        LANGUAGE: 'language'
+        LANGUAGE: 'language',
+        PLAN: 'plan',
+        LICENSE_KEY: 'licenseKey',
+        LICENSE_ACTIVATED_AT: 'licenseActivatedAt'
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -184,7 +191,9 @@ const Constants = (function () {
         UPDATE_WHITELIST: 'UPDATE_WHITELIST',
         TOGGLE_DRY_RUN: 'TOGGLE_DRY_RUN',
         UNDO_LAST: 'UNDO_LAST',
-        UNDO_SINGLE: 'UNDO_SINGLE'
+        UNDO_SINGLE: 'UNDO_SINGLE',
+        VERIFY_LICENSE: 'VERIFY_LICENSE',
+        GET_PLAN: 'GET_PLAN'
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -240,6 +249,33 @@ const Constants = (function () {
     });
 
     // ═══════════════════════════════════════════════════════════════
+    // PLAN TYPES
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Plan tier identifiers
+     * @constant {Object}
+     */
+    const PLANS = Object.freeze({
+        FREE: 'free',
+        PRO: 'pro'
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // GUMROAD CONFIGURATION
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Gumroad integration settings
+     * @constant {Object}
+     */
+    const GUMROAD = Object.freeze({
+        VERIFY_URL: 'https://api.gumroad.com/v2/licenses/verify',
+        /** Replace with your actual Gumroad product permalink after setup */
+        PRODUCT_PERMALINK: 'YOUR_PRODUCT_PERMALINK'
+    });
+
+    // ═══════════════════════════════════════════════════════════════
     // SUPPORTED LOCALES
     // ═══════════════════════════════════════════════════════════════
 
@@ -270,7 +306,9 @@ const Constants = (function () {
         STATUS,
         USER_ACTIONS,
         THEMES,
-        LOCALES
+        LOCALES,
+        PLANS,
+        GUMROAD
     });
 })();
 
