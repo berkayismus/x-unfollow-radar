@@ -119,7 +119,9 @@
         "error": "Ungültiger oder bereits verwendeter Lizenzschlüssel. Bitte prüfen und erneut versuchen.",
         "activated": "Pro-Lizenz ist aktiv",
         "deactivate": "Entfernen",
-        "alreadyActive": "Pro-Plan ist bereits aktiv"
+        "alreadyActive": "Pro-Plan ist bereits aktiv",
+        "buyNow": "🛒 Pro auf Gumroad kaufen",
+        "alreadyHave": "Hast du bereits einen Lizenzschlüssel?"
     },
     "features": {
         "csvLocked": "Pro-Funktion",

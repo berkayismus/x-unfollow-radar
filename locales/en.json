@@ -119,7 +119,9 @@
         "error": "Invalid or already-used license key. Please check and try again.",
         "activated": "Pro license is active",
         "deactivate": "Remove",
-        "alreadyActive": "Pro plan is already active"
+        "alreadyActive": "Pro plan is already active",
+        "buyNow": "🛒 Buy Pro on Gumroad",
+        "alreadyHave": "Already have a license key?"
     },
     "features": {
         "csvLocked": "Pro feature",

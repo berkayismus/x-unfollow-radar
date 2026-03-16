@@ -119,7 +119,9 @@
         "error": "Geçersiz veya kullanılmış lisans anahtarı. Lütfen kontrol edip tekrar deneyin.",
         "activated": "Pro lisansı aktif",
         "deactivate": "Kaldır",
-        "alreadyActive": "Pro plan zaten aktif"
+        "alreadyActive": "Pro plan zaten aktif",
+        "buyNow": "🛒 Gumroad'dan Pro Satın Al",
+        "alreadyHave": "Zaten bir lisans anahtarın var mı?"
     },
     "features": {
         "csvLocked": "Pro özelliği",
