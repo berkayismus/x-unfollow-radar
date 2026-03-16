@@ -672,24 +672,36 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles the undo button click
+     * Handles the undo button click — reads queue from storage directly,
+     * opens the user's profile in a new tab so they can manually re-follow
      * @async
      * @returns {Promise<void>}
      */
     async function handleUndo() {
-        if (!currentTab) return;
+        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNDO_QUEUE]);
+        const queue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
 
-        try {
-            const response = await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.UNDO_LAST });
-            if (response.success) {
-                updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${response.username}`);
-                await loadUndoQueue();
-            } else {
-                alert(response.message || I18n.t('messages.noUndoAction'));
-            }
-        } catch (error) {
-            console.error('Failed to undo:', error);
+        if (queue.length === 0) {
+            alert(I18n.t('messages.noUndoAction'));
+            return;
         }
+
+        const lastUser = queue.pop();
+        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: queue });
+
+        // Sync content script in-memory state (best-effort, not required)
+        try {
+            if (currentTab) {
+                await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.UNDO_LAST });
+            }
+        } catch (_) { /* content script may not be active */ }
+
+        // Open profile so user can re-follow
+        const profileUrl = `https://x.com/${lastUser.username}`;
+        await chrome.tabs.create({ url: profileUrl });
+
+        updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${lastUser.username}`);
+        await loadUndoQueue();
     }
 
     /**
@@ -1182,29 +1194,33 @@ const XUnfollowRadarPopup = (function () {
      * @returns {Promise<void>}
      */
     async function handleUndoSingleUser(username, liElement) {
-        if (!currentTab) return;
+        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNDO_QUEUE]);
+        const queue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
 
+        const idx = queue.findIndex(u => u.username === username);
+        if (idx !== -1) queue.splice(idx, 1);
+        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: queue });
+
+        // Sync content script in-memory state (best-effort)
         try {
-            const response = await chrome.tabs.sendMessage(currentTab.id, {
-                action: Constants.ACTIONS.UNDO_SINGLE,
-                username: username
-            });
-
-            if (response.success) {
-                updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${username}`);
-                liElement.classList.remove('unfollowed');
-                liElement.classList.add('undone');
-                liElement.querySelector('.user-icon').textContent = '↶';
-                const undoBtn = liElement.querySelector('.undo-btn');
-                if (undoBtn) undoBtn.remove();
-                await loadUndoQueue();
-            } else {
-                alert(response.message || I18n.t('messages.undoFailed'));
+            if (currentTab) {
+                await chrome.tabs.sendMessage(currentTab.id, {
+                    action: Constants.ACTIONS.UNDO_SINGLE,
+                    username
+                });
             }
-        } catch (error) {
-            console.error('Failed to undo single user:', error);
-            alert(I18n.t('messages.undoFailedDetail'));
-        }
+        } catch (_) { /* content script may not be active */ }
+
+        // Open profile so user can re-follow
+        await chrome.tabs.create({ url: `https://x.com/${username}` });
+
+        updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${username}`);
+        liElement.classList.remove('unfollowed');
+        liElement.classList.add('undone');
+        liElement.querySelector('.user-icon').textContent = '↶';
+        const undoBtn = liElement.querySelector('.undo-btn');
+        if (undoBtn) undoBtn.remove();
+        await loadUndoQueue();
     }
 
     /**
