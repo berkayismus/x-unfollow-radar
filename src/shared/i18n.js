@@ -213,10 +213,7 @@ const I18n = (function () {
             if (value && typeof value === 'object' && key in value) {
                 value = value[key];
             } else {
-                // Key not found
-                if (process?.env?.NODE_ENV !== 'production') {
-                    console.warn(`Translation key not found: ${keyPath}`);
-                }
+                console.warn(`Translation key not found: ${keyPath}`);
                 return keyPath;
             }
         }
