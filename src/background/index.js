@@ -44,11 +44,6 @@ const XUnfollowRadarBackground = (function () {
         const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
         const PRODUCT_PERMALINK = 'vvbndt';
 
-        // DEV-ONLY: bypass for local testing — remove before production release
-        if (licenseKey.trim().toUpperCase() === 'DEV-PRO-TEST-2024') {
-            return { success: true, plan: 'pro', error: null };
-        }
-
         try {
             const body = new URLSearchParams({
                 product_permalink: PRODUCT_PERMALINK,
