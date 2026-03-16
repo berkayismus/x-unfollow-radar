@@ -359,7 +359,7 @@ const XUnfollowRadarPopup = (function () {
         try {
             const result = await chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN });
             currentPlan = result.plan || Constants.PLANS.FREE;
-            applyPlanUi(result.daysRemaining);
+            applyPlanUi(result.daysRemaining ?? null);
         } catch (error) {
             currentPlan = Constants.PLANS.FREE;
             applyPlanUi(null);
@@ -392,7 +392,7 @@ const XUnfollowRadarPopup = (function () {
         }
 
         // Expiry soon warning (Pro with <= 14 days remaining)
-        const warningSoon = isPro && daysRemaining !== null && daysRemaining <= Constants.GUMROAD.EXPIRY_WARNING_DAYS;
+        const warningSoon = isPro && daysRemaining != null && daysRemaining <= Constants.GUMROAD.EXPIRY_WARNING_DAYS;
         if (elements.licenseExpirySoonBanner) {
             elements.licenseExpirySoonBanner.style.display = warningSoon ? 'flex' : 'none';
         }
@@ -478,10 +478,12 @@ const XUnfollowRadarPopup = (function () {
         if (elements.licenseForm) {
             elements.licenseForm.style.display = 'none';
         }
-        if (elements.licenseDaysRemaining && daysRemaining !== null) {
+        if (elements.licenseDaysRemaining && daysRemaining != null) {
             const isWarning = daysRemaining <= Constants.GUMROAD.EXPIRY_WARNING_DAYS;
             elements.licenseDaysRemaining.textContent = I18n.t('license.daysRemaining', { days: daysRemaining });
             elements.licenseDaysRemaining.className = 'license-days-remaining' + (isWarning ? ' warning' : '');
+        } else if (elements.licenseDaysRemaining) {
+            elements.licenseDaysRemaining.textContent = '';
         }
     }
 
