@@ -42,7 +42,7 @@ const XUnfollowRadarBackground = (function () {
      */
     async function verifyLicenseWithGumroad(licenseKey) {
         const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
-        const PRODUCT_PERMALINK = 'YOUR_PRODUCT_PERMALINK';
+        const PRODUCT_PERMALINK = 'vvbndt';
 
         try {
             const body = new URLSearchParams({

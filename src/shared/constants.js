@@ -271,8 +271,7 @@ const Constants = (function () {
      */
     const GUMROAD = Object.freeze({
         VERIFY_URL: 'https://api.gumroad.com/v2/licenses/verify',
-        /** Replace with your actual Gumroad product permalink after setup */
-        PRODUCT_PERMALINK: 'YOUR_PRODUCT_PERMALINK'
+        PRODUCT_PERMALINK: 'vvbndt'
     });
 
     // ═══════════════════════════════════════════════════════════════
