@@ -32,7 +32,7 @@
         "rateLimit": "Rate Limit!",
         "rateLimitDesc": "You've hit Twitter's rate limit.",
         "dailyLimitReached": "24 Hour Limit Reached",
-        "dailyLimitDesc": "You've unfollowed 100 users in the last 24 hours. Please wait 24 hours for a new session."
+        "dailyLimitDesc": "You've reached your daily limit. Please wait 24 hours for a new session."
     },
     "buttons": {
         "start": "Start unfollow",
@@ -86,7 +86,7 @@
         "safetyTitle": "Safety",
         "safety1": "2–5s delay between actions",
         "safety2": "Confirmation after first 50 users",
-        "safety3": "Max 100 users per 24 hours"
+        "safety3": "Free: 50 / Pro: 500 users per 24h"
     },
     "messages": {
         "confirmReset": "All statistics will be reset. Are you sure?",
@@ -107,7 +107,7 @@
     "pro": {
         "badge": "PRO",
         "upgradeTitle": "Upgrade to Pro",
-        "upgradeDesc": "500/day limit + CSV export",
+        "upgradeDesc": "500/day vs 50/day free + CSV export",
         "upgradeCta": "Activate"
     },
     "license": {

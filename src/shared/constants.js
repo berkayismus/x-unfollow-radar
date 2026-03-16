@@ -55,10 +55,10 @@ const Constants = (function () {
      * @constant {Object}
      */
     const LIMITS = Object.freeze({
-        /** Maximum unfollows per 24-hour session */
-        MAX_SESSION: 100,
+        /** Maximum unfollows per 24-hour session (free plan default) */
+        MAX_SESSION: 50,
         /** Free plan daily unfollow limit */
-        FREE_MAX_SESSION: 100,
+        FREE_MAX_SESSION: 50,
         /** Pro plan daily unfollow limit */
         PRO_MAX_SESSION: 500,
         /** Batch size for test mode confirmation */

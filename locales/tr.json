@@ -32,7 +32,7 @@
         "rateLimit": "Rate Limit!",
         "rateLimitDesc": "Twitter tarafından hız sınırına takıldınız.",
         "dailyLimitReached": "24 Saatlik Limit Doldu",
-        "dailyLimitDesc": "Son 24 saatte 100 kişiden takipten çıktınız. Yeni oturum için 24 saat beklemeniz gerekiyor."
+        "dailyLimitDesc": "Günlük limitinize ulaştınız. Yeni oturum için 24 saat beklemeniz gerekiyor."
     },
     "buttons": {
         "start": "Takipten çıkarmayı başlat",
@@ -86,7 +86,7 @@
         "safetyTitle": "Güvenlik",
         "safety1": "İşlemler arası 2–5sn gecikme",
         "safety2": "İlk 50 kullanıcıdan sonra onay",
-        "safety3": "24 saatte en fazla 100 kullanıcı"
+        "safety3": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat"
     },
     "messages": {
         "confirmReset": "Tüm istatistikler sıfırlanacak. Emin misiniz?",
@@ -107,7 +107,7 @@
     "pro": {
         "badge": "PRO",
         "upgradeTitle": "Pro'ya yükselt",
-        "upgradeDesc": "500/gün limit + CSV dışa aktarma",
+        "upgradeDesc": "500/gün (ücretsizde 50) + CSV dışa aktarma",
         "upgradeCta": "Aktive Et"
     },
     "license": {

@@ -32,7 +32,7 @@
         "rateLimit": "Rate-Limit!",
         "rateLimitDesc": "Du hast das Twitter-Rate-Limit erreicht.",
         "dailyLimitReached": "24‑Stunden‑Limit erreicht",
-        "dailyLimitDesc": "Du hast in den letzten 24 Stunden 100 Benutzern entfolgt. Bitte warte 24 Stunden für eine neue Sitzung."
+        "dailyLimitDesc": "Du hast dein Tageslimit erreicht. Bitte warte 24 Stunden für eine neue Sitzung."
     },
     "buttons": {
         "start": "Entfolgen starten",
@@ -86,7 +86,7 @@
         "safetyTitle": "Sicherheit",
         "safety1": "2–5s Verzögerung zwischen Aktionen",
         "safety2": "Bestätigung nach den ersten 50 Benutzern",
-        "safety3": "Max. 100 Benutzer pro 24 Stunden"
+        "safety3": "Kostenlos: 50 / Pro: 500 Benutzer pro 24h"
     },
     "messages": {
         "confirmReset": "Alle Statistiken werden zurückgesetzt. Bist du sicher?",
@@ -107,7 +107,7 @@
     "pro": {
         "badge": "PRO",
         "upgradeTitle": "Auf Pro upgraden",
-        "upgradeDesc": "500/Tag Limit + CSV-Export",
+        "upgradeDesc": "500/Tag (kostenlos: 50) + CSV-Export",
         "upgradeCta": "Aktivieren"
     },
     "license": {
