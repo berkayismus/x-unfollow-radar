@@ -103,11 +103,16 @@ const XUnfollowRadarPopup = (function () {
             csvUpgradeBtn: document.getElementById('csvUpgradeBtn'),
             licenseSection: document.getElementById('licenseSection'),
             licenseActivated: document.getElementById('licenseActivated'),
+            licenseDaysRemaining: document.getElementById('licenseDaysRemaining'),
+            licenseExpiredNotice: document.getElementById('licenseExpiredNotice'),
             licenseForm: document.getElementById('licenseForm'),
             licenseKeyInput: document.getElementById('licenseKeyInput'),
             activateLicenseBtn: document.getElementById('activateLicenseBtn'),
             deactivateLicenseBtn: document.getElementById('deactivateLicenseBtn'),
-            licenseError: document.getElementById('licenseError')
+            licenseError: document.getElementById('licenseError'),
+            licenseExpiredBanner: document.getElementById('licenseExpiredBanner'),
+            licenseExpirySoonBanner: document.getElementById('licenseExpirySoonBanner'),
+            licenseExpirySoonText: document.getElementById('licenseExpirySoonText')
         };
     }
 
@@ -354,34 +359,62 @@ const XUnfollowRadarPopup = (function () {
         try {
             const result = await chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN });
             currentPlan = result.plan || Constants.PLANS.FREE;
+            applyPlanUi(result.daysRemaining);
         } catch (error) {
             currentPlan = Constants.PLANS.FREE;
+            applyPlanUi(null);
         }
-
-        applyPlanUi();
     }
 
     /**
      * Updates all plan-dependent UI elements based on currentPlan
+     * @param {number|null} daysRemaining - Days left on Pro license, null if not Pro
      * @returns {void}
      */
-    function applyPlanUi() {
+    function applyPlanUi(daysRemaining) {
         const isPro = currentPlan === Constants.PLANS.PRO;
+        const isExpired = currentPlan === Constants.PLANS.EXPIRED;
+        const isFree = !isPro && !isExpired;
 
+        // Pro badge
         if (elements.proBadge) {
             elements.proBadge.style.display = isPro ? 'inline-flex' : 'none';
         }
+
+        // Upgrade CTA (free plan only)
         if (elements.upgradeCta) {
-            elements.upgradeCta.style.display = isPro ? 'none' : 'flex';
+            elements.upgradeCta.style.display = isFree ? 'flex' : 'none';
         }
 
+        // Expired banner (replaces upgrade CTA for expired users)
+        if (elements.licenseExpiredBanner) {
+            elements.licenseExpiredBanner.style.display = isExpired ? 'flex' : 'none';
+        }
+
+        // Expiry soon warning (Pro with <= 14 days remaining)
+        const warningSoon = isPro && daysRemaining !== null && daysRemaining <= Constants.GUMROAD.EXPIRY_WARNING_DAYS;
+        if (elements.licenseExpirySoonBanner) {
+            elements.licenseExpirySoonBanner.style.display = warningSoon ? 'flex' : 'none';
+        }
+        if (warningSoon && elements.licenseExpirySoonText) {
+            elements.licenseExpirySoonText.textContent = I18n.t('license.expiresSoon', { days: daysRemaining });
+        }
+
+        // CSV lock
         if (isPro) {
             unlockCsvExport();
-            showLicenseActivatedState();
         } else {
             lockCsvExport();
         }
 
+        // License section state
+        if (isPro) {
+            showLicenseActivatedState(daysRemaining);
+        } else if (isExpired) {
+            showLicenseExpiredState();
+        }
+
+        // Session limit display
         const limitEl = elements.sessionCount;
         if (limitEl) {
             const maxSession = isPro ? Constants.LIMITS.PRO_MAX_SESSION : Constants.LIMITS.FREE_MAX_SESSION;
@@ -428,15 +461,43 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Updates the license section to show the activated state
+     * Updates the license section to show the activated state with days remaining
+     * @param {number|null} daysRemaining
      * @returns {void}
      */
-    function showLicenseActivatedState() {
+    function showLicenseActivatedState(daysRemaining) {
         if (elements.licenseSection) {
             elements.licenseSection.style.display = 'block';
         }
         if (elements.licenseActivated) {
             elements.licenseActivated.style.display = 'flex';
+        }
+        if (elements.licenseExpiredNotice) {
+            elements.licenseExpiredNotice.style.display = 'none';
+        }
+        if (elements.licenseForm) {
+            elements.licenseForm.style.display = 'none';
+        }
+        if (elements.licenseDaysRemaining && daysRemaining !== null) {
+            const isWarning = daysRemaining <= Constants.GUMROAD.EXPIRY_WARNING_DAYS;
+            elements.licenseDaysRemaining.textContent = I18n.t('license.daysRemaining', { days: daysRemaining });
+            elements.licenseDaysRemaining.className = 'license-days-remaining' + (isWarning ? ' warning' : '');
+        }
+    }
+
+    /**
+     * Updates the license section to show the expired state
+     * @returns {void}
+     */
+    function showLicenseExpiredState() {
+        if (elements.licenseSection) {
+            elements.licenseSection.style.display = 'block';
+        }
+        if (elements.licenseActivated) {
+            elements.licenseActivated.style.display = 'none';
+        }
+        if (elements.licenseExpiredNotice) {
+            elements.licenseExpiredNotice.style.display = 'flex';
         }
         if (elements.licenseForm) {
             elements.licenseForm.style.display = 'none';
@@ -466,7 +527,7 @@ const XUnfollowRadarPopup = (function () {
 
             if (result.success) {
                 currentPlan = Constants.PLANS.PRO;
-                applyPlanUi();
+                applyPlanUi(365);
                 updateStatus('ready', `✓ ${I18n.t('license.success')}`);
             } else {
                 if (elements.licenseError) {
@@ -497,7 +558,7 @@ const XUnfollowRadarPopup = (function () {
             Constants.STORAGE_KEYS.LICENSE_ACTIVATED_AT
         ]);
         currentPlan = Constants.PLANS.FREE;
-        applyPlanUi();
+        applyPlanUi(null);
         if (elements.licenseActivated) {
             elements.licenseActivated.style.display = 'none';
         }

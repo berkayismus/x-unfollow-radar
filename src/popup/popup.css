@@ -1011,6 +1011,85 @@ h2, h3, h4, h5, h6 {
 }
 
 /* =====================================================
+   LICENSE EXPIRY BANNERS
+   ===================================================== */
+.license-expired-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    background: rgba(225, 68, 74, 0.10);
+    border: 1px solid rgba(225, 68, 74, 0.35);
+    margin-bottom: 12px;
+}
+
+.expired-banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.expired-banner-text strong {
+    font-size: 13px;
+    color: var(--danger-color);
+}
+
+.expired-banner-text span {
+    font-size: 12px;
+    color: var(--text-secondary-accessible);
+}
+
+.license-expiry-soon-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    background: rgba(255, 193, 7, 0.10);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    width: auto;
+    white-space: nowrap;
+}
+
+.license-days-remaining {
+    font-size: 11px;
+    color: var(--text-secondary-accessible);
+    font-weight: 400;
+}
+
+.license-days-remaining.warning {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.license-expired-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--danger-color);
+    font-weight: 600;
+    flex-wrap: wrap;
+}
+
+/* =====================================================
    ACCESSIBILITY
    ===================================================== */
 .sr-only {

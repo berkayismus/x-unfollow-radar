@@ -121,7 +121,12 @@
         "deactivate": "Kaldır",
         "alreadyActive": "Pro plan zaten aktif",
         "buyNow": "🛒 Gumroad'dan Pro Satın Al",
-        "alreadyHave": "Zaten bir lisans anahtarın var mı?"
+        "alreadyHave": "Zaten bir lisans anahtarın var mı?",
+        "expiredTitle": "Lisans Süresi Doldu",
+        "expiredDesc": "Pro özelliklerini korumak için yenileyin.",
+        "expiresSoon": "Lisans {days} gün içinde sona eriyor",
+        "renewNow": "Yenile",
+        "daysRemaining": "{days} gün kaldı"
     },
     "features": {
         "csvLocked": "Pro özelliği",

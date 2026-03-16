@@ -70,6 +70,23 @@
                 <span id="statusText" data-i18n="status.ready">Hazır</span>
             </div>
 
+            <!-- License expired banner -->
+            <div id="licenseExpiredBanner" class="license-expired-banner" style="display:none;" role="alert">
+                <div class="expired-banner-text">
+                    <strong data-i18n="license.expiredTitle">License Expired</strong>
+                    <span data-i18n="license.expiredDesc">Renew to keep Pro features.</span>
+                </div>
+                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
+                    class="btn btn-upgrade btn-upgrade-sm" data-i18n="license.renewNow">Renew</a>
+            </div>
+
+            <!-- Expiry warning banner — shown when <= 14 days remain -->
+            <div id="licenseExpirySoonBanner" class="license-expiry-soon-banner" style="display:none;" role="note">
+                <span id="licenseExpirySoonText" data-i18n="license.expiresSoon">License expires soon</span>
+                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
+                    class="btn-link" data-i18n="license.renewNow">Renew</a>
+            </div>
+
             <!-- Upgrade CTA — shown only on free plan -->
             <div id="upgradeCta" class="upgrade-cta" style="display:none;" role="note">
                 <div class="upgrade-cta-text">
@@ -199,7 +216,13 @@
             <h3 id="licenseSectionTitle" data-i18n="license.sectionTitle">Activate Pro</h3>
             <div id="licenseActivated" class="license-activated" style="display:none;" role="status" aria-live="polite">
                 ✓ <span data-i18n="license.activated">Pro license is active</span>
+                <span id="licenseDaysRemaining" class="license-days-remaining"></span>
                 <button id="deactivateLicenseBtn" class="btn btn-ghost btn-sm" type="button" data-i18n="license.deactivate">Remove</button>
+            </div>
+            <div id="licenseExpiredNotice" class="license-expired-notice" style="display:none;" role="alert">
+                ✕ <span data-i18n="license.expiredTitle">License Expired</span>
+                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
+                    class="btn btn-upgrade btn-upgrade-sm" data-i18n="license.renewNow">Renew</a>
             </div>
             <div id="licenseForm">
                 <a id="buyProBtn" class="btn btn-upgrade btn-buy" href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer" data-i18n="license.buyNow">🛒 Buy Pro on Gumroad</a>

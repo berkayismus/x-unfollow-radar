@@ -95,16 +95,44 @@ const XUnfollowRadarBackground = (function () {
     }
 
     /**
-     * Reads the current plan from storage and responds
+     * Reads the current plan from storage, checks expiry, and responds
      * @param {function} sendResponse
      * @returns {Promise<void>}
      */
     async function handleGetPlan(sendResponse) {
         const data = await chrome.storage.local.get(['plan', 'licenseKey', 'licenseActivatedAt']);
+        const storedPlan = data.plan || 'free';
+        const activatedAt = data.licenseActivatedAt || null;
+
+        const LICENSE_DURATION_MS = 365 * 24 * 60 * 60 * 1000;
+        const EXPIRY_WARNING_DAYS = 14;
+        const EXPIRY_WARNING_MS = EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000;
+
+        let plan = storedPlan;
+        let daysRemaining = null;
+        let expiredAt = null;
+
+        if (storedPlan === 'pro' && activatedAt) {
+            const now = Date.now();
+            const elapsed = now - activatedAt;
+            const remaining = LICENSE_DURATION_MS - elapsed;
+
+            if (remaining <= 0) {
+                plan = 'expired';
+                expiredAt = activatedAt + LICENSE_DURATION_MS;
+                await chrome.storage.local.set({ plan: 'expired' });
+            } else {
+                plan = 'pro';
+                daysRemaining = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+            }
+        }
+
         sendResponse({
-            plan: data.plan || 'free',
+            plan,
             licenseKey: data.licenseKey || null,
-            licenseActivatedAt: data.licenseActivatedAt || null
+            licenseActivatedAt: activatedAt,
+            daysRemaining,
+            expiredAt
         });
     }
 

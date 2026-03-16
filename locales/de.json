@@ -121,7 +121,12 @@
         "deactivate": "Entfernen",
         "alreadyActive": "Pro-Plan ist bereits aktiv",
         "buyNow": "🛒 Pro auf Gumroad kaufen",
-        "alreadyHave": "Hast du bereits einen Lizenzschlüssel?"
+        "alreadyHave": "Hast du bereits einen Lizenzschlüssel?",
+        "expiredTitle": "Lizenz abgelaufen",
+        "expiredDesc": "Verlängere, um Pro-Funktionen zu behalten.",
+        "expiresSoon": "Lizenz läuft in {days} Tagen ab",
+        "renewNow": "Verlängern",
+        "daysRemaining": "Noch {days} Tage"
     },
     "features": {
         "csvLocked": "Pro-Funktion",

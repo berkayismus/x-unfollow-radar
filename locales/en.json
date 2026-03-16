@@ -121,7 +121,12 @@
         "deactivate": "Remove",
         "alreadyActive": "Pro plan is already active",
         "buyNow": "🛒 Buy Pro on Gumroad",
-        "alreadyHave": "Already have a license key?"
+        "alreadyHave": "Already have a license key?",
+        "expiredTitle": "License Expired",
+        "expiredDesc": "Renew to keep Pro features.",
+        "expiresSoon": "License expires in {days} days",
+        "renewNow": "Renew",
+        "daysRemaining": "{days} days remaining"
     },
     "features": {
         "csvLocked": "Pro feature",
