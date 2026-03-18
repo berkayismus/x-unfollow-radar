@@ -1548,27 +1548,10 @@ const XUnfollowRadarPopup = (function () {
         // Initialize i18n
         await I18n.init();
 
-        // Get current tab
-        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-        currentTab = tabs[0];
-
-        // Check if on correct page
-        if (!currentTab.url.includes('twitter.com') && !currentTab.url.includes('x.com')) {
-            updateStatus('error', `❌ ${I18n.t('messages.notOnTwitter')}`);
-            elements.startBtn.disabled = true;
-            return;
-        }
-
-        if (!currentTab.url.includes('/following')) {
-            updateStatus('error', `❌ ${I18n.t('messages.goToFollowing')}`);
-            elements.startBtn.disabled = true;
-            return;
-        }
-
         // Load plan first so plan-dependent renders are correct
         await loadPlan();
 
-        // Load data
+        // Load data — always, regardless of which page is open
         await loadStats();
         await loadKeywords();
         await loadWhitelist();
@@ -1576,11 +1559,31 @@ const XUnfollowRadarPopup = (function () {
         await loadDryRunMode();
         await loadUndoQueue();
 
-        // Setup event listeners
+        // Setup event listeners — always
         setupEventListeners();
 
         // Apply ARIA labels
         applyAriaLabels();
+
+        // Get current tab
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        currentTab = tabs[0];
+
+        const onTwitter = currentTab?.url &&
+            (currentTab.url.includes('twitter.com') || currentTab.url.includes('x.com'));
+        const onFollowing = onTwitter && currentTab.url.includes('/following');
+
+        if (!onTwitter) {
+            updateStatus('error', `❌ ${I18n.t('messages.notOnTwitter')}`);
+            elements.startBtn.disabled = true;
+            return;
+        }
+
+        if (!onFollowing) {
+            updateStatus('error', `❌ ${I18n.t('messages.goToFollowing')}`);
+            elements.startBtn.disabled = true;
+            return;
+        }
 
         // Check if content script is loaded and sync button state
         try {
