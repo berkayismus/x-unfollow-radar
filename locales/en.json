@@ -5,7 +5,7 @@
     },
     "trust": {
         "worksOnFollowing": "Works on Following",
-        "rateLimitSafe": "Rate-limit safe",
+        "rateLimitSafe": "Controlled pacing",
         "dryRun": "Dry run"
     },
     "tabs": {
@@ -38,7 +38,7 @@
         "start": "Start unfollow",
         "stop": "Stop",
         "continue": "Continue (50 more)",
-        "undo": "Undo",
+        "undo": "Open profile",
         "reset": "Reset",
         "add": "Add",
         "addKeyword": "Add keyword",
@@ -65,7 +65,7 @@
     },
     "userList": {
         "title": "Processed Users",
-        "undoBtn": "Undo",
+        "undoBtn": "Open profile to follow manually",
         "addToWhitelist": "Add to Whitelist",
         "addedToWhitelist": "Added to Whitelist"
     },
@@ -91,11 +91,13 @@
     "messages": {
         "confirmReset": "All statistics will be reset. Are you sure?",
         "confirmReload": "Extension not loaded yet. Would you like to reload the page?",
-        "noUndoAction": "No action to undo",
+        "noUndoAction": "No recent profile is available to open",
         "undoFailed": "Undo failed",
         "undoFailedDetail": "Undo operation failed. Make sure the page is open and you're on the \"Following\" page.",
         "noHistory": "No history yet",
+        "unfollowed": "Unfollowed",
         "undone": "Undone",
+        "profileOpened": "Profile opened for manual follow",
         "addedToWhitelist": "Added to Whitelist",
         "dryRunActive": "Dry Run Mode active",
         "normalMode": "Normal mode",
@@ -144,7 +146,7 @@
         "stopButton": "Stop automatic unfollowing",
         "continueButton": "Continue unfollowing 50 more users",
         "resetButton": "Reset all statistics",
-        "undoButton": "{count} actions can be undone",
+        "undoButton": "Open a profile from the last {count} actions",
         "themeToggle": "Toggle theme (light/dark)",
         "languageToggle": "Change language",
         "exportButton": "Export unfollow history as CSV file",
@@ -155,7 +157,7 @@
         "addWhitelistButton": "Add user to protection list",
         "removeKeyword": "Remove keyword {keyword}",
         "removeWhitelist": "Remove @{username} from protection list",
-        "undoUser": "Undo unfollow for @{username}",
+        "undoUser": "Open @{username}'s profile to follow manually",
         "whitelistUser": "Add @{username} to protection list",
         "tabMain": "Main tab",
         "tabFilters": "Filters tab",

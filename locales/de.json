@@ -5,7 +5,7 @@
     },
     "trust": {
         "worksOnFollowing": "Funktioniert auf „Following“",
-        "rateLimitSafe": "Rate‑Limit‑sicher",
+        "rateLimitSafe": "Kontrolliertes Tempo",
         "dryRun": "Dry‑Run"
     },
     "tabs": {
@@ -38,7 +38,7 @@
         "start": "Entfolgen starten",
         "stop": "Stopp",
         "continue": "Weiter (50 mehr)",
-        "undo": "Rückgängig",
+        "undo": "Profil öffnen",
         "reset": "Zurücksetzen",
         "add": "Hinzufügen",
         "addKeyword": "Wort hinzufügen",
@@ -65,7 +65,7 @@
     },
     "userList": {
         "title": "Verarbeitete Benutzer",
-        "undoBtn": "Rückgängig",
+        "undoBtn": "Profil zum manuellen Folgen öffnen",
         "addToWhitelist": "Zur Whitelist hinzufügen",
         "addedToWhitelist": "Zur Whitelist hinzugefügt"
     },
@@ -91,11 +91,13 @@
     "messages": {
         "confirmReset": "Alle Statistiken werden zurückgesetzt. Bist du sicher?",
         "confirmReload": "Die Erweiterung ist noch nicht geladen. Seite neu laden?",
-        "noUndoAction": "Keine Aktion zum Rückgängig machen",
+        "noUndoAction": "Kein kürzliches Profil zum Öffnen verfügbar",
         "undoFailed": "Rückgängig fehlgeschlagen",
         "undoFailedDetail": "Rückgängig fehlgeschlagen. Stelle sicher, dass die Seite geöffnet ist und du auf der \"Following\"‑Seite bist.",
         "noHistory": "Noch kein Verlauf",
+        "unfollowed": "Entfolgt",
         "undone": "Rückgängig gemacht",
+        "profileOpened": "Profil zum manuellen Folgen geöffnet",
         "addedToWhitelist": "Zur Whitelist hinzugefügt",
         "dryRunActive": "Dry‑Run‑Modus aktiv",
         "normalMode": "Normaler Modus",
@@ -144,7 +146,7 @@
         "stopButton": "Automatisches Entfolgen stoppen",
         "continueButton": "Weiter 50 weitere Benutzer entfolgen",
         "resetButton": "Alle Statistiken zurücksetzen",
-        "undoButton": "{count} Aktionen können rückgängig gemacht werden",
+        "undoButton": "Profil aus den letzten {count} Aktionen öffnen",
         "themeToggle": "Theme umschalten (hell/dunkel)",
         "languageToggle": "Sprache ändern",
         "exportButton": "Entfolge‑Verlauf als CSV exportieren",
@@ -155,7 +157,7 @@
         "addWhitelistButton": "Benutzer zur Schutzliste hinzufügen",
         "removeKeyword": "Schlüsselwort {keyword} entfernen",
         "removeWhitelist": "@{username} aus der Schutzliste entfernen",
-        "undoUser": "Entfolgen für @{username} rückgängig machen",
+        "undoUser": "Profil von @{username} zum manuellen Folgen öffnen",
         "whitelistUser": "@{username} zur Schutzliste hinzufügen",
         "tabMain": "Übersichts‑Tab",
         "tabFilters": "Filter‑Tab",
@@ -169,4 +171,3 @@
         "chartDescription": "Diagramm mit der Anzahl der entfolgten Benutzer in den letzten 30 Tagen"
     }
 }
-

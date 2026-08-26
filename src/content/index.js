@@ -54,6 +54,15 @@ const XUnfollowRadarContent = (function () {
     /** @type {number|null} Timestamp when rate limit expires */
     let rateLimitUntil = null;
 
+    /** @type {number|null} Timer used to resume after a persisted rate limit */
+    let rateLimitTimer = null;
+
+    /** @type {string} Active entitlement plan */
+    let currentPlan = Constants.PLANS.FREE;
+
+    /** @type {number} Effective daily limit for the active plan */
+    let sessionLimit = Constants.getSessionLimit(Constants.PLANS.FREE);
+
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
@@ -74,6 +83,24 @@ const XUnfollowRadarContent = (function () {
         return new Promise(resolve =>
             setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min)
         );
+    }
+
+    /**
+     * Waits until a condition is true or the timeout expires.
+     * @param {function(): boolean} condition
+     * @param {number} timeoutMs
+     * @param {number} [intervalMs=100]
+     * @returns {Promise<boolean>}
+     */
+    async function waitForCondition(condition, timeoutMs, intervalMs = 100) {
+        const deadline = Date.now() + timeoutMs;
+
+        while (Date.now() < deadline) {
+            if (condition()) return true;
+            await randomDelay(intervalMs, intervalMs);
+        }
+
+        return condition();
     }
 
     /**
@@ -173,16 +200,20 @@ const XUnfollowRadarContent = (function () {
      * @async
      * @returns {Promise<void>}
      */
-    async function updateDailyStats() {
+    async function updateDailyStats(action = Constants.USER_ACTIONS.UNFOLLOWED) {
         const today = new Date().toISOString().split('T')[0];
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNFOLLOW_STATS]);
         const stats = data[Constants.STORAGE_KEYS.UNFOLLOW_STATS] || { daily: {} };
 
         if (!stats.daily[today]) {
-            stats.daily[today] = { unfollowed: 0, timestamp: Date.now() };
+            stats.daily[today] = { unfollowed: 0, dryRun: 0, timestamp: Date.now() };
         }
 
-        stats.daily[today].unfollowed++;
+        if (action === Constants.USER_ACTIONS.DRY_RUN) {
+            stats.daily[today].dryRun = (stats.daily[today].dryRun || 0) + 1;
+        } else {
+            stats.daily[today].unfollowed = (stats.daily[today].unfollowed || 0) + 1;
+        }
 
         await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNFOLLOW_STATS]: stats });
     }
@@ -235,10 +266,20 @@ const XUnfollowRadarContent = (function () {
 
         sendStatus(Constants.STATUS.RATE_LIMIT, { remainingMinutes: Constants.TIMING.RATE_LIMIT_MINUTES });
 
-        // Set timeout to auto-resume
-        setTimeout(() => {
-            checkRateLimitExpiry();
-        }, Constants.TIMING.RATE_LIMIT_WAIT);
+        scheduleRateLimitExpiry();
+    }
+
+    /**
+     * Schedules a resumable timeout using the persisted expiry timestamp.
+     * @returns {void}
+     */
+    function scheduleRateLimitExpiry() {
+        if (rateLimitTimer) {
+            clearTimeout(rateLimitTimer);
+        }
+
+        const remaining = Math.max(0, (rateLimitUntil || 0) - Date.now());
+        rateLimitTimer = setTimeout(checkRateLimitExpiry, remaining);
     }
 
     /**
@@ -250,12 +291,16 @@ const XUnfollowRadarContent = (function () {
         if (rateLimitUntil && now >= rateLimitUntil) {
             console.log('Rate limit expired, resuming...');
             rateLimitUntil = null;
+            rateLimitTimer = null;
             isPaused = false;
             chrome.storage.local.set({ [Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL]: null });
 
             if (isRunning) {
                 sendStatus(Constants.STATUS.RESUMED, { message: 'Rate limit cleared, resuming operation' });
             }
+        } else if (rateLimitUntil) {
+            isPaused = true;
+            scheduleRateLimitExpiry();
         }
     }
 
@@ -278,14 +323,13 @@ const XUnfollowRadarContent = (function () {
                 console.log(`[DRY RUN] Would unfollow ${username}`);
                 await randomDelay(Constants.TIMING.MIN_DELAY, Constants.TIMING.MAX_DELAY);
 
-                sessionCount++;
                 sendStatus(Constants.STATUS.UNFOLLOWED, { username, dryRun: true });
                 chrome.runtime.sendMessage({
                     type: Constants.MESSAGE_TYPES.USER_PROCESSED,
                     data: { username, action: Constants.USER_ACTIONS.DRY_RUN, timestamp: Date.now() }
                 });
 
-                await updateDailyStats();
+                await updateDailyStats(Constants.USER_ACTIONS.DRY_RUN);
                 return true;
             }
 
@@ -299,10 +343,24 @@ const XUnfollowRadarContent = (function () {
             followingBtn.click();
             await randomDelay(Constants.TIMING.BUTTON_CLICK_MIN, Constants.TIMING.BUTTON_CLICK_MAX);
 
+            if (!isRunning || isPaused) {
+                return false;
+            }
+
             // Find and click confirmation button
             const confirmBtn = document.querySelector(Constants.SELECTORS.CONFIRM_BUTTON);
             if (confirmBtn) {
                 confirmBtn.click();
+                const actionSucceeded = await waitForCondition(
+                    () => !findFollowingButton(userCell),
+                    Constants.TIMING.MAX_DELAY
+                );
+
+                if (!actionSucceeded) {
+                    console.warn(`Unfollow could not be verified for ${username}`);
+                    return false;
+                }
+
                 await randomDelay(Constants.TIMING.MIN_DELAY, Constants.TIMING.MAX_DELAY);
 
                 sessionCount++;
@@ -352,24 +410,6 @@ const XUnfollowRadarContent = (function () {
         }
     }
 
-    /**
-     * Attempts to re-follow a previously unfollowed user
-     * @async
-     * @param {string} username - The username to re-follow
-     * @returns {Promise<boolean>} True if the refollow was initiated
-     */
-    async function refollowUser(username) {
-        try {
-            console.log(`Refollowing ${username}...`);
-            const profileUrl = `https://twitter.com/${username}`;
-            console.log(`To refollow, visit: ${profileUrl}`);
-            return true;
-        } catch (error) {
-            console.error('Refollow error:', error);
-            return false;
-        }
-    }
-
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Scanning & Scrolling
     // ═══════════════════════════════════════════════════════════════
@@ -385,6 +425,7 @@ const XUnfollowRadarContent = (function () {
 
         userCells.forEach(cell => {
             const username = getUsernameFromCell(cell);
+            if (!username || username === 'Unknown') return;
             if (processedUsers.has(username)) return;
 
             processedUsers.add(username);
@@ -438,6 +479,38 @@ const XUnfollowRadarContent = (function () {
         return (el.scrollTop + el.clientHeight) >= (el.scrollHeight - threshold);
     }
 
+    /**
+     * Processes the current queue while respecting limits and pause state.
+     * @async
+     * @returns {Promise<boolean>} False when the run reached a terminal/pause boundary
+     */
+    async function processQueue() {
+        while (unfollowQueue.length > 0 && isRunning && !isPaused) {
+            if (!dryRunMode && sessionCount >= sessionLimit) {
+                isRunning = false;
+                sendStatus(Constants.STATUS.LIMIT_REACHED);
+                return false;
+            }
+
+            if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
+                isPaused = true;
+                chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
+                sendStatus(Constants.STATUS.TEST_COMPLETE);
+                return false;
+            }
+
+            const userCell = unfollowQueue.shift();
+            if (userCell && document.contains(userCell)) {
+                const success = await unfollowUser(userCell);
+                if (!success) {
+                    console.log('Unfollow could not be completed or verified');
+                }
+            }
+        }
+
+        return isRunning && !isPaused;
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Main Loop
     // ═══════════════════════════════════════════════════════════════
@@ -451,17 +524,18 @@ const XUnfollowRadarContent = (function () {
         console.log('mainLoop started, isRunning:', isRunning);
         await initStorage();
         console.log('Storage initialized, sessionCount:', sessionCount);
-        sendStatus(Constants.STATUS.STARTED);
+        if (isPaused && rateLimitUntil) {
+            const remainingMinutes = Math.ceil((rateLimitUntil - Date.now()) / 60000);
+            sendStatus(Constants.STATUS.RATE_LIMIT, { remainingMinutes });
+        } else {
+            sendStatus(Constants.STATUS.STARTED);
+        }
 
-        let consecutiveEmptyScans = 0;
-        /** Persist across iterations so we detect when scroll no longer loads new users */
-        let lastUserCellCount = 0;
-        let sameCountStreak = 0;
-        /** Track how many times we've been at scroll bottom with no new users */
-        let atBottomStreak = 0;
+        let noNewUserStreak = 0;
 
         while (isRunning) {
             if (isPaused) {
+                checkRateLimitExpiry();
                 await randomDelay(
                     Constants.TIMING.PAUSE_CHECK_INTERVAL,
                     Constants.TIMING.PAUSE_CHECK_INTERVAL
@@ -469,7 +543,7 @@ const XUnfollowRadarContent = (function () {
                 continue;
             }
 
-            if (sessionCount >= Constants.LIMITS.MAX_SESSION) {
+            if (!dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
                 sendStatus(Constants.STATUS.LIMIT_REACHED);
                 break;
@@ -483,86 +557,35 @@ const XUnfollowRadarContent = (function () {
                 return;
             }
 
-            // Scan current visible users
+            const seenBeforeCycle = processedUsers.size;
+
+            // Scan and process the current viewport before scrolling so X's
+            // virtualized list cannot remove queued DOM nodes first.
             scanUsers();
-
-            // Process users immediately before scrolling (prevents DOM removal issue)
-            while (unfollowQueue.length > 0 && isRunning && !isPaused) {
-                if (sessionCount >= Constants.LIMITS.MAX_SESSION) {
-                    isRunning = false;
-                    sendStatus(Constants.STATUS.LIMIT_REACHED);
-                    break;
-                }
-
-                // Check batch milestone
-                if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
-                    isPaused = true;
-                    chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
-                    sendStatus(Constants.STATUS.TEST_COMPLETE);
-                    return;
-                }
-
-                const userCell = unfollowQueue.shift();
-                if (userCell && document.contains(userCell)) {
-                    const success = await unfollowUser(userCell);
-                    if (!success) {
-                        console.log('Unfollow failed, might be rate limited');
-                    }
-                }
+            if (!await processQueue()) {
+                if (isPaused && !rateLimitUntil) return;
+                continue;
             }
-
-            if (!isRunning || isPaused) continue;
 
             // Scroll to load more users
-            const currentUserCellCount = await autoScroll();
-
-            if (currentUserCellCount === lastUserCellCount) {
-                sameCountStreak++;
-                consecutiveEmptyScans++;
-            } else {
-                sameCountStreak = 0;
-                consecutiveEmptyScans = 0;
-                lastUserCellCount = currentUserCellCount;
+            await autoScroll();
+            scanUsers();
+            if (!await processQueue()) {
+                if (isPaused && !rateLimitUntil) return;
+                continue;
             }
 
-            // If we're at scroll bottom and count didn't increase, count it
-            if (isScrollAtBottom() && currentUserCellCount <= lastUserCellCount) {
-                atBottomStreak++;
-            } else {
-                atBottomStreak = 0;
-            }
+            const newUniqueUsers = processedUsers.size - seenBeforeCycle;
+            noNewUserStreak = newUniqueUsers === 0 ? noNewUserStreak + 1 : 0;
 
-            // Check if we should stop (no new users loading, or explicitly at bottom)
-            const noNewUsers = sameCountStreak >= Constants.LIMITS.MAX_SAME_COUNT_STREAK ||
-                consecutiveEmptyScans >= Constants.LIMITS.MAX_EMPTY_SCANS;
-            const atBottomNoGrowth = atBottomStreak >= 2;
-            if (noNewUsers || atBottomNoGrowth) {
-                // One final scan after last scroll
-                scanUsers();
+            const exhausted = noNewUserStreak >= Constants.LIMITS.MAX_EMPTY_SCANS ||
+                (isScrollAtBottom() && noNewUserStreak >= Constants.LIMITS.MAX_SAME_COUNT_STREAK);
 
-                // Process any remaining users
-                while (unfollowQueue.length > 0 && isRunning && !isPaused) {
-                    if (sessionCount >= Constants.LIMITS.MAX_SESSION) break;
-
-                    if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
-                        isPaused = true;
-                        chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
-                        sendStatus(Constants.STATUS.TEST_COMPLETE);
-                        return;
-                    }
-
-                    const userCell = unfollowQueue.shift();
-                    if (userCell && document.contains(userCell)) {
-                        await unfollowUser(userCell);
-                    }
-                }
-
-                if (unfollowQueue.length === 0) {
-                    console.log('No more users to process - exhausted following list');
-                    isRunning = false;
-                    sendStatus(Constants.STATUS.COMPLETED);
-                    break;
-                }
+            if (exhausted && unfollowQueue.length === 0) {
+                console.log('No more unique users found - exhausted following list');
+                isRunning = false;
+                sendStatus(Constants.STATUS.COMPLETED);
+                break;
             }
 
             // Random pause to appear more human
@@ -601,13 +624,25 @@ const XUnfollowRadarContent = (function () {
         const data = await chrome.storage.local.get(storageKeys);
         const now = Date.now();
 
-        // Reset session if 24 hours passed
-        if (data[Constants.STORAGE_KEYS.SESSION_START] &&
-            (now - data[Constants.STORAGE_KEYS.SESSION_START]) > Constants.TIMING.SESSION_DURATION) {
+        try {
+            const planResult = await chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN });
+            currentPlan = planResult?.plan || Constants.PLANS.FREE;
+        } catch (error) {
+            console.warn('Plan could not be loaded; using free limits:', error);
+            currentPlan = Constants.PLANS.FREE;
+        }
+        sessionLimit = Constants.getSessionLimit(currentPlan);
+
+        const sessionExpired = data[Constants.STORAGE_KEYS.SESSION_START] &&
+            (now - data[Constants.STORAGE_KEYS.SESSION_START]) > Constants.TIMING.SESSION_DURATION;
+
+        // Reset session-scoped state if 24 hours passed
+        if (sessionExpired) {
             sessionCount = 0;
             await chrome.storage.local.set({
                 [Constants.STORAGE_KEYS.SESSION_COUNT]: 0,
-                [Constants.STORAGE_KEYS.SESSION_START]: now
+                [Constants.STORAGE_KEYS.SESSION_START]: now,
+                [Constants.STORAGE_KEYS.TEST_COMPLETE]: false
             });
         } else {
             sessionCount = data[Constants.STORAGE_KEYS.SESSION_COUNT] || 0;
@@ -615,7 +650,7 @@ const XUnfollowRadarContent = (function () {
 
         totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
         testMode = data[Constants.STORAGE_KEYS.TEST_MODE] !== undefined ? data[Constants.STORAGE_KEYS.TEST_MODE] : true;
-        testComplete = data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false;
+        testComplete = sessionExpired ? false : (data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false);
         keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
         whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
         dryRunMode = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
@@ -640,7 +675,12 @@ const XUnfollowRadarContent = (function () {
         if (rateLimitUntil && now < rateLimitUntil) {
             const waitTime = Math.ceil((rateLimitUntil - now) / 1000 / 60);
             console.log(`Rate limit active. Waiting ${waitTime} minutes`);
+            isPaused = true;
+            scheduleRateLimitExpiry();
             sendStatus(Constants.STATUS.RATE_LIMIT, { remainingMinutes: waitTime });
+        } else if (rateLimitUntil) {
+            rateLimitUntil = null;
+            await chrome.storage.local.set({ [Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL]: null });
         }
     }
 
@@ -713,27 +753,26 @@ const XUnfollowRadarContent = (function () {
 
                 case Constants.ACTIONS.UNDO_LAST:
                     if (undoQueue.length > 0) {
-                        const lastUser = undoQueue.pop();
-                        refollowUser(lastUser.username);
-                        chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: undoQueue });
-                        sendResponse({ success: true, username: lastUser.username });
+                        const lastUser = undoQueue[undoQueue.length - 1];
+                        sendResponse({
+                            success: true,
+                            manual: true,
+                            username: lastUser.username,
+                            profileUrl: `https://x.com/${lastUser.username}`
+                        });
                     } else {
-                        sendResponse({ success: false, message: 'No users to undo' });
+                        sendResponse({ success: false, message: 'No recent profiles available' });
                     }
                     break;
 
                 case Constants.ACTIONS.UNDO_SINGLE:
                     const username = message.username;
-                    const userIndex = undoQueue.findIndex(u => u.username === username);
-                    if (userIndex !== -1) {
-                        undoQueue.splice(userIndex, 1);
-                        refollowUser(username);
-                        chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: undoQueue });
-                        sendResponse({ success: true, username: username });
-                    } else {
-                        refollowUser(username);
-                        sendResponse({ success: true, username: username, message: 'Refollowed (not in queue)' });
-                    }
+                    sendResponse({
+                        success: true,
+                        manual: true,
+                        username,
+                        profileUrl: `https://x.com/${username}`
+                    });
                     break;
 
                 default:

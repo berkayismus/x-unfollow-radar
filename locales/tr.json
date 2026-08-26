@@ -5,7 +5,7 @@
     },
     "trust": {
         "worksOnFollowing": "Following sayfasında çalışır",
-        "rateLimitSafe": "Rate limit güvenli",
+        "rateLimitSafe": "Kontrollü işlem temposu",
         "dryRun": "Dry run"
     },
     "tabs": {
@@ -38,7 +38,7 @@
         "start": "Takipten çıkarmayı başlat",
         "stop": "Durdur",
         "continue": "Devam Et (50 kişi daha)",
-        "undo": "Geri Al",
+        "undo": "Profili aç",
         "reset": "Sıfırla",
         "add": "Ekle",
         "addKeyword": "Kelime ekle",
@@ -65,7 +65,7 @@
     },
     "userList": {
         "title": "İşlenen Kullanıcılar",
-        "undoBtn": "Geri Al",
+        "undoBtn": "Profili aç ve manuel takip et",
         "addToWhitelist": "Whitelist'e Ekle",
         "addedToWhitelist": "Whitelist'e eklendi"
     },
@@ -91,11 +91,13 @@
     "messages": {
         "confirmReset": "Tüm istatistikler sıfırlanacak. Emin misiniz?",
         "confirmReload": "Extension henüz yüklenmedi. Sayfayı yenilemek ister misiniz?",
-        "noUndoAction": "Geri alınacak işlem yok",
+        "noUndoAction": "Açılabilecek yakın tarihli profil yok",
         "undoFailed": "Geri alınamadı",
         "undoFailedDetail": "Geri alma işlemi başarısız. Sayfa açık ve \"Following\" sayfasında olduğunuzdan emin olun.",
         "noHistory": "Henüz işlem geçmişi yok",
+        "unfollowed": "Takipten çıkarıldı",
         "undone": "Geri alındı",
+        "profileOpened": "Profil manuel takip için açıldı",
         "addedToWhitelist": "Whitelist'e eklendi",
         "dryRunActive": "Dry Run Mode aktif",
         "normalMode": "Normal mode",
@@ -144,7 +146,7 @@
         "stopButton": "Otomatik takipten çıkarmayı durdur",
         "continueButton": "50 kişi daha takipten çık",
         "resetButton": "Tüm istatistikleri sıfırla",
-        "undoButton": "{count} işlem geri alınabilir",
+        "undoButton": "Son {count} işlemden birinin profilini aç",
         "themeToggle": "Tema değiştir (açık/koyu)",
         "languageToggle": "Dil değiştir",
         "exportButton": "Takipten çıkma geçmişini CSV olarak indir",
@@ -155,7 +157,7 @@
         "addWhitelistButton": "Kullanıcıyı koruma listesine ekle",
         "removeKeyword": "{keyword} anahtar kelimesini kaldır",
         "removeWhitelist": "@{username} kullanıcısını koruma listesinden kaldır",
-        "undoUser": "@{username} için takipten çıkmayı geri al",
+        "undoUser": "@{username} profilini manuel takip için aç",
         "whitelistUser": "@{username} kullanıcısını koruma listesine ekle",
         "tabMain": "Ana sekme",
         "tabFilters": "Filtreler sekmesi",

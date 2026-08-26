@@ -161,11 +161,13 @@ const XUnfollowRadarPopup = (function () {
             const isActive = btn.dataset.tab === tabName;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-selected', isActive);
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
         });
 
         elements.tabContents.forEach(content => {
             const isActive = content.id === `${tabName}-tab`;
             content.classList.toggle('active', isActive);
+            content.hidden = !isActive;
 
             if (isActive) {
                 content.focus();
@@ -261,9 +263,7 @@ const XUnfollowRadarPopup = (function () {
         const totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
         const lastRun = data[Constants.STORAGE_KEYS.LAST_RUN] || '-';
 
-        const maxSession = currentPlan === Constants.PLANS.PRO
-            ? Constants.LIMITS.PRO_MAX_SESSION
-            : Constants.LIMITS.FREE_MAX_SESSION;
+        const maxSession = Constants.getSessionLimit(currentPlan);
         elements.sessionCount.textContent = `${sessionCount}/${maxSession}`;
         elements.totalCount.textContent = totalUnfollowed;
 
@@ -275,7 +275,7 @@ const XUnfollowRadarPopup = (function () {
             elements.lastRun.textContent = '-';
         }
 
-        if (sessionCount >= Constants.LIMITS.MAX_SESSION) {
+        if (sessionCount >= maxSession) {
             const now = Date.now();
             const sessionStart = data[Constants.STORAGE_KEYS.SESSION_START] || now;
             const timeLeft = Constants.TIMING.SESSION_DURATION - (now - sessionStart);
@@ -417,7 +417,7 @@ const XUnfollowRadarPopup = (function () {
         // Session limit display
         const limitEl = elements.sessionCount;
         if (limitEl) {
-            const maxSession = isPro ? Constants.LIMITS.PRO_MAX_SESSION : Constants.LIMITS.FREE_MAX_SESSION;
+            const maxSession = Constants.getSessionLimit(currentPlan);
             const parts = limitEl.textContent.split('/');
             limitEl.textContent = `${parts[0] || '0'}/${maxSession}`;
         }
@@ -655,9 +655,7 @@ const XUnfollowRadarPopup = (function () {
                 [Constants.STORAGE_KEYS.UNDO_QUEUE]: []
             });
 
-            const maxSession = currentPlan === Constants.PLANS.PRO
-                ? Constants.LIMITS.PRO_MAX_SESSION
-                : Constants.LIMITS.FREE_MAX_SESSION;
+            const maxSession = Constants.getSessionLimit(currentPlan);
             elements.sessionCount.textContent = `0/${maxSession}`;
             elements.totalCount.textContent = '0';
             elements.lastRun.textContent = '-';
@@ -672,8 +670,8 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles the undo button click — reads queue from storage directly,
-     * opens the user's profile in a new tab so they can manually re-follow
+     * Opens the most recently unfollowed user's profile for manual re-follow.
+     * The queue entry is retained because opening a profile is not an undo.
      * @async
      * @returns {Promise<void>}
      */
@@ -686,22 +684,13 @@ const XUnfollowRadarPopup = (function () {
             return;
         }
 
-        const lastUser = queue.pop();
-        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: queue });
-
-        // Sync content script in-memory state (best-effort, not required)
-        try {
-            if (currentTab) {
-                await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.UNDO_LAST });
-            }
-        } catch (_) { /* content script may not be active */ }
+        const lastUser = queue[queue.length - 1];
 
         // Open profile so user can re-follow
         const profileUrl = `https://x.com/${lastUser.username}`;
         await chrome.tabs.create({ url: profileUrl });
 
-        updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${lastUser.username}`);
-        await loadUndoQueue();
+        updateStatus('ready', `↗ ${I18n.t('messages.profileOpened')}: @${lastUser.username}`);
     }
 
     /**
@@ -1156,7 +1145,7 @@ const XUnfollowRadarPopup = (function () {
             }, '↶');
             undoBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleUndoSingleUser(username, li);
+                handleUndoSingleUser(username);
             });
             actionsDiv.appendChild(undoBtn);
         }
@@ -1187,40 +1176,16 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles undo for a single user from the list
+     * Opens a user's profile so the user can manually re-follow them.
      * @async
-     * @param {string} username - Username to undo
-     * @param {HTMLElement} liElement - List item element
+     * @param {string} username - Username whose profile should be opened
      * @returns {Promise<void>}
      */
-    async function handleUndoSingleUser(username, liElement) {
-        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNDO_QUEUE]);
-        const queue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
-
-        const idx = queue.findIndex(u => u.username === username);
-        if (idx !== -1) queue.splice(idx, 1);
-        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNDO_QUEUE]: queue });
-
-        // Sync content script in-memory state (best-effort)
-        try {
-            if (currentTab) {
-                await chrome.tabs.sendMessage(currentTab.id, {
-                    action: Constants.ACTIONS.UNDO_SINGLE,
-                    username
-                });
-            }
-        } catch (_) { /* content script may not be active */ }
-
+    async function handleUndoSingleUser(username) {
         // Open profile so user can re-follow
         await chrome.tabs.create({ url: `https://x.com/${username}` });
 
-        updateStatus('ready', `↶ ${I18n.t('messages.undone')}: @${username}`);
-        liElement.classList.remove('unfollowed');
-        liElement.classList.add('undone');
-        liElement.querySelector('.user-icon').textContent = '↶';
-        const undoBtn = liElement.querySelector('.undo-btn');
-        if (undoBtn) undoBtn.remove();
-        await loadUndoQueue();
+        updateStatus('ready', `↗ ${I18n.t('messages.profileOpened')}: @${username}`);
     }
 
     /**
@@ -1298,9 +1263,7 @@ const XUnfollowRadarPopup = (function () {
      */
     function handleStatusUpdate(data) {
         if (data.sessionCount !== undefined) {
-            const maxSession = currentPlan === Constants.PLANS.PRO
-                ? Constants.LIMITS.PRO_MAX_SESSION
-                : Constants.LIMITS.FREE_MAX_SESSION;
+            const maxSession = Constants.getSessionLimit(currentPlan);
             elements.sessionCount.textContent = `${data.sessionCount}/${maxSession}`;
         }
 
@@ -1317,7 +1280,7 @@ const XUnfollowRadarPopup = (function () {
                 break;
             case Constants.STATUS.UNFOLLOWED:
                 const prefix = data.dryRun ? '[DRY RUN] ' : '';
-                updateStatus('active', `${prefix}✓ ${I18n.t('messages.undone')}: @${data.username || 'user'}`);
+                updateStatus('active', `${prefix}✓ ${I18n.t('messages.unfollowed')}: @${data.username || 'user'}`);
                 break;
             case Constants.STATUS.STOPPED:
                 updateStatus('stopped', `⏸ ${I18n.t('status.stopped')}`);
@@ -1348,6 +1311,16 @@ const XUnfollowRadarPopup = (function () {
                 elements.stopBtn.style.display = 'none';
                 updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
                 break;
+            case Constants.STATUS.RATE_LIMIT:
+                handleRateLimitMessage({ remainingMinutes: data.remainingMinutes || Constants.TIMING.RATE_LIMIT_MINUTES });
+                break;
+            case Constants.STATUS.RESUMED:
+                elements.rateLimitAlert.style.display = 'none';
+                isRunning = true;
+                elements.startBtn.style.display = 'none';
+                elements.stopBtn.style.display = 'block';
+                updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
+                break;
         }
 
         loadStats();
@@ -1370,9 +1343,9 @@ const XUnfollowRadarPopup = (function () {
     function handleRateLimitMessage(data) {
         elements.rateLimitAlert.style.display = 'block';
         updateStatus('stopped', `🚫 ${I18n.t('alerts.rateLimit')}`);
-        isRunning = false;
-        elements.startBtn.style.display = 'block';
-        elements.stopBtn.style.display = 'none';
+        isRunning = true;
+        elements.startBtn.style.display = 'none';
+        elements.stopBtn.style.display = 'block';
 
         let remainingSeconds = data.remainingMinutes * 60;
 

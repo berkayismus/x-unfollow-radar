@@ -262,6 +262,18 @@ const Constants = (function () {
         EXPIRED: 'expired'
     });
 
+    /**
+     * Returns the daily operation limit for a plan.
+     * Keeps popup and automation engine on the same source of truth.
+     * @param {string} plan
+     * @returns {number}
+     */
+    function getSessionLimit(plan) {
+        return plan === PLANS.PRO
+            ? LIMITS.PRO_MAX_SESSION
+            : LIMITS.FREE_MAX_SESSION;
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // GUMROAD CONFIGURATION
     // ═══════════════════════════════════════════════════════════════
@@ -290,8 +302,9 @@ const Constants = (function () {
     const LOCALES = Object.freeze({
         TURKISH: 'tr',
         ENGLISH: 'en',
+        GERMAN: 'de',
         DEFAULT: 'tr',
-        SUPPORTED: ['tr', 'en']
+        SUPPORTED: ['tr', 'en', 'de']
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -312,7 +325,8 @@ const Constants = (function () {
         THEMES,
         LOCALES,
         PLANS,
-        GUMROAD
+        GUMROAD,
+        getSessionLimit
     });
 })();
 
