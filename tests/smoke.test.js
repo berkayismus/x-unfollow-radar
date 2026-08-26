@@ -119,12 +119,46 @@ function testRollingSafetyWindow() {
     assert.deepEqual(Array.from(expiredLegacy), []);
 }
 
+function testRunStateMachine() {
+    const context = { window: {} };
+    vm.runInNewContext(read('src/shared/run-state.js'), context);
+    const runs = context.window.RunStateUtils;
+    const run = runs.create({ id: 'run-1', startedAt: 100, dryRun: false });
+
+    assert.ok(runs.queue(run, 'alice', 110, 'unfollowed'));
+    assert.equal(run.summary.queued, 1);
+    assert.equal(runs.transition(run, 'alice', runs.ITEM_STATUS.SUCCEEDED, 120), null,
+        'queued items must not skip the attempting state');
+    assert.ok(runs.transition(run, 'alice', runs.ITEM_STATUS.ATTEMPTING, 120));
+    assert.equal(run.summary.queued, 0);
+    assert.equal(run.summary.attempting, 1);
+    assert.ok(runs.transition(run, 'alice', runs.ITEM_STATUS.SUCCEEDED, 130));
+    assert.equal(run.summary.attempting, 0);
+    assert.equal(run.summary.realSucceeded, 1);
+
+    runs.queue(run, 'bob', 140, 'dry-run');
+    runs.transition(run, 'bob', runs.ITEM_STATUS.ATTEMPTING, 150);
+    runs.transition(run, 'bob', runs.ITEM_STATUS.FAILED, 160, 'verification_failed');
+    assert.equal(run.summary.failed, 1);
+    assert.ok(runs.skip(run, 'carol', 'whitelist', 170, 100));
+    assert.equal(run.summary.skipped, 1);
+    runs.setStatus(run, 'completed', 180, true);
+    assert.equal(run.status, 'completed');
+    assert.equal(run.finishedAt, 180);
+
+    runs.trimCompleted(run, 1);
+    assert.equal(run.items.length, 1);
+    assert.equal(run.summary.realSucceeded, 1, 'trimming records must preserve aggregate counts');
+    assert.equal(run.summary.failed, 1, 'trimming records must preserve aggregate counts');
+}
+
 function testManifestScope() {
     const manifest = JSON.parse(read('manifest.json'));
     assert.equal(manifest.web_accessible_resources, undefined);
     assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/safety-window.js'));
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/run-state.js'));
 }
 
 function testCriticalRegressionGuards() {
@@ -143,6 +177,7 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /updateDailyStats\(Constants\.USER_ACTIONS\.DRY_RUN\)/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.ACTION_TIMESTAMPS/);
+    assert.match(resetHandler, /STORAGE_KEYS\.RUN_STATE/);
     assert.match(contentSource, /case Constants\.ACTIONS\.DELETE_ALL_DATA/);
     assert.match(popupSource, /chrome\.storage\.local\.clear\(\)/);
     assert.match(contentSource, /new AbortController\(\)/);
@@ -150,6 +185,8 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /findConfirmationDialog\(username\)/);
     assert.match(contentSource, /MAX_CONSECUTIVE_FAILURES/);
     assert.match(contentSource, /pauseIfRateLimited\(\)/);
+    assert.match(contentSource, /RunStateUtils\.ITEM_STATUS\.ATTEMPTING/);
+    assert.match(popupSource, /loadLastRunState\(\)/);
 }
 
 testSessionLimits();
@@ -157,6 +194,7 @@ testLocaleParity();
 testCsvSafety();
 testDomInterpretation();
 testRollingSafetyWindow();
+testRunStateMachine();
 testManifestScope();
 testCriticalRegressionGuards();
 

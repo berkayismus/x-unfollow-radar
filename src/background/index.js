@@ -246,6 +246,10 @@ const XUnfollowRadarBackground = (function () {
                 relayMessage(message);
                 break;
 
+            case 'RUN_STATE_UPDATED':
+                relayMessage(message);
+                break;
+
             default:
                 break;
         }

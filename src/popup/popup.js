@@ -63,6 +63,11 @@ const XUnfollowRadarPopup = (function () {
             sessionCount: document.getElementById('sessionCount'),
             totalCount: document.getElementById('totalCount'),
             lastRun: document.getElementById('lastRun'),
+            runRealCount: document.getElementById('runRealCount'),
+            runDryCount: document.getElementById('runDryCount'),
+            runSkippedCount: document.getElementById('runSkippedCount'),
+            runFailedCount: document.getElementById('runFailedCount'),
+            runStatusBadge: document.getElementById('runStatusBadge'),
 
             statusText: document.getElementById('statusText'),
             statusIndicator: document.getElementById('statusIndicator'),
@@ -246,6 +251,72 @@ const XUnfollowRadarPopup = (function () {
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Data Loading
     // ═══════════════════════════════════════════════════════════════
+
+    function renderRunSummary(summary = {}, status = null) {
+        elements.runRealCount.textContent = summary.realSucceeded || 0;
+        elements.runDryCount.textContent = summary.dryRunSucceeded || 0;
+        elements.runSkippedCount.textContent = summary.skipped || 0;
+        elements.runFailedCount.textContent = summary.failed || 0;
+        elements.runStatusBadge.textContent = status
+            ? I18n.t(`runSummary.status.${status}`)
+            : '';
+    }
+
+    function actionForRunItem(item) {
+        if (item.status === RunStateUtils.ITEM_STATUS.SUCCEEDED) {
+            return item.mode === Constants.USER_ACTIONS.DRY_RUN
+                ? Constants.USER_ACTIONS.DRY_RUN
+                : Constants.USER_ACTIONS.UNFOLLOWED;
+        }
+        if (item.status === RunStateUtils.ITEM_STATUS.FAILED) {
+            return `failed:${item.reason || 'unknown'}`;
+        }
+        return item.status;
+    }
+
+    function removeDisplayedUser(username) {
+        Array.from(elements.userList.querySelectorAll('li')).forEach(item => {
+            if (item.dataset.username === username) item.remove();
+        });
+        Array.from(displayedUsers).forEach(key => {
+            if (key.startsWith(`${username}:`)) displayedUsers.delete(key);
+        });
+    }
+
+    async function loadLastRunState() {
+        const data = await chrome.storage.local.get([
+            Constants.STORAGE_KEYS.RUN_STATE,
+            Constants.STORAGE_KEYS.WHITELIST
+        ]);
+        const run = data[Constants.STORAGE_KEYS.RUN_STATE];
+        renderRunSummary(run?.summary, run?.status);
+        elements.userList.innerHTML = '';
+        displayedUsers.clear();
+        if (!run) return;
+
+        const itemRecords = (run.items || []).map(item => ({
+            username: item.username,
+            action: actionForRunItem(item),
+            timestamp: item.completedAt || item.attemptedAt || item.queuedAt
+        }));
+        const skippedRecords = (run.skipped || []).map(item => ({
+            username: item.username,
+            action: `skipped:${item.reason}`,
+            timestamp: item.timestamp
+        }));
+        const records = [...itemRecords, ...skippedRecords]
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .slice(-Constants.LIMITS.MAX_USER_LIST_DISPLAY);
+
+        for (const record of records) {
+            await addUserToList(
+                record.username,
+                record.action,
+                record.timestamp,
+                data[Constants.STORAGE_KEYS.WHITELIST] || {}
+            );
+        }
+    }
 
     /**
      * Loads and displays statistics from storage
@@ -677,7 +748,8 @@ const XUnfollowRadarPopup = (function () {
                 [Constants.STORAGE_KEYS.LAST_RUN]: null,
                 [Constants.STORAGE_KEYS.UNDO_QUEUE]: [],
                 [Constants.STORAGE_KEYS.UNFOLLOW_STATS]: { daily: {} },
-                [Constants.STORAGE_KEYS.UNFOLLOW_HISTORY]: []
+                [Constants.STORAGE_KEYS.UNFOLLOW_HISTORY]: [],
+                [Constants.STORAGE_KEYS.RUN_STATE]: null
             });
 
             try {
@@ -691,6 +763,7 @@ const XUnfollowRadarPopup = (function () {
             elements.userList.innerHTML = '';
             displayedUsers.clear(); // Clear the tracking Set
             updateUndoButton(0);
+            renderRunSummary();
 
             updateStatus('ready', `✓ ${I18n.t('status.reset')}`);
         }
@@ -1132,7 +1205,7 @@ const XUnfollowRadarPopup = (function () {
      * @param {number} timestamp - Timestamp of the action
      * @returns {Promise<void>}
      */
-    async function addUserToList(username, action, timestamp) {
+    async function addUserToList(username, action, timestamp, knownWhitelist = null) {
         // Create unique key for this user+action combination
         const userKey = `${username}:${action}`;
 
@@ -1151,23 +1224,41 @@ const XUnfollowRadarPopup = (function () {
         });
 
         // Check if user is already in whitelist
-        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.WHITELIST]);
-        const whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
+        const data = knownWhitelist === null
+            ? await chrome.storage.local.get([Constants.STORAGE_KEYS.WHITELIST])
+            : null;
+        const whitelist = knownWhitelist || data?.[Constants.STORAGE_KEYS.WHITELIST] || {};
         const cleanUsername = username.replace('@', '').toLowerCase();
         const isInWhitelist = !!whitelist[cleanUsername];
 
         let icon = '';
         let className = '';
+        let statusLabel = '';
 
         if (action === Constants.USER_ACTIONS.UNFOLLOWED) {
             icon = '✓';
             className = 'unfollowed';
+            statusLabel = I18n.t('userList.succeeded');
         } else if (action === Constants.USER_ACTIONS.DRY_RUN) {
             icon = '🧪';
             className = 'dry-run';
+            statusLabel = I18n.t('userList.dryRunSucceeded');
         } else if (action.startsWith('skipped:')) {
             icon = '⊘';
             className = 'skipped';
+            statusLabel = I18n.t('userList.skipped');
+        } else if (action === RunStateUtils.ITEM_STATUS.QUEUED) {
+            icon = '○';
+            className = 'queued';
+            statusLabel = I18n.t('userList.queued');
+        } else if (action === RunStateUtils.ITEM_STATUS.ATTEMPTING) {
+            icon = '…';
+            className = 'attempting';
+            statusLabel = I18n.t('userList.attempting');
+        } else if (action.startsWith('failed:')) {
+            icon = '✕';
+            className = 'failed';
+            statusLabel = I18n.t('userList.failed');
         }
 
         li.className = className;
@@ -1175,7 +1266,11 @@ const XUnfollowRadarPopup = (function () {
         li.dataset.action = action;
 
         // Build the list item using DOM methods
-        const iconSpan = createElement('span', { className: 'user-icon' }, icon);
+        const iconSpan = createElement('span', {
+            className: 'user-icon',
+            title: statusLabel,
+            'aria-label': statusLabel
+        }, icon);
         const nameSpan = createElement('span', { className: 'user-name' }, `@${username}`);
         const timeSpan = createElement('span', { className: 'user-time' }, time);
         const actionsDiv = createElement('div', { className: 'user-actions' });
@@ -1300,6 +1395,18 @@ const XUnfollowRadarPopup = (function () {
             case Constants.MESSAGE_TYPES.USER_PROCESSED:
                 addUserToList(message.data.username, message.data.action, message.data.timestamp);
                 loadUndoQueue();
+                break;
+            case Constants.MESSAGE_TYPES.RUN_STATE_UPDATED:
+                renderRunSummary(message.data.summary, message.data.status);
+                if (message.data.record?.username) {
+                    const record = message.data.record;
+                    removeDisplayedUser(record.username);
+                    addUserToList(
+                        record.username,
+                        actionForRunItem(record),
+                        record.completedAt || record.attemptedAt || record.queuedAt
+                    );
+                }
                 break;
         }
     }
@@ -1592,6 +1699,7 @@ const XUnfollowRadarPopup = (function () {
         await loadTheme();
         await loadDryRunMode();
         await loadUndoQueue();
+        await loadLastRunState();
 
         // Setup event listeners — always
         setupEventListeners();

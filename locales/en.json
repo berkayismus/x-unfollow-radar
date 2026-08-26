@@ -68,7 +68,29 @@
         "title": "Processed Users",
         "undoBtn": "Open profile to follow manually",
         "addToWhitelist": "Add to Whitelist",
-        "addedToWhitelist": "Added to Whitelist"
+        "addedToWhitelist": "Added to Whitelist",
+        "queued": "Queued",
+        "attempting": "Attempting",
+        "succeeded": "Succeeded",
+        "dryRunSucceeded": "Dry run succeeded",
+        "skipped": "Skipped",
+        "failed": "Failed"
+    },
+    "runSummary": {
+        "title": "Latest Run Summary",
+        "real": "Real",
+        "dryRun": "Dry run",
+        "skipped": "Skipped",
+        "failed": "Failed",
+        "status": {
+            "running": "Running",
+            "paused": "Paused",
+            "stopped": "Stopped",
+            "completed": "Completed",
+            "limit_reached": "Limit reached",
+            "error": "Error",
+            "interrupted": "Interrupted"
+        }
     },
     "info": {
         "lastRun": "Last run"

@@ -504,6 +504,53 @@ button:disabled {
 /* =====================================================
    USER LIST
    ===================================================== */
+.run-summary {
+    margin-bottom: 10px;
+}
+
+.run-summary h3 {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+.run-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.run-summary-grid div {
+    padding: 6px 3px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-align: center;
+    background: var(--surface-bg);
+}
+
+.run-summary-grid span,
+.run-summary-grid small {
+    display: block;
+}
+
+.run-summary-grid span {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.run-summary-grid small {
+    margin-top: 2px;
+    font-size: 9px;
+    color: var(--text-secondary-accessible);
+}
+
+.run-status-badge {
+    float: right;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-secondary-accessible);
+}
+
 .user-list-container {
     margin-bottom: 8px;
 }
@@ -539,6 +586,9 @@ button:disabled {
 #userList li.dry-run    { background: transparent; }
 #userList li.skipped    { background: transparent; }
 #userList li.undone     { background: transparent; }
+#userList li.queued     { opacity: 0.75; }
+#userList li.attempting { background: var(--surface-bg); }
+#userList li.failed     { color: var(--danger-color); }
 
 .user-icon { font-size: 13px; }
 

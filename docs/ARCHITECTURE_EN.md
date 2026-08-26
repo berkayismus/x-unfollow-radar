@@ -95,6 +95,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
      - Recent-profile queue
      - Rate limit timestamp
      - Stats and history
+     - Latest run state and per-user `queued/attempting/succeeded/failed` transitions
    - Prunes each successful action timestamp individually after 24 hours and derives the safety count from the remaining records.
    - Initializes missing structures (stats, history).
 

@@ -68,7 +68,29 @@
         "title": "Verarbeitete Benutzer",
         "undoBtn": "Profil zum manuellen Folgen öffnen",
         "addToWhitelist": "Zur Whitelist hinzufügen",
-        "addedToWhitelist": "Zur Whitelist hinzugefügt"
+        "addedToWhitelist": "Zur Whitelist hinzugefügt",
+        "queued": "In Warteschlange",
+        "attempting": "Wird verarbeitet",
+        "succeeded": "Erfolgreich",
+        "dryRunSucceeded": "Testlauf erfolgreich",
+        "skipped": "Übersprungen",
+        "failed": "Fehlgeschlagen"
+    },
+    "runSummary": {
+        "title": "Letzte Laufübersicht",
+        "real": "Echt",
+        "dryRun": "Testlauf",
+        "skipped": "Übersprungen",
+        "failed": "Fehlgeschlagen",
+        "status": {
+            "running": "Läuft",
+            "paused": "Pausiert",
+            "stopped": "Gestoppt",
+            "completed": "Abgeschlossen",
+            "limit_reached": "Limit erreicht",
+            "error": "Fehler",
+            "interrupted": "Unterbrochen"
+        }
     },
     "info": {
         "lastRun": "Letzter Lauf"

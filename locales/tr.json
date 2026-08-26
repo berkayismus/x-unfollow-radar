@@ -68,7 +68,29 @@
         "title": "İşlenen Kullanıcılar",
         "undoBtn": "Profili aç ve manuel takip et",
         "addToWhitelist": "Whitelist'e Ekle",
-        "addedToWhitelist": "Whitelist'e eklendi"
+        "addedToWhitelist": "Whitelist'e eklendi",
+        "queued": "Sırada",
+        "attempting": "İşleniyor",
+        "succeeded": "Başarılı",
+        "dryRunSucceeded": "Dry run tamamlandı",
+        "skipped": "Atlandı",
+        "failed": "Başarısız"
+    },
+    "runSummary": {
+        "title": "Son Çalışma Özeti",
+        "real": "Gerçek",
+        "dryRun": "Dry run",
+        "skipped": "Atlanan",
+        "failed": "Başarısız",
+        "status": {
+            "running": "Çalışıyor",
+            "paused": "Duraklatıldı",
+            "stopped": "Durduruldu",
+            "completed": "Tamamlandı",
+            "limit_reached": "Limit doldu",
+            "error": "Hata",
+            "interrupted": "Kesintiye uğradı"
+        }
     },
     "info": {
         "lastRun": "Son çalıştırma"

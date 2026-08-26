@@ -71,6 +71,10 @@ const Constants = (function () {
         HISTORY_RETENTION_DAYS: 30,
         /** Maximum users to display in popup list */
         MAX_USER_LIST_DISPLAY: 100,
+        /** Maximum skipped-user records retained for the latest run */
+        MAX_RUN_SKIPPED_RECORDS: 500,
+        /** Maximum action-state records retained for the latest run */
+        MAX_RUN_ITEM_RECORDS: 500,
         /** Number of scroll cycles before processing */
         SCROLL_CYCLES_BEFORE_PROCESS: 8,
         /** Users to process per cycle */
@@ -178,6 +182,7 @@ const Constants = (function () {
         RATE_LIMIT_UNTIL: 'rateLimitUntil',
         UNFOLLOW_STATS: 'unfollowStats',
         UNFOLLOW_HISTORY: 'unfollowHistory',
+        RUN_STATE: 'runState',
         THEME: 'theme',
         LANGUAGE: 'language',
         PLAN: 'plan',
@@ -198,7 +203,8 @@ const Constants = (function () {
         STATUS_UPDATE: 'STATUS_UPDATE',
         TEST_COMPLETE: 'TEST_COMPLETE',
         RATE_LIMIT_HIT: 'RATE_LIMIT_HIT',
-        USER_PROCESSED: 'USER_PROCESSED'
+        USER_PROCESSED: 'USER_PROCESSED',
+        RUN_STATE_UPDATED: 'RUN_STATE_UPDATED'
     });
 
     /**

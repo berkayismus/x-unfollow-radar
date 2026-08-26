@@ -35,6 +35,7 @@
         "src/shared/constants.js",
         "src/shared/dom.js",
         "src/shared/safety-window.js",
+        "src/shared/run-state.js",
         "src/content/index.js"
       ],
       "run_at": "document_idle"

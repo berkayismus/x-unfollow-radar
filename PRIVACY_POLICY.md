@@ -12,6 +12,7 @@ The extension uses `chrome.storage.local` to keep the following information on t
 - Total operation count and last-run timestamp
 - Daily real-operation and dry-run statistics
 - Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons
+- The latest run's queued, attempting, successful, failed, and skipped usernames, status timestamps, and reasons
 - Up to 10 recently unfollowed usernames used by the “Open profile” feature
 - User-created keyword filters and whitelisted X usernames
 - Dry-run, language, and theme preferences
@@ -45,6 +46,7 @@ The extension operates inside the user's existing X/Twitter browser session. It 
 
 - Unfollow history is automatically limited to the most recent 30 days.
 - The recent-profile list is limited to 10 entries.
+- Detailed per-user run state is limited to the latest run, retains at most 500 action records and 500 skipped-user records, and is replaced when a new run starts. Aggregate counts for that run remain complete.
 - Counters, filters, preferences, and license information remain until the user resets or deletes them, or uninstalls the extension.
 - Gumroad verification records held by Gumroad are governed by Gumroad's own policies.
 
@@ -52,7 +54,7 @@ The extension operates inside the user's existing X/Twitter browser session. It 
 
 The popup provides two separate controls:
 
-1. **Reset statistics** deletes the total statistic, charts, action history, and the recent-profile list. It preserves the active 24-hour safety-window count, filters, preferences, and license information.
+1. **Reset statistics** deletes the total statistic, charts, action history, recent-profile list, and latest run state. It preserves the active 24-hour safety-window count, filters, preferences, and license information.
 2. **Delete all local data** clears all data owned by the extension from `chrome.storage.local`, including filters, history, preferences, rate-limit state, and license information.
 
 Uninstalling the extension also removes its local Chrome storage according to Chrome's extension-storage behavior.

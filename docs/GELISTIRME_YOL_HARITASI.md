@@ -35,9 +35,9 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 
 - [x] Güvenlik limitini kayan son-24-saat aksiyon kayıtlarından hesapla.
 - [x] Kullanıcı resetinin güvenlik limitini aşmasına izin verme.
-- [ ] Çalışma durumunu `queued/attempting/succeeded/failed` durum makinesine taşı.
-- [ ] Popup yeniden açıldığında son çalışma listesini geri yükle.
-- [ ] Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı çalışma özetinde göster.
+- [x] Çalışma durumunu `queued/attempting/succeeded/failed` durum makinesine taşı.
+- [x] Popup yeniden açıldığında son çalışma listesini geri yükle.
+- [x] Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı çalışma özetinde göster.
 
 **Faz 1 çıkış kriteri:** Free/Pro limit, stop, dry-run, batch, scroll sonu, başarısız aksiyon ve sayfa yenileme senaryoları otomatik testlerden geçer.
 

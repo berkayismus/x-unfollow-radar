@@ -78,6 +78,9 @@ const XUnfollowRadarContent = (function () {
     /** @type {number} Consecutive action failures used by the circuit breaker */
     let consecutiveFailures = 0;
 
+    /** @type {Object|null} Persisted state machine for the latest run */
+    let runState = null;
+
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
@@ -206,6 +209,21 @@ const XUnfollowRadarContent = (function () {
             testComplete,
             ...data
         });
+    }
+
+    async function persistRunState(record = null) {
+        if (!runState || suppressPersistence) return;
+        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.RUN_STATE]: runState });
+        chrome.runtime.sendMessage({
+            type: Constants.MESSAGE_TYPES.RUN_STATE_UPDATED,
+            data: { summary: runState.summary, status: runState.status, record }
+        });
+    }
+
+    async function updateRunStatus(status, finished = false) {
+        if (!runState) return;
+        RunStateUtils.setStatus(runState, status, Date.now(), finished);
+        await persistRunState();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -362,6 +380,7 @@ const XUnfollowRadarContent = (function () {
         sendStatus(Constants.STATUS.RATE_LIMIT, { remainingMinutes: Constants.TIMING.RATE_LIMIT_MINUTES });
 
         scheduleRateLimitExpiry();
+        await updateRunStatus('paused');
     }
 
     /**
@@ -391,6 +410,7 @@ const XUnfollowRadarContent = (function () {
             chrome.storage.local.set({ [Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL]: null });
 
             if (isRunning) {
+                updateRunStatus('running');
                 sendStatus(Constants.STATUS.RESUMED, { message: 'Rate limit cleared, resuming operation' });
             }
         } else if (rateLimitUntil) {
@@ -534,9 +554,10 @@ const XUnfollowRadarContent = (function () {
      * Only scans users in the primary column (excludes "Who to follow" sidebar)
      * @returns {void}
      */
-    function scanUsers() {
+    async function scanUsers() {
         const userCells = document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN);
         let newUsersFound = 0;
+        let runChanged = false;
 
         userCells.forEach(cell => {
             const username = getUsernameFromCell(cell);
@@ -548,6 +569,14 @@ const XUnfollowRadarContent = (function () {
             if (!hasFollowsYouBadge(cell)) {
                 const skipCheck = shouldSkipUser(cell, username);
                 if (skipCheck.skip) {
+                    RunStateUtils.skip(
+                        runState,
+                        username,
+                        skipCheck.reason,
+                        Date.now(),
+                        Constants.LIMITS.MAX_RUN_SKIPPED_RECORDS
+                    );
+                    runChanged = true;
                     chrome.runtime.sendMessage({
                         type: Constants.MESSAGE_TYPES.USER_PROCESSED,
                         data: { username, action: `skipped:${skipCheck.reason}`, timestamp: Date.now() }
@@ -556,9 +585,18 @@ const XUnfollowRadarContent = (function () {
                 }
 
                 unfollowQueue.push(cell);
+                RunStateUtils.queue(
+                    runState,
+                    username,
+                    Date.now(),
+                    dryRunMode ? Constants.USER_ACTIONS.DRY_RUN : Constants.USER_ACTIONS.UNFOLLOWED
+                );
+                runChanged = true;
                 newUsersFound++;
             }
         });
+
+        if (runChanged) await persistRunState();
 
         if (newUsersFound > 0) {
             console.log(`Found ${newUsersFound} non-followers`);
@@ -659,31 +697,75 @@ const XUnfollowRadarContent = (function () {
             await refreshSafetyWindow();
             if (!dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
+                await updateRunStatus('limit_reached', true);
                 sendStatus(Constants.STATUS.LIMIT_REACHED);
                 return false;
             }
 
             if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
                 isPaused = true;
+                await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
                 sendStatus(Constants.STATUS.TEST_COMPLETE);
                 return false;
             }
 
             const userCell = unfollowQueue.shift();
+            const username = userCell ? getUsernameFromCell(userCell) : null;
             if (userCell && document.contains(userCell)) {
+                const attemptingRecord = RunStateUtils.transition(
+                    runState,
+                    username,
+                    RunStateUtils.ITEM_STATUS.ATTEMPTING,
+                    Date.now()
+                );
+                await persistRunState(attemptingRecord);
                 const success = await unfollowUser(userCell);
                 if (success) {
+                    const succeededRecord = RunStateUtils.transition(
+                        runState,
+                        username,
+                        RunStateUtils.ITEM_STATUS.SUCCEEDED,
+                        Date.now()
+                    );
+                    RunStateUtils.trimCompleted(runState, Constants.LIMITS.MAX_RUN_ITEM_RECORDS);
+                    await persistRunState(succeededRecord);
                     consecutiveFailures = 0;
-                } else if (isRunning && !isPaused) {
-                    consecutiveFailures++;
-                    console.log('Unfollow could not be completed or verified');
-                    if (consecutiveFailures >= Constants.LIMITS.MAX_CONSECUTIVE_FAILURES) {
+                } else {
+                    const failureReason = isPaused ? 'rate_limited' :
+                        (!isRunning ? 'stopped' : 'verification_failed');
+                    const failedRecord = RunStateUtils.transition(
+                        runState,
+                        username,
+                        RunStateUtils.ITEM_STATUS.FAILED,
+                        Date.now(),
+                        failureReason
+                    );
+                    RunStateUtils.trimCompleted(runState, Constants.LIMITS.MAX_RUN_ITEM_RECORDS);
+                    await persistRunState(failedRecord);
+
+                    if (isRunning && !isPaused) {
+                        consecutiveFailures++;
+                        console.log('Unfollow could not be completed or verified');
+                    }
+                    if (isRunning && !isPaused &&
+                        consecutiveFailures >= Constants.LIMITS.MAX_CONSECUTIVE_FAILURES) {
                         isRunning = false;
+                        await updateRunStatus('error', true);
                         sendStatus(Constants.STATUS.ERROR, { reason: 'circuit_breaker' });
                         return false;
                     }
                 }
+            } else if (username) {
+                const failedRecord = RunStateUtils.transition(
+                    runState,
+                    username,
+                    RunStateUtils.ITEM_STATUS.FAILED,
+                    Date.now(),
+                    'dom_removed'
+                );
+                RunStateUtils.trimCompleted(runState, Constants.LIMITS.MAX_RUN_ITEM_RECORDS);
+                await persistRunState(failedRecord);
             }
         }
 
@@ -703,6 +785,16 @@ const XUnfollowRadarContent = (function () {
         console.log('mainLoop started, isRunning:', isRunning);
         await initStorage();
         if (!isRunning || operationController?.signal.aborted) return;
+        if (!runState) {
+            const startedAt = operationStartTime || Date.now();
+            runState = RunStateUtils.create({
+                id: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+                startedAt,
+                dryRun: dryRunMode
+            });
+            if (isPaused) RunStateUtils.setStatus(runState, 'paused', Date.now());
+            await persistRunState();
+        }
         console.log('Storage initialized, sessionCount:', sessionCount);
         if (isPaused && rateLimitUntil) {
             const remainingMinutes = Math.ceil((rateLimitUntil - Date.now()) / 60000);
@@ -727,6 +819,7 @@ const XUnfollowRadarContent = (function () {
 
             if (!dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
+                await updateRunStatus('limit_reached', true);
                 sendStatus(Constants.STATUS.LIMIT_REACHED);
                 break;
             }
@@ -734,6 +827,7 @@ const XUnfollowRadarContent = (function () {
             // Check if we reached a batch milestone
             if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
                 isPaused = true;
+                await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
                 sendStatus(Constants.STATUS.TEST_COMPLETE);
                 return;
@@ -743,7 +837,7 @@ const XUnfollowRadarContent = (function () {
 
             // Scan and process the current viewport before scrolling so X's
             // virtualized list cannot remove queued DOM nodes first.
-            scanUsers();
+            await scanUsers();
             if (!await processQueue()) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
@@ -751,7 +845,7 @@ const XUnfollowRadarContent = (function () {
 
             // Scroll to load more users
             await autoScroll();
-            scanUsers();
+            await scanUsers();
             if (!await processQueue()) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
@@ -766,6 +860,7 @@ const XUnfollowRadarContent = (function () {
             if (exhausted && unfollowQueue.length === 0) {
                 console.log('No more unique users found - exhausted following list');
                 isRunning = false;
+                await updateRunStatus('completed', true);
                 sendStatus(Constants.STATUS.COMPLETED);
                 break;
             }
@@ -804,7 +899,8 @@ const XUnfollowRadarContent = (function () {
             Constants.STORAGE_KEYS.UNDO_QUEUE,
             Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL,
             Constants.STORAGE_KEYS.UNFOLLOW_STATS,
-            Constants.STORAGE_KEYS.UNFOLLOW_HISTORY
+            Constants.STORAGE_KEYS.UNFOLLOW_HISTORY,
+            Constants.STORAGE_KEYS.RUN_STATE
         ];
 
         const data = await chrome.storage.local.get(storageKeys);
@@ -845,6 +941,12 @@ const XUnfollowRadarContent = (function () {
         dryRunMode = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
         undoQueue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
         rateLimitUntil = data[Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL] || null;
+
+        const storedRunState = data[Constants.STORAGE_KEYS.RUN_STATE];
+        if (!isRunning && storedRunState && ['running', 'paused'].includes(storedRunState.status)) {
+            RunStateUtils.setStatus(storedRunState, 'interrupted', now, true);
+            await chrome.storage.local.set({ [Constants.STORAGE_KEYS.RUN_STATE]: storedRunState });
+        }
 
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
@@ -898,6 +1000,7 @@ const XUnfollowRadarContent = (function () {
                         isPaused = false;
                         suppressPersistence = false;
                         consecutiveFailures = 0;
+                        runState = null;
                         unfollowQueue = [];
                         processedUsers = new Set();
                         operationStartTime = Date.now();
@@ -906,6 +1009,7 @@ const XUnfollowRadarContent = (function () {
                             if (err.name === 'AbortError') return;
                             console.error('mainLoop error:', err);
                             isRunning = false;
+                            updateRunStatus('error', true);
                             sendStatus(Constants.STATUS.ERROR);
                         });
                     }
@@ -916,6 +1020,7 @@ const XUnfollowRadarContent = (function () {
                     isRunning = false;
                     isPaused = false;
                     stopActiveOperation();
+                    updateRunStatus('stopped', true);
                     sendStatus(Constants.STATUS.STOPPED);
                     sendResponse({ success: true });
                     break;
@@ -925,6 +1030,7 @@ const XUnfollowRadarContent = (function () {
                     testCompletedAt = Date.now();
                     isPaused = false;
                     isRunning = true;
+                    updateRunStatus('running');
                     if (!operationController || operationController.signal.aborted) {
                         operationController = new AbortController();
                     }
@@ -936,6 +1042,7 @@ const XUnfollowRadarContent = (function () {
                         if (err.name !== 'AbortError') {
                             console.error('mainLoop error:', err);
                             isRunning = false;
+                            updateRunStatus('error', true);
                             sendStatus(Constants.STATUS.ERROR);
                         }
                     });
@@ -943,8 +1050,7 @@ const XUnfollowRadarContent = (function () {
                     break;
 
                 case Constants.ACTIONS.GET_STATUS:
-                    sendStatus(Constants.STATUS.IDLE);
-                    sendResponse({ success: true, isRunning });
+                    sendResponse({ success: true, isRunning, runStatus: runState?.status || null });
                     break;
 
                 case Constants.ACTIONS.UPDATE_KEYWORDS:
@@ -968,6 +1074,7 @@ const XUnfollowRadarContent = (function () {
                 case Constants.ACTIONS.RESET_STATS:
                     totalUnfollowed = 0;
                     undoQueue = [];
+                    runState = null;
                     sendResponse({ success: true });
                     break;
 
@@ -985,6 +1092,7 @@ const XUnfollowRadarContent = (function () {
                     keywords = [];
                     whitelist = {};
                     dryRunMode = false;
+                    runState = null;
                     sendResponse({ success: true });
                     break;
 

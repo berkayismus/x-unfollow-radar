@@ -12,6 +12,8 @@ Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chro
 - ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
 - ✅ Batch modu: Pro planda ilk 50 gerçek işlemden sonra devam onayı ister
 - ✅ Toplam istatistik saklama
+- ✅ Kalıcı çalışma özeti: gerçek, dry-run, atlanan ve başarısız sonuçlar
+- ✅ Popup yeniden açıldığında son çalışma listesini geri yükleme
 - ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
 
 ### Gelişmiş Özellikler

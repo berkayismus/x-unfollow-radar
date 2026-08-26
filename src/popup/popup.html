@@ -147,9 +147,21 @@
                         id="undoCount" aria-hidden="true">0</span>)</button>
             </div>
 
+            <section class="run-summary" aria-labelledby="runSummaryTitle">
+                <h3 id="runSummaryTitle" data-i18n="runSummary.title">Son Çalışma Özeti</h3>
+                <div class="run-summary-grid">
+                    <div><span id="runRealCount">0</span><small data-i18n="runSummary.real">Gerçek</small></div>
+                    <div><span id="runDryCount">0</span><small data-i18n="runSummary.dryRun">Dry run</small></div>
+                    <div><span id="runSkippedCount">0</span><small data-i18n="runSummary.skipped">Atlanan</small></div>
+                    <div><span id="runFailedCount">0</span><small data-i18n="runSummary.failed">Başarısız</small></div>
+                </div>
+            </section>
+
             <!-- Real-time User List -->
             <div class="user-list-container" aria-labelledby="userListTitle">
-                <h3 id="userListTitle" data-i18n="userList.title">İşlenen Kullanıcılar</h3>
+                <h3 id="userListTitle"><span data-i18n="userList.title">İşlenen Kullanıcılar</span>
+                    <span id="runStatusBadge" class="run-status-badge"></span>
+                </h3>
                 <ul class="user-list" id="userList" role="list" aria-live="polite" aria-label="Processed users"></ul>
             </div>
 
@@ -263,6 +275,7 @@
     <script src="../shared/constants.js"></script>
     <script src="../shared/csv.js"></script>
     <script src="../shared/safety-window.js"></script>
+    <script src="../shared/run-state.js"></script>
     <script src="../shared/i18n.js"></script>
     <script src="popup.js"></script>
 </body>
