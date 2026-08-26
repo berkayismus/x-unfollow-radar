@@ -30,6 +30,8 @@ function testSessionLimits() {
     assert.equal(constants.getSessionLimit(constants.PLANS.EXPIRED), 50);
     assert.equal(constants.getSessionLimit('unknown'), 50);
     assert.deepEqual(Array.from(constants.LOCALES.SUPPORTED), ['tr', 'en', 'de']);
+    assert.equal(constants.GUMROAD.PRODUCT_ID, 'XOdP9O_AruVvy5u7zkmD9Q==');
+    assert.equal(constants.GUMROAD.PRODUCT_PERMALINK, undefined);
 }
 
 function testLocaleParity() {

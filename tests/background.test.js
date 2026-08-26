@@ -93,7 +93,11 @@ function gumroadResponse(purchaseOverrides = {}, options = {}) {
 }
 
 async function testActivationAndCachedPlan() {
-    const harness = createHarness(async () => gumroadResponse());
+    let requestBody = null;
+    const harness = createHarness(async (_url, options) => {
+        requestBody = new URLSearchParams(options.body);
+        return gumroadResponse();
+    });
     const activation = await harness.send({ action: 'VERIFY_LICENSE', licenseKey: 'TEST-KEY' });
 
     assert.equal(activation.success, true);
@@ -101,6 +105,9 @@ async function testActivationAndCachedPlan() {
     assert.equal(harness.storage.plan, 'pro');
     assert.equal(harness.storage.licenseKey, 'TEST-KEY');
     assert.ok(harness.storage.licenseLastVerifiedAt);
+    assert.equal(requestBody.get('product_id'), 'XOdP9O_AruVvy5u7zkmD9Q==');
+    assert.equal(requestBody.has('product_permalink'), false);
+    assert.equal(requestBody.get('increment_uses_count'), 'false');
 
     const plan = await harness.send({ action: 'GET_PLAN' });
     assert.equal(plan.plan, 'pro');

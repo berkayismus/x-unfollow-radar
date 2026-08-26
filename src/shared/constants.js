@@ -307,7 +307,7 @@ const Constants = (function () {
      */
     const GUMROAD = Object.freeze({
         VERIFY_URL: 'https://api.gumroad.com/v2/licenses/verify',
-        PRODUCT_PERMALINK: 'vvbndt',
+        PRODUCT_ID: 'XOdP9O_AruVvy5u7zkmD9Q==',
         /** License validity duration: 365 days in milliseconds */
         LICENSE_DURATION_MS: 365 * 24 * 60 * 60 * 1000,
         /** Warn user when license expires within this many days */

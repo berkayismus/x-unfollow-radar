@@ -47,7 +47,7 @@ const XUnfollowRadarBackground = (function () {
     async function verifyLicenseWithGumroad(licenseKey) {
         try {
             const body = new URLSearchParams({
-                product_permalink: SharedConstants.GUMROAD.PRODUCT_PERMALINK,
+                product_id: SharedConstants.GUMROAD.PRODUCT_ID,
                 license_key: licenseKey.trim(),
                 increment_uses_count: 'false'
             });
