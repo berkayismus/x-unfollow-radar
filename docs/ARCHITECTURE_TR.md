@@ -29,11 +29,11 @@ Eklenti üç ana parçaya ayrılır:
   - \"Follows you\" badge'i olmayanları kuyruklar.
   - Whitelist ve keyword filtrelerini uygular.
   - \"Following\" butonuna tıklayıp çıkan onay penceresinden takipten çıkarma işlemini yapar.
-  - Rate limit durumunu tespit eder ve bekleme mantığını yönetir.
+  - Algılanan rate-limit durumunu saklar ve bekleme/devam mantığını yönetir; daha geniş X arayüz hata tespiti planlanmaktadır.
 
 - `src/popup/popup.html / popup.js / popup.css`  
   3 sekmeli (Main / Filters / Statistics) popup arayüzü:
-  - Ana sekme: başlat/durdur, dry-run, undo, anlık kullanıcı listesi.
+  - Ana sekme: başlat/durdur, dry-run, yakın tarihli profili açma, anlık kullanıcı listesi.
   - Filtreler sekmesi: keyword filter ve whitelist yönetimi.
   - İstatistikler sekmesi: Son 30 gün grafiği ve CSV export.
 
@@ -44,7 +44,7 @@ Eklenti üç ana parçaya ayrılır:
   Zamanlama, limitler, selector'lar, metin pattern'leri, storage key'leri ve mesaj tipleri gibi merkezi sabit değerleri içerir.
 
 - `src/shared/i18n.js` + `locales/*.json`  
-  Çoklu dil desteği (TR/EN).  
+  Çoklu dil desteği (TR/EN/DE).
   `i18n.js` tarayıcı diline ve kayıtlı kullanıcı tercihine göre locale belirler, ilgili JSON'dan metinleri yükler ve `data-i18n` attribute'larına uygular.
 
 ## 3. Bileşenler Arası Veri Akışı
@@ -55,7 +55,7 @@ Eklenti üç ana parçaya ayrılır:
   - `popup.js` → `chrome.tabs.sendMessage(..., { action: Constants.ACTIONS.START })`
   - `content/index.js` içindeki message listener bu mesajı yakalar, `isRunning = true` yapar ve `mainLoop()` fonksiyonunu tetikler.
 
-- **Durdur**, **Devam Et (50 kişi daha)**, **Dry-run toggle**, **Undo** ve filtre güncellemeleri de benzer şekilde `chrome.tabs.sendMessage` ile content script'e iletilir.
+- **Durdur**, **Devam Et (50 kişi daha)**, **Dry-run toggle** ve filtre güncellemeleri de benzer şekilde `chrome.tabs.sendMessage` ile content script'e iletilir.
 
 ### 3.2. Content Script → Popup
 
@@ -84,7 +84,7 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
    - \"Follows you\" badge'i olmayanları, whitelist/keyword kontrolünden geçirip `unfollowQueue`'ya ekler.
    - Kuyruktaki her kullanıcı için `unfollowUser()` çağrılır:
      - Dry-run ise sadece simüle eder ve istatistikleri günceller.
-     - Normal modda \"Following\" butonu + onay butonu tıklanır, istatistikler ve undo kuyruğu güncellenir.
+     - Normal modda \"Following\" butonu + onay butonu tıklanır; istatistikler, geçmiş ve son profiller kuyruğu güncellenir.
    - Kullanıcılar tükendiğinde `autoScroll()` ile sayfa aşağıya kaydırılır, yeni kullanıcılar yüklenir ve süreç devam eder.
    - Rate limit veya 24 saatlik limit dolduğunda uygun STATUS değerleri gönderilir ve döngü sonlandırılır / duraklatılır.
 
@@ -97,9 +97,9 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 - **Dry-Run Mode**:
   - Gerçekte takipten çıkarma yapmadan bütün akışı simüle eder (istatistikler ve kullanıcı listesi dahil).
 
-- **Undo Sistemi**:
-  - Her gerçek unfollow için `undoQueue`'ya kullanıcı bilgisi eklenir.
-  - Popup'tan gelen `UNDO_LAST` veya `UNDO_SINGLE` aksiyonlarıyla, kullanıcıya profil üzerinden yeniden follow işlemini kolaylaştıran yönlendirme yapılır.
+- **Yakın Tarihli Profiller**:
+  - Her gerçek unfollow için son 10 kullanıcı bilgisi yerel kuyruğa eklenir.
+  - Popup profili yeni sekmede açar; yeniden takip işlemi kullanıcı tarafından manuel yapılır.
 
 ## 6. Temalar ve Erişilebilirlik
 
@@ -113,14 +113,14 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 
 ## 7. Uluslararasılaştırma (i18n)
 
-- Desteklenen diller: `tr`, `en`.
+- Desteklenen diller: `tr`, `en`, `de`.
 - Açılışta:
   1. Daha önce kaydedilmiş dil tercihi varsa (`chrome.storage.local['language']`), o kullanılır.
   2. Yoksa `navigator.language`'e bakılır:
      - `tr-*` ise Türkçe
+     - `de-*` ise Almanca
      - Diğer tüm durumlarda İngilizce
   3. Seçilen dil storage'a yazılır ve popup boyunca sabit kalır.
 - Dil değişimi:
-  - Popup header'daki dropdown ile TR/EN arasında geçiş yapılır.
+  - Popup header'daki dropdown ile TR/EN/DE arasında geçiş yapılır.
   - `I18n.setLocale(locale)` çağrısı `locales/{locale}.json` dosyasını yükler ve `data-i18n` alanlarını yeniden uygular.
-

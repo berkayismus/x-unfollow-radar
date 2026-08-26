@@ -55,6 +55,7 @@ const XUnfollowRadarPopup = (function () {
             stopBtn: document.getElementById('stopBtn'),
             continueBtn: document.getElementById('continueBtn'),
             resetBtn: document.getElementById('resetBtn'),
+            deleteAllDataBtn: document.getElementById('deleteAllDataBtn'),
             undoBtn: document.getElementById('undoBtn'),
             undoCount: document.getElementById('undoCount'),
             dryRunMode: document.getElementById('dryRunMode'),
@@ -529,7 +530,7 @@ const XUnfollowRadarPopup = (function () {
 
             if (result.success) {
                 currentPlan = Constants.PLANS.PRO;
-                applyPlanUi(365);
+                applyPlanUi(result.daysRemaining ?? null);
                 updateStatus('ready', `✓ ${I18n.t('license.success')}`);
             } else {
                 if (elements.licenseError) {
@@ -557,7 +558,8 @@ const XUnfollowRadarPopup = (function () {
         await chrome.storage.local.remove([
             Constants.STORAGE_KEYS.PLAN,
             Constants.STORAGE_KEYS.LICENSE_KEY,
-            Constants.STORAGE_KEYS.LICENSE_ACTIVATED_AT
+            Constants.STORAGE_KEYS.LICENSE_ACTIVATED_AT,
+            Constants.STORAGE_KEYS.LICENSE_LAST_VERIFIED_AT
         ]);
         currentPlan = Constants.PLANS.FREE;
         applyPlanUi(null);
@@ -640,33 +642,60 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles the reset button click
+     * Resets statistics while preserving the active safety window, filters,
+     * preferences and license.
      * @async
      * @returns {Promise<void>}
      */
     async function handleReset() {
+        if (isRunning) {
+            alert(I18n.t('messages.stopBeforeReset'));
+            return;
+        }
+
         if (confirm(I18n.t('messages.confirmReset'))) {
             await chrome.storage.local.set({
-                [Constants.STORAGE_KEYS.SESSION_COUNT]: 0,
                 [Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED]: 0,
-                [Constants.STORAGE_KEYS.SESSION_START]: Date.now(),
-                [Constants.STORAGE_KEYS.TEST_MODE]: true,
-                [Constants.STORAGE_KEYS.TEST_COMPLETE]: false,
-                [Constants.STORAGE_KEYS.UNDO_QUEUE]: []
+                [Constants.STORAGE_KEYS.LAST_RUN]: null,
+                [Constants.STORAGE_KEYS.UNDO_QUEUE]: [],
+                [Constants.STORAGE_KEYS.UNFOLLOW_STATS]: { daily: {} },
+                [Constants.STORAGE_KEYS.UNFOLLOW_HISTORY]: []
             });
 
-            const maxSession = Constants.getSessionLimit(currentPlan);
-            elements.sessionCount.textContent = `0/${maxSession}`;
+            try {
+                if (currentTab) {
+                    await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.RESET_STATS });
+                }
+            } catch (_) { /* Content script may not be active. */ }
+
             elements.totalCount.textContent = '0';
             elements.lastRun.textContent = '-';
-            elements.limitReachedAlert.style.display = 'none';
-            elements.startBtn.disabled = false;
             elements.userList.innerHTML = '';
             displayedUsers.clear(); // Clear the tracking Set
             updateUndoButton(0);
 
             updateStatus('ready', `✓ ${I18n.t('status.reset')}`);
         }
+    }
+
+    /**
+     * Deletes every value owned by the extension, including filters,
+     * preferences and license information.
+     * @async
+     * @returns {Promise<void>}
+     */
+    async function handleDeleteAllData() {
+        if (!confirm(I18n.t('messages.confirmDeleteAllData'))) return;
+
+        try {
+            if (currentTab) {
+                await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.DELETE_ALL_DATA });
+            }
+        } catch (_) { /* Content script may not be active. */ }
+
+        await new Promise(resolve => setTimeout(resolve, 250));
+        await chrome.storage.local.clear();
+        window.location.reload();
     }
 
     /**
@@ -1054,14 +1083,15 @@ const XUnfollowRadarPopup = (function () {
             return;
         }
 
-        const csvContent = '\uFEFF' + [
-            ['Username', 'Date', 'Reason'].join(','),
+        const rows = [
+            ['Username', 'Date', 'Reason'],
             ...history.map(item => [
                 item.username,
                 item.date,
                 item.reason
-            ].join(','))
-        ].join('\n');
+            ])
+        ];
+        const csvContent = `\uFEFF${CsvUtils.serialize(rows)}`;
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -1398,6 +1428,10 @@ const XUnfollowRadarPopup = (function () {
             elements.resetBtn.setAttribute('aria-label', I18n.t('aria.resetButton'));
         }
 
+        if (elements.deleteAllDataBtn) {
+            elements.deleteAllDataBtn.setAttribute('aria-label', I18n.t('aria.deleteAllDataButton'));
+        }
+
         // Theme toggle
         if (elements.themeToggle) {
             elements.themeToggle.setAttribute('aria-label', I18n.t('aria.themeToggle'));
@@ -1459,6 +1493,7 @@ const XUnfollowRadarPopup = (function () {
         elements.stopBtn.addEventListener('click', handleStop);
         elements.continueBtn.addEventListener('click', handleContinue);
         elements.resetBtn.addEventListener('click', handleReset);
+        elements.deleteAllDataBtn.addEventListener('click', handleDeleteAllData);
         elements.undoBtn.addEventListener('click', handleUndo);
         elements.dryRunMode.addEventListener('change', handleDryRunToggle);
 

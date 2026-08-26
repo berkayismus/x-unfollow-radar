@@ -49,9 +49,31 @@ function testLocaleParity() {
     });
 }
 
+function testCsvSafety() {
+    const context = { window: {} };
+    vm.runInNewContext(read('src/shared/csv.js'), context);
+    const csv = context.window.CsvUtils;
+
+    assert.equal(csv.escapeField('plain'), '"plain"');
+    assert.equal(csv.escapeField('a,"b"'), '"a,""b"""');
+    assert.equal(csv.escapeField('=IMPORTXML("https://example.com")'),
+        '"\'=IMPORTXML(""https://example.com"")"');
+    assert.equal(csv.serialize([['A', 'B'], ['one', 'two']]), '"A","B"\r\n"one","two"');
+}
+
+function testManifestScope() {
+    const manifest = JSON.parse(read('manifest.json'));
+    assert.equal(manifest.web_accessible_resources, undefined);
+    assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
+}
+
 function testCriticalRegressionGuards() {
     const popupSource = read('src/popup/popup.js');
     const contentSource = read('src/content/index.js');
+    const resetHandler = popupSource.slice(
+        popupSource.indexOf('async function handleReset()'),
+        popupSource.indexOf('async function handleDeleteAllData()')
+    );
 
     assert.match(popupSource, /content\.hidden = !isActive/);
     assert.doesNotMatch(popupSource, /Constants\.LIMITS\.MAX_SESSION/);
@@ -59,10 +81,15 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /sessionLimit = Constants\.getSessionLimit\(currentPlan\)/);
     assert.match(contentSource, /processedUsers\.size - seenBeforeCycle/);
     assert.match(contentSource, /updateDailyStats\(Constants\.USER_ACTIONS\.DRY_RUN\)/);
+    assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
+    assert.match(contentSource, /case Constants\.ACTIONS\.DELETE_ALL_DATA/);
+    assert.match(popupSource, /chrome\.storage\.local\.clear\(\)/);
 }
 
 testSessionLimits();
 testLocaleParity();
+testCsvSafety();
+testManifestScope();
 testCriticalRegressionGuards();
 
 console.log('Smoke tests passed.');

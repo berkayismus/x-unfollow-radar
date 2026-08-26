@@ -1,80 +1,83 @@
 # Privacy Policy - X Unfollow Radar
 
-**Last updated: February 2025**
+**Last updated: August 26, 2026**
 
-## Data Collection
+X Unfollow Radar is a browser extension that analyzes the X/Twitter “Following” page and assists the user with managing accounts they follow. This policy describes the data used by version 2.0.3 and later.
 
-This extension **does NOT collect, store, or transmit any personal data** to external servers.
+## 1. Data processed on the device
 
-## Local Storage
+The extension uses `chrome.storage.local` to keep the following information on the user's device:
 
-The extension uses Chrome's local storage API to store the following data **ONLY on your device**:
+- Current 24-hour operation count and session start time
+- Total operation count and last-run timestamp
+- Daily real-operation and dry-run statistics
+- Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons
+- Up to 10 recently unfollowed usernames used by the “Open profile” feature
+- User-created keyword filters and whitelisted X usernames
+- Dry-run, language, and theme preferences
+- Temporary rate-limit expiry time
+- Selected plan, Gumroad license key, original activation/purchase time, and last verification time
 
-- **Session count**: Number of unfollows in the current 24-hour session
-- **Total unfollow count**: Cumulative statistics for your reference
-- **Last run timestamp**: When the extension was last used
-- **Test mode status**: Whether the test mode has been completed
+The extension reads visible account cards, usernames, profile text, follow state, and relevant buttons from the open X/Twitter “Following” page. Page content that is not included in the history, whitelist, filters, or recent-profile list is processed transiently and is not retained after the page session ends.
 
-**Important**: This data is stored exclusively on your device and is **never transmitted** to any server or third party.
+## 2. Data sent to third parties
 
-## Permissions Explained
+The extension does not use analytics, advertising, telemetry, or a developer-operated backend.
 
-The extension requires the following permissions to function:
+When a user activates or periodically revalidates a Pro license, the entered license key is sent directly to Gumroad's license verification API at `api.gumroad.com`. Gumroad may also receive standard network information such as the user's IP address and request headers as part of providing that service. The extension uses Gumroad's response to check purchase, refund, dispute, chargeback, subscription, and expiry status.
 
-- **storage**: To save your statistics locally on your device
-- **activeTab**: To interact with Twitter/X pages when you click the extension
-- **scripting**: To inject the automation script into Twitter/X pages
-- **host_permissions** (twitter.com, x.com): To run specifically on Twitter/X domains
+No X usernames, following lists, keyword filters, whitelist entries, history records, or X authentication credentials are sent to Gumroad by the extension.
 
-## Third-Party Services
+For information about Gumroad's own processing, see [Gumroad's Privacy Policy](https://gumroad.com/privacy).
 
-This extension **does not use any third-party services**, including:
-- No analytics or tracking
-- No external APIs
-- No data collection services
-- No advertising networks
+## 3. Data not accessed by the extension
 
-## Your Twitter/X Data
+The extension does not intentionally access or store:
 
-The extension:
-- **Does NOT** access your Twitter/X password
-- **Does NOT** access your private messages
-- **Does NOT** collect your tweets or personal information
-- **Does NOT** store usernames of people you unfollow
-- Only performs actions you explicitly authorize by clicking "Start"
+- The user's X/Twitter password
+- Private or direct messages
+- Payment-card information
+- Posts outside the visible information required on the Following page
 
-## Data Security
+The extension operates inside the user's existing X/Twitter browser session. It does not receive the user's X password.
 
-Since all data is stored locally on your device using Chrome's secure storage API:
-- No data transmission over the internet
-- No risk of data breaches from external servers
-- You can delete all stored data at any time using the "Reset" button in the extension
+## 4. Retention
 
-## Data Deletion
+- Unfollow history is automatically limited to the most recent 30 days.
+- The recent-profile list is limited to 10 entries.
+- Counters, filters, preferences, and license information remain until the user resets or deletes them, or uninstalls the extension.
+- Gumroad verification records held by Gumroad are governed by Gumroad's own policies.
 
-You can delete all data stored by the extension in two ways:
+## 5. User controls and deletion
 
-1. **Using the extension**: Click the "Sıfırla" (Reset) button in the popup
-2. **Removing the extension**: Uninstalling the extension will automatically delete all stored data
+The popup provides two separate controls:
 
-## Changes to This Policy
+1. **Reset statistics** deletes the total statistic, charts, action history, and the recent-profile list. It preserves the active 24-hour safety-window count, filters, preferences, and license information.
+2. **Delete all local data** clears all data owned by the extension from `chrome.storage.local`, including filters, history, preferences, rate-limit state, and license information.
 
-We may update this privacy policy from time to time. Any changes will be reflected with a new "Last updated" date.
+Uninstalling the extension also removes its local Chrome storage according to Chrome's extension-storage behavior.
 
-## Contact
+## 6. Permissions
 
-For questions about this privacy policy, please contact:
+- **storage**: Stores the local information listed in this policy.
+- **activeTab**: Communicates with the active X/Twitter tab after user interaction.
+- **Host access for `x.com` and `twitter.com`**: Runs the content script on Following pages and reads/modifies the visible page to perform requested actions.
+- **Host access for `api.gumroad.com`**: Verifies Pro license keys when licensing features are used.
 
-- **GitHub**: https://github.com/berkayismus/x-unfollow-radar (open an Issue for support)
-- **Chrome Web Store**: Use the support email listed on the extension's store listing
+The extension does not request the Chrome `scripting` permission.
 
-## Compliance
+## 7. Security
 
-This extension complies with:
-- Chrome Web Store Developer Program Policies
-- General Data Protection Regulation (GDPR)
-- California Consumer Privacy Act (CCPA)
+Local extension storage is accessible to the extension and to anyone with sufficient access to the user's browser profile or device. License keys are stored locally so that they can be revalidated. Users should secure their browser profile and device and should not share their license keys.
 
----
+No storage or network system can be guaranteed to be completely secure. The extension minimizes external transmission by sending only the license key required for Gumroad verification and by keeping X account-management data on the device.
 
-**Summary**: This extension values your privacy. We do not collect, store, or transmit any of your personal data. All statistics are stored locally on your device only.
+## 8. Changes to this policy
+
+Material changes will be reflected in this file with an updated date. Users should review the policy when installing a new version.
+
+## 9. Contact
+
+For questions or deletion/support issues, open an issue at:
+
+- [GitHub repository](https://github.com/berkayismus/x-unfollow-radar)

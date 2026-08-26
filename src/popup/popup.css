@@ -823,6 +823,12 @@ h2, h3, h4, h5, h6 {
     margin-top: 14px;
 }
 
+.data-delete-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    color: var(--danger-color, #dc2626);
+}
+
 .info-card {
     background: var(--surface-bg);
     border: 1px solid var(--border-color);

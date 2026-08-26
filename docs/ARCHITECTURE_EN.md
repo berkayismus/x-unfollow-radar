@@ -21,7 +21,7 @@ The extension is split into three main parts:
 ## 2. Directory Structure (Relevant Parts)
 
 - `manifest.json`  
-  Main extension manifest: defines permissions, content scripts, background worker, popup, and web accessible resources.
+  Main extension manifest: defines permissions, content scripts, background worker, and popup.
 
 - `src/content/index.js`  
   Core automation logic:
@@ -29,11 +29,11 @@ The extension is split into three main parts:
   - Queues users who do **not** have the \"Follows you\" badge.
   - Applies whitelist and keyword filters.
   - Clicks the \"Following\" button and the confirmation button to unfollow.
-  - Detects rate limit situations and manages waiting / resume logic.
+  - Persists detected rate-limit state and manages waiting / resume logic; broader X UI error detection remains planned.
 
 - `src/popup/popup.html / popup.js / popup.css`  
   Three-tab popup UI (Main / Filters / Statistics):
-  - **Main tab**: start/stop, dry-run, undo, real-time processed user list.
+  - **Main tab**: start/stop, dry-run, recent-profile opening, real-time processed user list.
   - **Filters tab**: keyword filter and whitelist management.
   - **Statistics tab**: last 30 days chart and CSV export.
 
@@ -48,7 +48,7 @@ The extension is split into three main parts:
   - Storage keys, message types, actions, themes, locales
 
 - `src/shared/i18n.js` + `locales/*.json`  
-  Internationalization module and translation files for TR/EN.
+  Internationalization module and translation files for TR/EN/DE.
   - Detects default locale from browser language (with storage override).
   - Loads `locales/{locale}.json` via `chrome.runtime.getURL`.
   - Applies translations to elements with `data-i18n` and related attributes.
@@ -63,8 +63,8 @@ The popup talks to the content script via `chrome.tabs.sendMessage`:
   - `popup.js` sends `{ action: Constants.ACTIONS.START }`.
   - The content script's message listener picks this up, sets `isRunning = true`, and starts `mainLoop()`.
 
-- **Stop / Continue test / Dry-run toggle / Undo / Filters**:
-  - All implemented as `ACTION` messages (`STOP`, `CONTINUE_TEST`, `TOGGLE_DRY_RUN`, `UNDO_LAST`, `UNDO_SINGLE`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
+- **Stop / Continue test / Dry-run toggle / Filters**:
+  - Implemented as `ACTION` messages (`STOP`, `CONTINUE_TEST`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
   - The content script updates its in-memory state and mirrors changes into `chrome.storage.local`.
 
 ### 3.2 Content Script → Popup
@@ -92,7 +92,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
      - Test mode / batch completion flags
      - Filters (keywords, whitelist)
      - Dry-run mode
-     - Undo queue
+     - Recent-profile queue
      - Rate limit timestamp
      - Stats and history
    - Resets the session counter if more than 24 hours have passed.
@@ -110,8 +110,8 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
    - Process the `unfollowQueue`:
      - Respect session and batch limits.
      - For each user, call `unfollowUser(cell)`:
-       - Dry-run: simulate delay, increment counters, send status and `USER_PROCESSED` (DRY_RUN), update stats.
-       - Real mode: click \"Following\" and confirmation button, update counters, store undo info in `undoQueue`, write stats/history, send status + `USER_PROCESSED` (UNFOLLOWED).
+       - Dry-run: simulate delay, send status and `USER_PROCESSED` (DRY_RUN), and update a separate dry-run statistic without consuming the real-operation limit.
+       - Real mode: click \"Following\" and confirmation button, update counters, store recent-profile info, write stats/history, send status + `USER_PROCESSED` (UNFOLLOWED).
    - Scroll the page using `autoScroll()` when queue empties, wait a random scroll delay, and repeat scanning.
    - Stop when:
      - 24h session limit is reached (`STATUS.LIMIT_REACHED`), or
@@ -137,10 +137,9 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
   - No real unfollow operations are executed when enabled.
   - The popup clearly indicates Dry Run mode in status messages.
 
-- **Undo system**:
-  - For each real unfollow, an entry is added to `undoQueue` and persisted.
-  - Popup can send `UNDO_LAST` or `UNDO_SINGLE` actions.
-  - The extension attempts to refollow the user or at least route the user to their profile for manual follow.
+- **Recent profiles**:
+  - For each real unfollow, one of the last 10 usernames is retained locally.
+  - The popup opens the selected profile in a new tab; following again remains a manual user action.
 
 ## 6. Themes and Accessibility
 
@@ -160,21 +159,20 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
 
 ## 7. Internationalization (i18n)
 
-- Supported locales: **Turkish (tr)** and **English (en)**.
+- Supported locales: **Turkish (tr)**, **English (en)**, and **German (de)**.
 - Startup logic in `i18n.js`:
   1. Check stored language preference in `chrome.storage.local['language']`.
   2. If none or invalid:
      - Inspect `navigator.languages` / `navigator.language`.
-     - If it starts with `tr` → `tr`, otherwise `en`.
+     - If it starts with `tr` → `tr`; if it starts with `de` → `de`; otherwise `en`.
      - Persist the detected locale to storage for future runs.
   3. Load `locales/{locale}.json` and apply translations.
 
 - Runtime switching:
-  - The popup header provides a TR/EN dropdown.
+  - The popup header provides a TR/EN/DE dropdown.
   - Selecting an option calls `I18n.setLocale(locale)`, which:
     - Saves the new locale.
     - Reloads translations.
     - Re-applies `data-i18n` values across the popup.
 
 This architecture keeps the content script focused on automation and state, while the popup focuses on user interaction and visualization, with the background worker acting as a thin communication layer between the two contexts.
-

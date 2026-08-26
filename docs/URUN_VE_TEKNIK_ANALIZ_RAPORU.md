@@ -291,7 +291,7 @@ Bu bölüm, P0 ve P1 düzeltmelerinden sonra ele alınmalıdır.
 - **Planlanmış manuel inceleme:** Otomatik unfollow yerine periyodik aday raporu ve kullanıcı onaylı temizlik.
 - **Çoklu profil desteği:** Verileri X kullanıcı kimliğine göre namespace etmek; hesap değişince sayaçları karıştırmamak.
 - **Bulut senkronizasyonu (opsiyonel):** Açık rıza, şifreleme ve ayrı gizlilik modeliyle whitelist/ayar senkronizasyonu.
-- **Safari Web Extension:** iOS/macOS desteği için ortak çekirdeği platform adaptörlerinden ayırma.
+- **Safari Web Extension:** macOS desteği için ortak çekirdeği platform adaptörlerinden ayırma.
 - **Firefox uyumluluğu:** `chrome`/`browser` API adaptörü ve manifest farklarının yönetimi.
 
 ## 5. Önerilen hedef mimari
@@ -322,7 +322,7 @@ src/
   shared/
 ```
 
-Temel ilke: filtreleme, limit ve istatistik mantığı saf JavaScript fonksiyonları olmalı; Chrome API ve X DOM erişimi adaptörlerin arkasında kalmalıdır. Böylece birim testi ve gelecekte Safari/mobile dönüşümü kolaylaşır.
+Temel ilke: filtreleme, limit ve istatistik mantığı saf JavaScript fonksiyonları olmalı; Chrome API ve X DOM erişimi adaptörlerin arkasında kalmalıdır. Böylece birim testi ve farklı masaüstü tarayıcılara uyarlama kolaylaşır.
 
 ## 6. Uygulama yol haritası
 

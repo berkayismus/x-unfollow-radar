@@ -40,15 +40,5 @@
   ],
   "background": {
     "service_worker": "src/background/index.js"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "locales/*.json"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+  }
 }

@@ -4,6 +4,10 @@
  * @version 2.1.0
  */
 
+importScripts(chrome.runtime.getURL('src/shared/constants.js'));
+
+const SharedConstants = self.Constants;
+
 /**
  * X Unfollow Radar Background Module
  * @namespace XUnfollowRadarBackground
@@ -41,37 +45,78 @@ const XUnfollowRadarBackground = (function () {
      * @returns {Promise<{success: boolean, plan: string|null, error: string|null}>}
      */
     async function verifyLicenseWithGumroad(licenseKey) {
-        const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
-        const PRODUCT_PERMALINK = 'vvbndt';
-
         try {
             const body = new URLSearchParams({
-                product_permalink: PRODUCT_PERMALINK,
+                product_permalink: SharedConstants.GUMROAD.PRODUCT_PERMALINK,
                 license_key: licenseKey.trim(),
                 increment_uses_count: 'false'
             });
 
-            const response = await fetch(GUMROAD_VERIFY_URL, {
+            const response = await fetch(SharedConstants.GUMROAD.VERIFY_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body.toString()
             });
 
-            if (!response.ok) {
-                return { success: false, plan: null, error: 'network_error' };
-            }
-
             const data = await response.json();
 
-            if (data.success) {
-                return { success: true, plan: 'pro', error: null };
+            if (!response.ok || !data.success) {
+                return {
+                    success: false,
+                    plan: null,
+                    error: response.status === 404 ? 'invalid_key' : (data.message || 'verification_failed')
+                };
             }
 
-            return { success: false, plan: null, error: data.message || 'invalid_key' };
+            const purchase = data.purchase || {};
+            const entitlementError = getEntitlementError(purchase);
+            if (entitlementError) {
+                return { success: false, plan: null, error: entitlementError };
+            }
+
+            const purchaseTimestamp = Date.parse(purchase.sale_timestamp || purchase.created_at || '');
+            const activatedAt = Number.isFinite(purchaseTimestamp) ? purchaseTimestamp : Date.now();
+            const expiresAt = activatedAt + SharedConstants.GUMROAD.LICENSE_DURATION_MS;
+
+            if (Date.now() >= expiresAt) {
+                return { success: false, plan: null, error: 'expired' };
+            }
+
+            return {
+                success: true,
+                plan: SharedConstants.PLANS.PRO,
+                error: null,
+                activatedAt,
+                daysRemaining: Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000))
+            };
         } catch (error) {
             console.error('Gumroad verification error:', error);
             return { success: false, plan: null, error: 'network_error' };
         }
+    }
+
+    /**
+     * Returns the reason a Gumroad purchase cannot grant access.
+     * @param {Object} purchase
+     * @returns {string|null}
+     */
+    function getEntitlementError(purchase) {
+        if (!purchase || Object.keys(purchase).length === 0) return 'invalid_purchase';
+        if (purchase.refunded) return 'refunded';
+        if (purchase.chargebacked) return 'chargebacked';
+        if (purchase.disputed && !purchase.dispute_won) return 'disputed';
+
+        const endedAt = purchase.subscription_ended_at ||
+            purchase.subscription_cancelled_at ||
+            purchase.subscription_failed_at;
+        if (endedAt) {
+            const endTimestamp = Date.parse(endedAt);
+            if (!Number.isFinite(endTimestamp) || endTimestamp <= Date.now()) {
+                return 'subscription_ended';
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -84,10 +129,12 @@ const XUnfollowRadarBackground = (function () {
         const result = await verifyLicenseWithGumroad(licenseKey);
 
         if (result.success) {
+            const verifiedAt = Date.now();
             await chrome.storage.local.set({
                 plan: result.plan,
                 licenseKey: licenseKey.trim(),
-                licenseActivatedAt: Date.now()
+                licenseActivatedAt: result.activatedAt,
+                licenseLastVerifiedAt: verifiedAt
             });
         }
 
@@ -100,39 +147,71 @@ const XUnfollowRadarBackground = (function () {
      * @returns {Promise<void>}
      */
     async function handleGetPlan(sendResponse) {
-        const data = await chrome.storage.local.get(['plan', 'licenseKey', 'licenseActivatedAt']);
-        const storedPlan = data.plan || 'free';
+        const data = await chrome.storage.local.get([
+            SharedConstants.STORAGE_KEYS.PLAN,
+            SharedConstants.STORAGE_KEYS.LICENSE_KEY,
+            SharedConstants.STORAGE_KEYS.LICENSE_ACTIVATED_AT,
+            SharedConstants.STORAGE_KEYS.LICENSE_LAST_VERIFIED_AT
+        ]);
+        const storedPlan = data.plan || SharedConstants.PLANS.FREE;
         const activatedAt = data.licenseActivatedAt || null;
-
-        const LICENSE_DURATION_MS = 365 * 24 * 60 * 60 * 1000;
-        const EXPIRY_WARNING_DAYS = 14;
-        const EXPIRY_WARNING_MS = EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000;
+        let effectiveActivatedAt = activatedAt;
+        const lastVerifiedAt = data.licenseLastVerifiedAt || activatedAt;
 
         let plan = storedPlan;
         let daysRemaining = null;
         let expiredAt = null;
+        let verificationStatus = 'not_required';
 
-        if (storedPlan === 'pro' && activatedAt) {
+        if (storedPlan === SharedConstants.PLANS.PRO && activatedAt) {
             const now = Date.now();
             const elapsed = now - activatedAt;
-            const remaining = LICENSE_DURATION_MS - elapsed;
+            let remaining = SharedConstants.GUMROAD.LICENSE_DURATION_MS - elapsed;
 
             if (remaining <= 0) {
-                plan = 'expired';
-                expiredAt = activatedAt + LICENSE_DURATION_MS;
-                await chrome.storage.local.set({ plan: 'expired' });
+                plan = SharedConstants.PLANS.EXPIRED;
+                expiredAt = activatedAt + SharedConstants.GUMROAD.LICENSE_DURATION_MS;
+                verificationStatus = 'expired';
+                await chrome.storage.local.set({ plan });
             } else {
-                plan = 'pro';
-                daysRemaining = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+                const verificationDue = !lastVerifiedAt ||
+                    (now - lastVerifiedAt) >= SharedConstants.GUMROAD.VERIFY_INTERVAL_MS;
+
+                if (verificationDue && data.licenseKey) {
+                    const verification = await verifyLicenseWithGumroad(data.licenseKey);
+                    if (verification.success) {
+                        verificationStatus = 'verified';
+                        effectiveActivatedAt = verification.activatedAt;
+                        remaining = verification.activatedAt + SharedConstants.GUMROAD.LICENSE_DURATION_MS - now;
+                        await chrome.storage.local.set({
+                            plan: SharedConstants.PLANS.PRO,
+                            licenseActivatedAt: verification.activatedAt,
+                            licenseLastVerifiedAt: now
+                        });
+                    } else if (verification.error === 'network_error') {
+                        const withinGrace = lastVerifiedAt &&
+                            (now - lastVerifiedAt) <= SharedConstants.GUMROAD.OFFLINE_GRACE_MS;
+                        verificationStatus = withinGrace ? 'offline_grace' : 'verification_required';
+                        if (!withinGrace) plan = SharedConstants.PLANS.FREE;
+                    } else {
+                        plan = SharedConstants.PLANS.EXPIRED;
+                        verificationStatus = verification.error;
+                        await chrome.storage.local.set({ plan });
+                    }
+                }
+
+                if (plan === SharedConstants.PLANS.PRO) {
+                    daysRemaining = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+                }
             }
         }
 
         sendResponse({
             plan,
-            licenseKey: data.licenseKey || null,
-            licenseActivatedAt: activatedAt,
+            licenseActivatedAt: effectiveActivatedAt,
             daysRemaining,
-            expiredAt
+            expiredAt,
+            verificationStatus
         });
     }
 

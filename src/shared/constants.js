@@ -160,7 +160,8 @@ const Constants = (function () {
         LANGUAGE: 'language',
         PLAN: 'plan',
         LICENSE_KEY: 'licenseKey',
-        LICENSE_ACTIVATED_AT: 'licenseActivatedAt'
+        LICENSE_ACTIVATED_AT: 'licenseActivatedAt',
+        LICENSE_LAST_VERIFIED_AT: 'licenseLastVerifiedAt'
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -190,6 +191,8 @@ const Constants = (function () {
         UPDATE_KEYWORDS: 'UPDATE_KEYWORDS',
         UPDATE_WHITELIST: 'UPDATE_WHITELIST',
         TOGGLE_DRY_RUN: 'TOGGLE_DRY_RUN',
+        RESET_STATS: 'RESET_STATS',
+        DELETE_ALL_DATA: 'DELETE_ALL_DATA',
         UNDO_LAST: 'UNDO_LAST',
         UNDO_SINGLE: 'UNDO_SINGLE',
         VERIFY_LICENSE: 'VERIFY_LICENSE',
@@ -288,7 +291,11 @@ const Constants = (function () {
         /** License validity duration: 365 days in milliseconds */
         LICENSE_DURATION_MS: 365 * 24 * 60 * 60 * 1000,
         /** Warn user when license expires within this many days */
-        EXPIRY_WARNING_DAYS: 14
+        EXPIRY_WARNING_DAYS: 14,
+        /** Revalidate active licenses once per day */
+        VERIFY_INTERVAL_MS: 24 * 60 * 60 * 1000,
+        /** Keep the last valid entitlement briefly during network outages */
+        OFFLINE_GRACE_MS: 7 * 24 * 60 * 60 * 1000
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -333,4 +340,7 @@ const Constants = (function () {
 // Expose globally for other scripts
 if (typeof window !== 'undefined') {
     window.Constants = Constants;
+}
+if (typeof self !== 'undefined') {
+    self.Constants = Constants;
 }

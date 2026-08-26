@@ -45,14 +45,15 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 
 Amaç: Kod, ürün beyanı ve mağaza açıklamalarını aynı gerçeğe bağlamak.
 
-- [ ] Yerel ve harici veri işleme envanterini tamamla.
-- [ ] Gizlilik politikasında Gumroad aktarımını, kullanıcı adı geçmişini, whitelist'i ve saklama sürelerini açıkla.
-- [ ] “Sayaçları sıfırla” ve gerçek “Tüm verileri sil” işlemlerini ayır.
-- [ ] README, Store Listing, popup ve manifest limit/özellik metinlerini eşitle.
-- [ ] Gereksiz `web_accessible_resources` kapsamını kaldır veya daralt.
-- [ ] CSV escaping ve formül enjeksiyonu koruması ekle.
-- [ ] Lisans doğrulamasını periyodik entitlement kontrolüyle güçlendir.
-- [ ] Refund, chargeback, expired ve çevrimdışı lisans durumlarını tanımla.
+- [x] Yerel ve harici veri işleme envanterini tamamla.
+- [x] Gizlilik politikasında Gumroad aktarımını, kullanıcı adı geçmişini, whitelist'i ve saklama sürelerini açıkla.
+- [x] “İstatistikleri sıfırla” ve gerçek “Tüm verileri sil” işlemlerini ayır.
+- [x] README, Store Listing, popup ve manifest limit/özellik metinlerini eşitle.
+- [x] Gereksiz `web_accessible_resources` kapsamını kaldır.
+- [x] CSV escaping ve formül enjeksiyonu koruması ekle.
+- [x] Lisans doğrulamasını 24 saatlik periyodik entitlement kontrolüyle güçlendir.
+- [x] Refund, chargeback, dispute, subscription-ended, expired ve çevrimdışı lisans durumlarını tanımla.
+- [ ] Gumroad ürün kimliği doğrulandıktan sonra yeni ürünler için `product_permalink` yerine `product_id` kullan.
 - [ ] X otomasyon politikasına uygun kullanıcı seçimli/onaylı ürün akışını yayın varsayılanı yap.
 
 **Faz 2 çıkış kriteri:** Kod, manifest, mağaza metni ve gizlilik politikası birbiriyle tutarlıdır.
@@ -63,6 +64,7 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 
 - [x] Bağımlılıksız sözdizimi ve smoke test komutlarını ekle.
 - [x] Free/Pro limit ve locale anahtar eşitliği regresyon testlerini ekle.
+- [x] Gumroad aktivasyon, önbellek ve entitlement iptali regresyon testlerini ekle.
 - [ ] ESLint ve Prettier yapılandırması ekle.
 - [ ] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
 - [ ] Playwright unpacked-extension smoke testleri ekle.
@@ -73,7 +75,7 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 
 **Faz 3 çıkış kriteri:** Her değişiklikte syntax, lint, unit, DOM fixture ve temel extension akışı otomatik doğrulanır.
 
-## Faz 4 - Ürün büyümesi ve çoklu platform
+## Faz 4 - Ürün büyümesi ve tarayıcı genişlemesi
 
 Amaç: Riski düşük, kullanıcı kontrollü ve platformdan bağımsız bir takip yönetimi ürünü oluşturmak.
 
@@ -83,7 +85,6 @@ Amaç: Riski düşük, kullanıcı kontrollü ve platformdan bağımsız bir tak
 - [ ] Çoklu X hesabı için verileri hesap kimliğine göre ayır.
 - [ ] Ortak çekirdeği Chrome API ve X DOM adaptörlerinden ayır.
 - [ ] Firefox WebExtension adaptörü oluştur.
-- [ ] Safari Web Extension ve iOS paketleme çalışmasını başlat.
-- [ ] Kullanıcı kontrollü mobil deneyim için ürün prototipi hazırla.
+- [ ] macOS için Safari Web Extension paketleme çalışmasını başlat.
 
 **Faz 4 çıkış kriteri:** Ortak çekirdek en az iki tarayıcı hedefinde çalışır ve aday seçimi kullanıcı onayı olmadan hesap değişikliği yapmaz.

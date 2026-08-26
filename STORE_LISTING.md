@@ -6,7 +6,7 @@
 X Unfollow Radar
 
 ### Tagline (Short Description - max 132 characters)
-Seni takip etmeyen kullanıcıları otomatik tespit et ve takipten çık. Güvenli, hızlı, kolay!
+Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem temposuyla following listeni yönet.
 
 ### Category
 - Primary: **Productivity**
@@ -24,25 +24,25 @@ Seni takip etmeyen kullanıcıları otomatik tespit et ve takipten çık. Güven
 
 **X Unfollow Radar** - Sosyal Medya Yönetimini Kolaylaştırın! 🚀
 
-Seni takip etmeyen kullanıcıları otomatik olarak tespit edip takipten çıkarmanızı sağlayan güvenli ve kullanıcı dostu bir Chrome eklentisi.
+Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize yardımcı olan bir Chrome eklentisi.
 
 ### 🎯 ÖZELLİKLER
 
 ✅ **Otomatik Tespit**: "Follows you" badge'i olmayan kullanıcıları otomatik bulur
-✅ **Güvenli Çalışma**: 2-5 saniye rastgele gecikmeler ile Twitter/X kurallarına uygun
-✅ **Kontrollü İşlem**: Oturum başına maksimum 100 kişi limiti
-✅ **Test Modu**: İlk 5 kullanıcıda durur ve onay ister
+✅ **Kontrollü Tempo**: İşlemler arasında 2-5 saniye rastgele gecikme
+✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
+✅ **Batch Onayı**: Pro planda ilk 50 gerçek işlemden sonra devam onayı
 ✅ **İstatistik Takibi**: Toplam ve oturum bazlı istatistikler
 ✅ **Otomatik Reset**: 24 saatte bir otomatik sıfırlama
-✅ **Rate Limit Koruması**: Twitter'ın hız limitlerini algılar ve uyarır
+✅ **Dry-run**: Hesapta değişiklik yapmadan adayları test eder
 
 ### 🔒 GÜVENLİK VE GİZLİLİK
 
 🔐 **Şifrenizi ASLA toplamaz**
-🔐 **Hiçbir veriyi sunucuya göndermez**
-🔐 **Sadece tarayıcınızda çalışır**
+🔐 **X kullanıcı listeleri ve geçmiş cihazda tutulur**
+🔐 **Yalnızca Pro lisans anahtarı doğrulama için doğrudan Gumroad'a gönderilir**
 🔐 **Açık kaynak ve şeffaf**
-🔐 **Twitter/X kullanım koşullarına saygılı**
+🔐 **Tüm yerel verileri tek işlemle silme kontrolü sunar**
 
 ### ⚡ KULLANIM
 
@@ -54,12 +54,12 @@ Seni takip etmeyen kullanıcıları otomatik olarak tespit edip takipten çıkar
 
 ### 📊 NASIL ÇALIŞIR?
 
-Extension sayfanızı otomatik olarak kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri tespit eder. Tespit edilen her kullanıcı için güvenli gecikmeler ile takipten çıkma işlemini otomatikleştirir.
+Extension sayfanızı otomatik olarak kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri tespit eder. Whitelist ve keyword filtrelerini uygular; gerçek modda kontrollü gecikmelerle takipten çıkma işlemini gerçekleştirir.
 
 ### ⚠️ ÖNEMLİ NOTLAR
 
 - Bu eklenti sadece sizi takip etmeyen kullanıcıları işler
-- İlk kullanımda test modunda 5 kişi ile başlar
+- Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
 - Günlük Twitter/X limitlerine dikkat edin
 - Aşırı kullanım hesap kısıtlamalarına yol açabilir
 
@@ -82,25 +82,25 @@ Sorun yaşarsanız veya öneriniz varsa:
 
 **X Unfollow Radar** - Simplify Your Social Media Management! 🚀
 
-A safe and user-friendly Chrome extension that automatically detects and unfollows users who don't follow you back on Twitter/X.
+A Chrome extension that detects accounts that do not follow you back and helps manage your Following list.
 
 ### 🎯 FEATURES
 
 ✅ **Auto Detection**: Automatically finds users without "Follows you" badge
-✅ **Safe Operation**: 2-5 second random delays to comply with Twitter/X rules
-✅ **Controlled Process**: Maximum 100 users per session
-✅ **Test Mode**: Pauses after first 5 users for confirmation
+✅ **Controlled Pacing**: Random 2-5 second delays between actions
+✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
+✅ **Batch Confirmation**: Pro asks for confirmation after the first 50 real actions
 ✅ **Statistics Tracking**: Total and session-based statistics
 ✅ **Auto Reset**: Automatic reset every 24 hours
-✅ **Rate Limit Protection**: Detects and warns about Twitter's rate limits
+✅ **Dry Run**: Tests candidates without changing the account
 
 ### 🔒 SECURITY & PRIVACY
 
 🔐 **NEVER collects your password**
-🔐 **Does NOT send data to any server**
-🔐 **Works only in your browser**
+🔐 **X account lists and history remain on the device**
+🔐 **Only the Pro license key is sent directly to Gumroad for verification**
 🔐 **Open source and transparent**
-🔐 **Respects Twitter/X terms of service**
+🔐 **Provides a control to delete all local extension data**
 
 ### ⚡ HOW TO USE
 
@@ -118,7 +118,7 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 
 ### Screenshot 1: Main Popup Interface
 - Show the popup with statistics
-- Display "Session: 15/100" and "Total: 234"
+- Display "Session: 15/50" and "Total: 234"
 - Status: "Çalışıyor..." (Running)
 
 ### Screenshot 2: Test Mode Alert

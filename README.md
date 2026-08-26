@@ -7,25 +7,25 @@ Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chro
 ### Temel Özellikler
 - ✅ Otomatik scroll ve kullanıcı taraması
 - ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
-- ✅ 2-5 saniye rastgele gecikmelerle güvenli çalışma
-- ✅ Oturum başına 100 kişi limiti (50+50 batch system)
+- ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
+- ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
 - ✅ 24 saatte otomatik counter sıfırlama
-- ✅ Batch modu: İlk 50 kişide durup onay ister
+- ✅ Batch modu: Pro planda ilk 50 gerçek işlemden sonra devam onayı ister
 - ✅ Toplam istatistik saklama
-- ✅ Akıllı rate limit koruması ve otomatik devam
+- ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
 
 ### Gelişmiş Özellikler
 - 🔍 **Keywords Filter**: Bio'da belirli kelimeleri içeren kullanıcıları atla
 - 🛡️ **Whitelist**: Belirli kullanıcıları koruma altına al
 - 📊 **30 Günlük Chart**: Chartist.js ile görsel istatistikler
-- 📥 **CSV Export**: İşlem geçmişini CSV olarak indir
+- 📥 **CSV Export (Pro)**: İşlem geçmişini güvenli CSV formatında indir
 - 🌙 **Dark Mode**: Karanlık tema desteği
-- 🌐 **Çoklu Dil Desteği**: Türkçe ve İngilizce arayüz (TR/EN)
+- 🌐 **Çoklu Dil Desteği**: Türkçe, İngilizce ve Almanca arayüz (TR/EN/DE)
 -  **User List**: İşlenen kullanıcıların canlı listesi
-  - ↶ Tek tıkla geri al butonu
+  - ↗ Profili açıp manuel yeniden takip etme
   - ⭐ Tek tıkla whitelist'e ekle butonu
 - 🧪 **Dry-Run Mode**: Gerçekte takipten çıkmadan test et
-- ↶ **Undo System**: Son işlemleri geri al (persistent)
+- ↗ **Recent Profiles**: Son 10 işlemin profilini manuel takip için aç
 - ⏱️ **Smart Rate Limit**: 15 dakika sonra otomatik devam
 
 ## 📦 Kurulum
@@ -53,21 +53,22 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
 5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
 6. "Başlat" butonuna tıklayın
-7. İlk 50 kullanıcıdan sonra onay isteyecek (Batch Modu)
-8. "Devam Et" diyerek ikinci 50 kişilik batch'e geçin
+7. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
+8. Pro planda "Devam Et" diyerek kalan günlük limite kadar ilerleyin
 9. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
 10. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
 
 ## ⚙️ Ayarlar ve Limitler
 
-- **Oturum Limiti**: 100 kişi/oturum (50+50 batch system)
-- **Batch Sistemi**: İlk 50 kişi → Onay → İkinci 50 kişi
+- **24 Saatlik Limit**: Ücretsiz 50 / Pro 500 gerçek unfollow
+- **Batch Sistemi**: Pro planda ilk 50 işlem → açık devam onayı
 - **Toplam Limit**: Sınırsız (istatistik olarak tutuluyor)
 - **Gecikme**: 2-5 saniye (rastgele)
 - **Reset**: 24 saat sonra otomatik
 - **Rate Limit**: 15 dakika otomatik bekleme ve devam
-- **Undo Queue**: Son 10 işlem geri alınabilir
+- **Recent Profiles**: Son 10 işlemin profili manuel yeniden takip için açılabilir
 - **History**: 30 günlük geçmiş saklanır
+- **Lisans Doğrulama**: Pro anahtarı Gumroad ile aktive edilir ve periyodik olarak yeniden doğrulanır
 
 ## ⚠️ Önemli Uyarılar
 
@@ -117,14 +118,15 @@ x_unfollow_radar/
 │
 └── locales/                   # Language files
     ├── tr.json                # Turkish translations
-    └── en.json                # English translations
+    ├── en.json                # English translations
+    └── de.json                # German translations
 ```
 
 ### Güvenlik Önlemleri
 - Rastgele gecikmeler (2-5 saniye)
-- Oturum limitleri (100 kişi)
+- Ücretsiz 50 / Pro 500 işlem limiti
 - Organik duraklamalar (%10 rastgele)
-- Rate limit tespiti
+- Algılanan rate-limit bekleme durumunu saklama ve otomatik devam
 - 24 saatlik reset mekanizması
 
 ## 🤝 Katkıda Bulunma
@@ -150,4 +152,4 @@ Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
 
 **⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
 
-*Son güncelleme: Şubat 2025*
+*Son güncelleme: Ağustos 2026*

@@ -56,7 +56,7 @@
             <div class="stats" role="region" aria-label="Statistics">
                 <div class="stat-item">
                     <span class="stat-label" data-i18n="stats.dailyLimit">24 Saatlik Limit</span>
-                    <span class="stat-value" id="sessionCount" aria-live="polite">0/100</span>
+                    <span class="stat-value" id="sessionCount" aria-live="polite">0/50</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label" data-i18n="stats.totalUnfollowed">Toplam Çıkarılan</span>
@@ -116,8 +116,8 @@
             <div id="limitReachedAlert" class="alert alert-info" style="display: none;" role="alert"
                 aria-live="assertive">
                 <p><strong>✋ <span data-i18n="alerts.dailyLimitReached">24 Saatlik Limit Doldu</span></strong></p>
-                <p data-i18n="alerts.dailyLimitDesc">Son 24 saatte 100 kişiden takipten çıktınız. Yeni oturum için 24
-                    saat beklemeniz gerekiyor.</p>
+                <p data-i18n="alerts.dailyLimitDesc">Günlük plan limitinize ulaştınız. Güvenlik penceresi dolana kadar
+                    beklemeniz gerekiyor.</p>
             </div>
 
             <!-- Controls: Dry run + Reset on same row -->
@@ -128,7 +128,7 @@
                 </label>
                 <span id="dryrun-desc" class="sr-only" data-i18n="controls.dryRunDesc">When enabled, simulates unfollowing without making changes</span>
                 <button id="resetBtn" class="btn btn-ghost" type="button" data-i18n-aria="aria.resetButton">
-                    <span data-i18n="buttons.reset">Sıfırla</span>
+                    <span data-i18n="buttons.reset">İstatistikleri sıfırla</span>
                 </button>
             </div>
 
@@ -248,15 +248,20 @@
                 <p class="info-title">🛡️ <span data-i18n="footer.safetyTitle">Safety</span></p>
                 <ul>
                     <li data-i18n="footer.safety1">2–5s delay between actions</li>
-                    <li data-i18n="footer.safety2">Confirmation after first 50 users</li>
-                    <li data-i18n="footer.safety3">Max 100 users per 24 hours</li>
+                    <li data-i18n="footer.safety2">Pro: confirmation after the first 50 real actions</li>
+                    <li data-i18n="footer.safety3">Free: 50 / Pro: 500 users per 24 hours</li>
                 </ul>
             </div>
+            <button id="deleteAllDataBtn" class="btn btn-ghost data-delete-btn" type="button"
+                data-i18n-aria="aria.deleteAllDataButton">
+                <span data-i18n="buttons.deleteAllData">Tüm yerel verileri sil</span>
+            </button>
         </aside>
     </div>
 
     <script src="../../vendor/chartist.min.js"></script>
     <script src="../shared/constants.js"></script>
+    <script src="../shared/csv.js"></script>
     <script src="../shared/i18n.js"></script>
     <script src="popup.js"></script>
 </body>

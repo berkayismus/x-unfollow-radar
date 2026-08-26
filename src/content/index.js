@@ -63,6 +63,9 @@ const XUnfollowRadarContent = (function () {
     /** @type {number} Effective daily limit for the active plan */
     let sessionLimit = Constants.getSessionLimit(Constants.PLANS.FREE);
 
+    /** @type {boolean} Prevents late async work from recreating deleted storage */
+    let suppressPersistence = false;
+
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
@@ -201,8 +204,11 @@ const XUnfollowRadarContent = (function () {
      * @returns {Promise<void>}
      */
     async function updateDailyStats(action = Constants.USER_ACTIONS.UNFOLLOWED) {
+        if (suppressPersistence) return;
+
         const today = new Date().toISOString().split('T')[0];
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNFOLLOW_STATS]);
+        if (suppressPersistence) return;
         const stats = data[Constants.STORAGE_KEYS.UNFOLLOW_STATS] || { daily: {} };
 
         if (!stats.daily[today]) {
@@ -226,7 +232,10 @@ const XUnfollowRadarContent = (function () {
      * @returns {Promise<void>}
      */
     async function addToHistory(username, reason) {
+        if (suppressPersistence) return;
+
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.UNFOLLOW_HISTORY]);
+        if (suppressPersistence) return;
         const history = data[Constants.STORAGE_KEYS.UNFOLLOW_HISTORY] || [];
 
         history.push({
@@ -253,6 +262,8 @@ const XUnfollowRadarContent = (function () {
      * @returns {Promise<void>}
      */
     async function handleRateLimit() {
+        if (suppressPersistence) return;
+
         const now = Date.now();
         rateLimitUntil = now + Constants.TIMING.RATE_LIMIT_WAIT;
 
@@ -323,6 +334,8 @@ const XUnfollowRadarContent = (function () {
                 console.log(`[DRY RUN] Would unfollow ${username}`);
                 await randomDelay(Constants.TIMING.MIN_DELAY, Constants.TIMING.MAX_DELAY);
 
+                if (suppressPersistence) return false;
+
                 sendStatus(Constants.STATUS.UNFOLLOWED, { username, dryRun: true });
                 chrome.runtime.sendMessage({
                     type: Constants.MESSAGE_TYPES.USER_PROCESSED,
@@ -361,7 +374,11 @@ const XUnfollowRadarContent = (function () {
                     return false;
                 }
 
+                if (suppressPersistence) return false;
+
                 await randomDelay(Constants.TIMING.MIN_DELAY, Constants.TIMING.MAX_DELAY);
+
+                if (suppressPersistence) return false;
 
                 sessionCount++;
                 totalUnfollowed++;
@@ -701,6 +718,7 @@ const XUnfollowRadarContent = (function () {
                         console.log('Starting mainLoop...');
                         isRunning = true;
                         isPaused = false;
+                        suppressPersistence = false;
                         operationStartTime = Date.now();
                         operationSpeeds = [];
                         mainLoop().catch(err => {
@@ -748,6 +766,25 @@ const XUnfollowRadarContent = (function () {
                 case Constants.ACTIONS.TOGGLE_DRY_RUN:
                     dryRunMode = message.enabled;
                     chrome.storage.local.set({ [Constants.STORAGE_KEYS.DRY_RUN_MODE]: dryRunMode });
+                    sendResponse({ success: true });
+                    break;
+
+                case Constants.ACTIONS.RESET_STATS:
+                    totalUnfollowed = 0;
+                    undoQueue = [];
+                    sendResponse({ success: true });
+                    break;
+
+                case Constants.ACTIONS.DELETE_ALL_DATA:
+                    isRunning = false;
+                    isPaused = false;
+                    suppressPersistence = true;
+                    sessionCount = 0;
+                    totalUnfollowed = 0;
+                    undoQueue = [];
+                    keywords = [];
+                    whitelist = {};
+                    dryRunMode = false;
                     sendResponse({ success: true });
                     break;
 
