@@ -107,7 +107,9 @@
         "notOnTwitter": "You are not on Twitter/X",
         "goToFollowing": "Go to Following page",
         "pageReloaded": "Page reloaded - Try again",
-        "startFailed": "Failed to start - Reload the page"
+        "startFailed": "Failed to start - Reload the page",
+        "tooManyFailures": "Stopped safely because consecutive actions could not be verified",
+        "operationFailed": "The operation stopped because of an unexpected error"
     },
     "pro": {
         "badge": "PRO",

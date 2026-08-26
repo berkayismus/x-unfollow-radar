@@ -43,7 +43,9 @@ const Constants = (function () {
         /** Rate limit wait time - 15 minutes (ms) */
         RATE_LIMIT_WAIT: 15 * 60 * 1000,
         /** Rate limit wait time in minutes */
-        RATE_LIMIT_MINUTES: 15
+        RATE_LIMIT_MINUTES: 15,
+        /** Maximum wait for newly rendered user cards after scrolling */
+        USER_LIST_MUTATION_TIMEOUT: 3000
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -77,6 +79,8 @@ const Constants = (function () {
         MAX_EMPTY_SCANS: 8,
         /** Same user count streak before stopping scroll */
         MAX_SAME_COUNT_STREAK: 3,
+        /** Stop after this many consecutive action failures */
+        MAX_CONSECUTIVE_FAILURES: 3,
         /** Days for chart display */
         CHART_DAYS: 30
     });
@@ -113,6 +117,10 @@ const Constants = (function () {
         USER_CELL_MAIN: '[data-testid="primaryColumn"] [data-testid="UserCell"]',
         /** Confirmation button for unfollow dialog */
         CONFIRM_BUTTON: '[data-testid="confirmationSheetConfirm"]',
+        /** Modal dialog containing the unfollow confirmation */
+        DIALOG: '[role="dialog"]',
+        /** X surfaces commonly used for errors and rate-limit notices */
+        RATE_LIMIT_SIGNAL: '[data-testid="toast"], [role="alert"], [role="dialog"]',
         /** Button with role attribute */
         ROLE_BUTTON: 'button[role="button"]',
         /** Link with role attribute */
@@ -131,7 +139,19 @@ const Constants = (function () {
         /** "Follows you" badge patterns */
         FOLLOWS_YOU: ['Follows you', 'Seni takip ediyor'],
         /** "Following" button patterns */
-        FOLLOWING_BUTTON: ['Following', 'Takip ediliyor']
+        FOLLOWING_BUTTON: ['Following', 'Takip ediliyor'],
+        /** X rate-limit/error messages in supported UI languages */
+        RATE_LIMIT: [
+            'rate limit',
+            'too many requests',
+            'try again later',
+            'you have reached the limit',
+            'çok fazla istek',
+            'daha sonra tekrar dene',
+            'işlem sınırına ulaştın',
+            'zu viele anfragen',
+            'später erneut versuchen'
+        ]
     });
 
     // ═══════════════════════════════════════════════════════════════

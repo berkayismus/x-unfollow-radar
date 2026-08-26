@@ -33,6 +33,7 @@
       ],
       "js": [
         "src/shared/constants.js",
+        "src/shared/dom.js",
         "src/content/index.js"
       ],
       "run_at": "document_idle"

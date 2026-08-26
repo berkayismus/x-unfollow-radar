@@ -61,10 +61,33 @@ function testCsvSafety() {
     assert.equal(csv.serialize([['A', 'B'], ['one', 'two']]), '"A","B"\r\n"one","two"');
 }
 
+function testDomInterpretation() {
+    const context = { window: {} };
+    vm.runInNewContext(read('src/shared/dom.js'), context);
+    const dom = context.window.DomUtils;
+
+    assert.equal(dom.containsAnyPattern('Try again later.', ['try again later']), true);
+    assert.equal(dom.containsAnyPattern('Regular confirmation', ['rate limit']), false);
+
+    const textDialog = {
+        innerText: 'Unfollow @TargetUser?',
+        querySelectorAll: () => []
+    };
+    assert.equal(dom.dialogMatchesUsername(textDialog, 'targetuser'), true);
+    assert.equal(dom.dialogMatchesUsername(textDialog, 'someoneelse'), false);
+
+    const linkDialog = {
+        innerText: 'Unfollow this account?',
+        querySelectorAll: () => [{ getAttribute: () => '/TargetUser' }]
+    };
+    assert.equal(dom.dialogMatchesUsername(linkDialog, '@targetuser'), true);
+}
+
 function testManifestScope() {
     const manifest = JSON.parse(read('manifest.json'));
     assert.equal(manifest.web_accessible_resources, undefined);
     assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
 }
 
 function testCriticalRegressionGuards() {
@@ -84,11 +107,17 @@ function testCriticalRegressionGuards() {
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
     assert.match(contentSource, /case Constants\.ACTIONS\.DELETE_ALL_DATA/);
     assert.match(popupSource, /chrome\.storage\.local\.clear\(\)/);
+    assert.match(contentSource, /new AbortController\(\)/);
+    assert.match(contentSource, /new MutationObserver\(/);
+    assert.match(contentSource, /findConfirmationDialog\(username\)/);
+    assert.match(contentSource, /MAX_CONSECUTIVE_FAILURES/);
+    assert.match(contentSource, /pauseIfRateLimited\(\)/);
 }
 
 testSessionLimits();
 testLocaleParity();
 testCsvSafety();
+testDomInterpretation();
 testManifestScope();
 testCriticalRegressionGuards();
 

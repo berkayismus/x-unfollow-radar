@@ -66,6 +66,12 @@ const XUnfollowRadarContent = (function () {
     /** @type {boolean} Prevents late async work from recreating deleted storage */
     let suppressPersistence = false;
 
+    /** @type {AbortController|null} Cancels the active operation immediately */
+    let operationController = null;
+
+    /** @type {number} Consecutive action failures used by the circuit breaker */
+    let consecutiveFailures = 0;
+
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
@@ -82,10 +88,25 @@ const XUnfollowRadarContent = (function () {
      * @param {number} max - Maximum delay in milliseconds
      * @returns {Promise<void>} Promise that resolves after the delay
      */
-    function randomDelay(min, max) {
-        return new Promise(resolve =>
-            setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min)
-        );
+    function randomDelay(min, max, signal = operationController?.signal) {
+        return new Promise((resolve, reject) => {
+            if (signal?.aborted) {
+                reject(new DOMException('Operation aborted', 'AbortError'));
+                return;
+            }
+
+            const timeout = setTimeout(() => {
+                signal?.removeEventListener('abort', handleAbort);
+                resolve();
+            }, Math.floor(Math.random() * (max - min + 1)) + min);
+
+            function handleAbort() {
+                clearTimeout(timeout);
+                reject(new DOMException('Operation aborted', 'AbortError'));
+            }
+
+            signal?.addEventListener('abort', handleAbort, { once: true });
+        });
     }
 
     /**
@@ -95,15 +116,42 @@ const XUnfollowRadarContent = (function () {
      * @param {number} [intervalMs=100]
      * @returns {Promise<boolean>}
      */
-    async function waitForCondition(condition, timeoutMs, intervalMs = 100) {
+    async function waitForCondition(condition, timeoutMs, intervalMs = 100, signal = operationController?.signal) {
         const deadline = Date.now() + timeoutMs;
 
         while (Date.now() < deadline) {
             if (condition()) return true;
-            await randomDelay(intervalMs, intervalMs);
+            await randomDelay(intervalMs, intervalMs, signal);
         }
 
         return condition();
+    }
+
+    function stopActiveOperation() {
+        operationController?.abort();
+        operationController = null;
+    }
+
+    function findRateLimitSignal() {
+        return Array.from(document.querySelectorAll(Constants.SELECTORS.RATE_LIMIT_SIGNAL)).find(element =>
+            DomUtils.containsAnyPattern(
+                element.innerText || element.textContent,
+                Constants.TEXT_PATTERNS.RATE_LIMIT
+            )
+        ) || null;
+    }
+
+    async function pauseIfRateLimited() {
+        if (!findRateLimitSignal()) return false;
+        await handleRateLimit();
+        return true;
+    }
+
+    function findConfirmationDialog(username) {
+        return Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find(dialog =>
+            dialog.querySelector(Constants.SELECTORS.CONFIRM_BUTTON) &&
+            DomUtils.dialogMatchesUsername(dialog, username)
+        ) || null;
     }
 
     /**
@@ -360,8 +408,9 @@ const XUnfollowRadarContent = (function () {
                 return false;
             }
 
-            // Find and click confirmation button
-            const confirmBtn = document.querySelector(Constants.SELECTORS.CONFIRM_BUTTON);
+            // Only accept a confirmation dialog that identifies the queued user.
+            const confirmationDialog = findConfirmationDialog(username);
+            const confirmBtn = confirmationDialog?.querySelector(Constants.SELECTORS.CONFIRM_BUTTON);
             if (confirmBtn) {
                 confirmBtn.click();
                 const actionSucceeded = await waitForCondition(
@@ -371,6 +420,7 @@ const XUnfollowRadarContent = (function () {
 
                 if (!actionSucceeded) {
                     console.warn(`Unfollow could not be verified for ${username}`);
+                    await pauseIfRateLimited();
                     return false;
                 }
 
@@ -414,12 +464,15 @@ const XUnfollowRadarContent = (function () {
                 return true;
             }
 
+            await pauseIfRateLimited();
+            console.warn(`Confirmation dialog did not match target user: ${username}`);
+
             return false;
         } catch (error) {
+            if (error.name === 'AbortError') return false;
             console.error('Unfollow error:', error);
 
-            // Check for rate limit
-            if (error.message && error.message.includes('429')) {
+            if ((error.message && error.message.includes('429')) || findRateLimitSignal()) {
                 await handleRateLimit();
             }
 
@@ -469,17 +522,72 @@ const XUnfollowRadarContent = (function () {
     }
 
     /**
+     * Waits for X's virtualized list to render at least one unseen user card.
+     * Resolves on timeout as well so an exhausted list can still be detected.
+     * @param {Set<string>} usernamesBeforeScroll
+     * @param {AbortSignal} signal
+     * @returns {Promise<boolean>}
+     */
+    function waitForNewUserCards(usernamesBeforeScroll, signal) {
+        return new Promise((resolve, reject) => {
+            if (signal?.aborted) {
+                reject(new DOMException('Operation aborted', 'AbortError'));
+                return;
+            }
+
+            let observer;
+            const timeout = setTimeout(() => finish(false), Constants.TIMING.USER_LIST_MUTATION_TIMEOUT);
+
+            function hasNewUsername() {
+                return Array.from(document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN)).some(cell => {
+                    const username = getUsernameFromCell(cell);
+                    return username !== 'Unknown' && !usernamesBeforeScroll.has(username);
+                });
+            }
+
+            function handleAbort() {
+                cleanup();
+                reject(new DOMException('Operation aborted', 'AbortError'));
+            }
+
+            function cleanup() {
+                clearTimeout(timeout);
+                observer?.disconnect();
+                signal?.removeEventListener('abort', handleAbort);
+            }
+
+            function finish(found) {
+                cleanup();
+                resolve(found);
+            }
+
+            observer = new MutationObserver(() => {
+                if (hasNewUsername()) finish(true);
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+            signal?.addEventListener('abort', handleAbort, { once: true });
+
+            if (hasNewUsername()) finish(true);
+        });
+    }
+
+    /**
      * Scrolls the page to load more users
      * @async
      * @returns {Promise<number>} The current count of user cells in primary column
      */
     async function autoScroll() {
         console.log('Scrolling...');
-        window.scrollTo(0, document.documentElement.scrollHeight);
-        await randomDelay(
-            Constants.TIMING.SCROLL_DELAY,
-            Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA
+        const usernamesBeforeScroll = new Set(
+            Array.from(document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN))
+                .map(getUsernameFromCell)
+                .filter(username => username !== 'Unknown')
         );
+        window.scrollTo(0, document.documentElement.scrollHeight);
+        await Promise.all([
+            randomDelay(Constants.TIMING.SCROLL_DELAY, Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA),
+            waitForNewUserCards(usernamesBeforeScroll, operationController?.signal)
+        ]);
 
         const userCellsCount = document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN).length;
         console.log('UserCells count:', userCellsCount);
@@ -519,8 +627,16 @@ const XUnfollowRadarContent = (function () {
             const userCell = unfollowQueue.shift();
             if (userCell && document.contains(userCell)) {
                 const success = await unfollowUser(userCell);
-                if (!success) {
+                if (success) {
+                    consecutiveFailures = 0;
+                } else if (isRunning && !isPaused) {
+                    consecutiveFailures++;
                     console.log('Unfollow could not be completed or verified');
+                    if (consecutiveFailures >= Constants.LIMITS.MAX_CONSECUTIVE_FAILURES) {
+                        isRunning = false;
+                        sendStatus(Constants.STATUS.ERROR, { reason: 'circuit_breaker' });
+                        return false;
+                    }
                 }
             }
         }
@@ -540,6 +656,7 @@ const XUnfollowRadarContent = (function () {
     async function mainLoop() {
         console.log('mainLoop started, isRunning:', isRunning);
         await initStorage();
+        if (!isRunning || operationController?.signal.aborted) return;
         console.log('Storage initialized, sessionCount:', sessionCount);
         if (isPaused && rateLimitUntil) {
             const remainingMinutes = Math.ceil((rateLimitUntil - Date.now()) / 60000);
@@ -622,6 +739,8 @@ const XUnfollowRadarContent = (function () {
      * @returns {Promise<void>}
      */
     async function initStorage() {
+        if (suppressPersistence) return;
+
         const storageKeys = [
             Constants.STORAGE_KEYS.SESSION_COUNT,
             Constants.STORAGE_KEYS.SESSION_START,
@@ -639,6 +758,7 @@ const XUnfollowRadarContent = (function () {
         ];
 
         const data = await chrome.storage.local.get(storageKeys);
+        if (suppressPersistence) return;
         const now = Date.now();
 
         try {
@@ -648,6 +768,7 @@ const XUnfollowRadarContent = (function () {
             console.warn('Plan could not be loaded; using free limits:', error);
             currentPlan = Constants.PLANS.FREE;
         }
+        if (suppressPersistence) return;
         sessionLimit = Constants.getSessionLimit(currentPlan);
 
         const sessionExpired = data[Constants.STORAGE_KEYS.SESSION_START] &&
@@ -716,12 +837,18 @@ const XUnfollowRadarContent = (function () {
                     console.log('START message received');
                     if (!isRunning) {
                         console.log('Starting mainLoop...');
+                        stopActiveOperation();
+                        operationController = new AbortController();
                         isRunning = true;
                         isPaused = false;
                         suppressPersistence = false;
+                        consecutiveFailures = 0;
+                        unfollowQueue = [];
+                        processedUsers = new Set();
                         operationStartTime = Date.now();
                         operationSpeeds = [];
                         mainLoop().catch(err => {
+                            if (err.name === 'AbortError') return;
                             console.error('mainLoop error:', err);
                             isRunning = false;
                             sendStatus(Constants.STATUS.ERROR);
@@ -733,6 +860,7 @@ const XUnfollowRadarContent = (function () {
                 case Constants.ACTIONS.STOP:
                     isRunning = false;
                     isPaused = false;
+                    stopActiveOperation();
                     sendStatus(Constants.STATUS.STOPPED);
                     sendResponse({ success: true });
                     break;
@@ -741,8 +869,17 @@ const XUnfollowRadarContent = (function () {
                     testComplete = true;
                     isPaused = false;
                     isRunning = true;
+                    if (!operationController || operationController.signal.aborted) {
+                        operationController = new AbortController();
+                    }
                     chrome.storage.local.set({ [Constants.STORAGE_KEYS.TEST_COMPLETE]: true });
-                    mainLoop();
+                    mainLoop().catch(err => {
+                        if (err.name !== 'AbortError') {
+                            console.error('mainLoop error:', err);
+                            isRunning = false;
+                            sendStatus(Constants.STATUS.ERROR);
+                        }
+                    });
                     sendResponse({ success: true });
                     break;
 
@@ -778,6 +915,7 @@ const XUnfollowRadarContent = (function () {
                 case Constants.ACTIONS.DELETE_ALL_DATA:
                     isRunning = false;
                     isPaused = false;
+                    stopActiveOperation();
                     suppressPersistence = true;
                     sessionCount = 0;
                     totalUnfollowed = 0;

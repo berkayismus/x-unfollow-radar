@@ -107,7 +107,9 @@
         "notOnTwitter": "Twitter/X sayfasında değilsiniz",
         "goToFollowing": "Following sayfasına gidin",
         "pageReloaded": "Sayfa yenilendi - Tekrar deneyin",
-        "startFailed": "Başlatılamadı - Sayfayı yenileyin"
+        "startFailed": "Başlatılamadı - Sayfayı yenileyin",
+        "tooManyFailures": "Ardışık işlemler doğrulanamadığı için güvenli şekilde durduruldu",
+        "operationFailed": "İşlem beklenmeyen bir hatayla durdu"
     },
     "pro": {
         "badge": "PRO",

@@ -25,11 +25,11 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 - [x] Rate-limit beklemesini timestamp tabanlı ve yeniden zamanlanabilir yap.
 - [x] Scroll bitiş kararını DOM kart sayısı yerine benzersiz kullanıcı büyümesine bağla.
 - [x] Confirm sonrası buton durumunu kontrol ederek başarıyı doğrula.
-- [ ] X hata/toast/dialog içeriklerinden gerçek rate-limit algılama ekle.
-- [ ] `MutationObserver` ile yeni kart yüklenmesini bekleyen scroll adaptörü ekle.
-- [ ] Dialog'un hedef kullanıcıya ait olduğunu doğrula.
-- [ ] Stop işlemini `AbortController` ile gecikme ve tıklama zincirine uygula.
-- [ ] Ardışık başarısızlıklarda circuit breaker ve anlaşılır hata durumu ekle.
+- [x] X hata/toast/dialog içeriklerinden gerçek rate-limit algılama ekle.
+- [x] `MutationObserver` ile yeni kart yüklenmesini bekleyen scroll adaptörü ekle.
+- [x] Dialog'un hedef kullanıcıya ait olduğunu doğrula.
+- [x] Stop işlemini `AbortController` ile gecikme ve tıklama zincirine uygula.
+- [x] Ardışık başarısızlıklarda circuit breaker ve anlaşılır hata durumu ekle.
 
 ### Paket 1C - Sayaç ve çalışma durumu
 

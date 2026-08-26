@@ -1351,6 +1351,14 @@ const XUnfollowRadarPopup = (function () {
                 elements.stopBtn.style.display = 'block';
                 updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
                 break;
+            case Constants.STATUS.ERROR:
+                isRunning = false;
+                elements.startBtn.style.display = 'block';
+                elements.stopBtn.style.display = 'none';
+                updateStatus('stopped', `⚠️ ${I18n.t(
+                    data.reason === 'circuit_breaker' ? 'messages.tooManyFailures' : 'messages.operationFailed'
+                )}`);
+                break;
         }
 
         loadStats();

@@ -107,7 +107,9 @@
         "notOnTwitter": "Du befindest dich nicht auf Twitter/X",
         "goToFollowing": "Zur Following‑Seite wechseln",
         "pageReloaded": "Seite neu geladen – versuche es erneut",
-        "startFailed": "Start fehlgeschlagen – Seite neu laden"
+        "startFailed": "Start fehlgeschlagen – Seite neu laden",
+        "tooManyFailures": "Sicher angehalten, da aufeinanderfolgende Aktionen nicht bestätigt werden konnten",
+        "operationFailed": "Der Vorgang wurde wegen eines unerwarteten Fehlers beendet"
     },
     "pro": {
         "badge": "PRO",
