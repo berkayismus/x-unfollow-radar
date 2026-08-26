@@ -87,7 +87,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
 
 1. **Initialization** – `initStorage()`:
    - Reads all relevant keys from `chrome.storage.local`:
-     - Session counters and timestamps
+     - Successful real-action timestamps for the rolling 24-hour safety window
      - Total unfollowed count
      - Test mode / batch completion flags
      - Filters (keywords, whitelist)
@@ -95,7 +95,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
      - Recent-profile queue
      - Rate limit timestamp
      - Stats and history
-   - Resets the session counter if more than 24 hours have passed.
+   - Prunes each successful action timestamp individually after 24 hours and derives the safety count from the remaining records.
    - Initializes missing structures (stats, history).
 
 2. **Loop**:

@@ -33,8 +33,8 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 
 ### Paket 1C - Sayaç ve çalışma durumu
 
-- [ ] Güvenlik limitini kayan son-24-saat aksiyon kayıtlarından hesapla.
-- [ ] Kullanıcı resetinin güvenlik limitini aşmasına izin verme.
+- [x] Güvenlik limitini kayan son-24-saat aksiyon kayıtlarından hesapla.
+- [x] Kullanıcı resetinin güvenlik limitini aşmasına izin verme.
 - [ ] Çalışma durumunu `queued/attempting/succeeded/failed` durum makinesine taşı.
 - [ ] Popup yeniden açıldığında son çalışma listesini geri yükle.
 - [ ] Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı çalışma özetinde göster.
@@ -75,16 +75,14 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 
 **Faz 3 çıkış kriteri:** Her değişiklikte syntax, lint, unit, DOM fixture ve temel extension akışı otomatik doğrulanır.
 
-## Faz 4 - Ürün büyümesi ve tarayıcı genişlemesi
+## Faz 4 - Ürün büyümesi
 
-Amaç: Riski düşük, kullanıcı kontrollü ve platformdan bağımsız bir takip yönetimi ürünü oluşturmak.
+Amaç: Riski düşük ve kullanıcı kontrollü bir takip yönetimi ürünü oluşturmak.
 
 - [ ] Aday ön izleme, çoklu seçim ve açık işlem onayı ekle.
 - [ ] Gelişmiş filtre kuralları ve kural simülatörü geliştir.
 - [ ] Whitelist/ayar JSON içe-dışa aktarma ekle.
 - [ ] Çoklu X hesabı için verileri hesap kimliğine göre ayır.
 - [ ] Ortak çekirdeği Chrome API ve X DOM adaptörlerinden ayır.
-- [ ] Firefox WebExtension adaptörü oluştur.
-- [ ] macOS için Safari Web Extension paketleme çalışmasını başlat.
 
-**Faz 4 çıkış kriteri:** Ortak çekirdek en az iki tarayıcı hedefinde çalışır ve aday seçimi kullanıcı onayı olmadan hesap değişikliği yapmaz.
+**Faz 4 çıkış kriteri:** Aday seçimi kullanıcı onayı olmadan hesap değişikliği yapmaz ve çoklu hesap verileri birbirine karışmaz.

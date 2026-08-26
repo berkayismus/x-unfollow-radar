@@ -32,7 +32,7 @@
         "rateLimit": "Rate Limit!",
         "rateLimitDesc": "You've hit Twitter's rate limit.",
         "dailyLimitReached": "24 Hour Limit Reached",
-        "dailyLimitDesc": "You've reached your daily limit. Please wait 24 hours for a new session."
+        "dailyLimitDesc": "You've reached the rolling 24-hour limit. At least one action slot opens in about {hours} hours."
     },
     "buttons": {
         "start": "Start unfollow",
@@ -79,7 +79,7 @@
         "item2": "Works with 2-5 second delay",
         "item3": "Pro asks for confirmation after the first 50 real actions",
         "item4": "Free: 50 / Pro: 500 users per 24 hours",
-        "item5": "Limit resets automatically after 24 hours"
+        "item5": "Each real action leaves the safety count after 24 hours"
     },
     "footer": {
         "requirementsTitle": "Requirements",

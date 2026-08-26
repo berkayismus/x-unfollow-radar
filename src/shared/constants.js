@@ -165,10 +165,12 @@ const Constants = (function () {
     const STORAGE_KEYS = Object.freeze({
         SESSION_COUNT: 'sessionCount',
         SESSION_START: 'sessionStart',
+        ACTION_TIMESTAMPS: 'actionTimestamps',
         TOTAL_UNFOLLOWED: 'totalUnfollowed',
         LAST_RUN: 'lastRun',
         TEST_MODE: 'testMode',
         TEST_COMPLETE: 'testComplete',
+        TEST_COMPLETED_AT: 'testCompletedAt',
         KEYWORDS: 'keywords',
         WHITELIST: 'whitelist',
         DRY_RUN_MODE: 'dryRunMode',

@@ -32,7 +32,7 @@
         "rateLimit": "Rate-Limit!",
         "rateLimitDesc": "Du hast das Twitter-Rate-Limit erreicht.",
         "dailyLimitReached": "24‑Stunden‑Limit erreicht",
-        "dailyLimitDesc": "Du hast dein Tageslimit erreicht. Bitte warte 24 Stunden für eine neue Sitzung."
+        "dailyLimitDesc": "Du hast das gleitende 24-Stunden-Limit erreicht. In etwa {hours} Stunden wird mindestens eine Aktion frei."
     },
     "buttons": {
         "start": "Entfolgen starten",
@@ -79,7 +79,7 @@
         "item2": "Arbeitet mit 2–5 Sekunden Verzögerung",
         "item3": "Pro fragt nach den ersten 50 echten Aktionen nach einer Bestätigung",
         "item4": "Kostenlos: 50 / Pro: 500 Benutzer pro 24 Stunden",
-        "item5": "Limit wird nach 24 Stunden automatisch zurückgesetzt"
+        "item5": "Jede echte Aktion fällt nach 24 Stunden aus dem Sicherheitszähler"
     },
     "footer": {
         "requirementsTitle": "Voraussetzungen",

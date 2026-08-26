@@ -76,8 +76,8 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 `mainLoop()` fonksiyonu içeride şu sırayla çalışır:
 
 1. `initStorage()`  
-   - Güncel session sayacı, toplam takipten çıkma, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
-   - 24 saatlik oturum süresi aşılmışsa session sayacını sıfırlar.
+   - Son 24 saatteki gerçek işlem zamanlarını, toplam takipten çıkma, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
+   - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
 
 2. Sonsuz döngü içinde:
    - `scanUsers()` ile ekrandaki kullanıcı kartlarını tarar.

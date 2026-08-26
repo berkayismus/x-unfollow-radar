@@ -8,7 +8,7 @@ X Unfollow Radar is a browser extension that analyzes the X/Twitter “Following
 
 The extension uses `chrome.storage.local` to keep the following information on the user's device:
 
-- Current 24-hour operation count and session start time
+- Timestamps of successful real actions and the latest batch confirmation retained for rolling 24-hour safety controls
 - Total operation count and last-run timestamp
 - Daily real-operation and dry-run statistics
 - Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons

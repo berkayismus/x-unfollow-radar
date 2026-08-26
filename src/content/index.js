@@ -27,6 +27,9 @@ const XUnfollowRadarContent = (function () {
     /** @type {boolean} Whether the first batch test is complete */
     let testComplete = false;
 
+    /** @type {number|null} Timestamp of the latest explicit batch confirmation */
+    let testCompletedAt = null;
+
     /** @type {HTMLElement[]} Queue of user cells to process */
     let unfollowQueue = [];
 
@@ -35,6 +38,9 @@ const XUnfollowRadarContent = (function () {
 
     /** @type {number} Number of users unfollowed in current session */
     let sessionCount = 0;
+
+    /** @type {number[]} Successful real-action timestamps inside the rolling 24-hour window */
+    let actionTimestamps = [];
 
     /** @type {number} Total number of users unfollowed all-time */
     let totalUnfollowed = 0;
@@ -130,6 +136,36 @@ const XUnfollowRadarContent = (function () {
     function stopActiveOperation() {
         operationController?.abort();
         operationController = null;
+    }
+
+    async function refreshSafetyWindow(now = Date.now()) {
+        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]);
+        if (suppressPersistence) return;
+        const storedTimestamps = data[Constants.STORAGE_KEYS.ACTION_TIMESTAMPS];
+        const source = Array.isArray(storedTimestamps) ? storedTimestamps : actionTimestamps;
+        const pruned = SafetyWindow.prune(source, now, Constants.TIMING.SESSION_DURATION);
+        const changed = pruned.length !== source.length ||
+            pruned.some((timestamp, index) => timestamp !== source[index]);
+        actionTimestamps = pruned;
+        sessionCount = actionTimestamps.length;
+
+        if (testComplete && testCompletedAt &&
+            (now - testCompletedAt) >= Constants.TIMING.SESSION_DURATION) {
+            testComplete = false;
+            testCompletedAt = null;
+            await chrome.storage.local.set({
+                [Constants.STORAGE_KEYS.TEST_COMPLETE]: false,
+                [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: null
+            });
+        }
+
+        if (changed && !suppressPersistence) {
+            await chrome.storage.local.set({
+                [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
+                [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
+                [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
+            });
+        }
     }
 
     function findRateLimitSignal() {
@@ -430,7 +466,14 @@ const XUnfollowRadarContent = (function () {
 
                 if (suppressPersistence) return false;
 
-                sessionCount++;
+                const actionTimestamp = Date.now();
+                await refreshSafetyWindow(actionTimestamp);
+                actionTimestamps = SafetyWindow.prune(
+                    [...actionTimestamps, actionTimestamp],
+                    actionTimestamp,
+                    Constants.TIMING.SESSION_DURATION
+                );
+                sessionCount = actionTimestamps.length;
                 totalUnfollowed++;
 
                 // Add to undo queue
@@ -447,6 +490,8 @@ const XUnfollowRadarContent = (function () {
 
                 await chrome.storage.local.set({
                     [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
+                    [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0],
+                    [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
                     [Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED]: totalUnfollowed,
                     [Constants.STORAGE_KEYS.LAST_RUN]: new Date().toISOString(),
                     [Constants.STORAGE_KEYS.UNDO_QUEUE]: undoQueue
@@ -611,6 +656,7 @@ const XUnfollowRadarContent = (function () {
      */
     async function processQueue() {
         while (unfollowQueue.length > 0 && isRunning && !isPaused) {
+            await refreshSafetyWindow();
             if (!dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
                 sendStatus(Constants.STATUS.LIMIT_REACHED);
@@ -676,6 +722,8 @@ const XUnfollowRadarContent = (function () {
                 );
                 continue;
             }
+
+            await refreshSafetyWindow();
 
             if (!dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
@@ -744,10 +792,12 @@ const XUnfollowRadarContent = (function () {
         const storageKeys = [
             Constants.STORAGE_KEYS.SESSION_COUNT,
             Constants.STORAGE_KEYS.SESSION_START,
+            Constants.STORAGE_KEYS.ACTION_TIMESTAMPS,
             Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED,
             Constants.STORAGE_KEYS.LAST_RUN,
             Constants.STORAGE_KEYS.TEST_MODE,
             Constants.STORAGE_KEYS.TEST_COMPLETE,
+            Constants.STORAGE_KEYS.TEST_COMPLETED_AT,
             Constants.STORAGE_KEYS.KEYWORDS,
             Constants.STORAGE_KEYS.WHITELIST,
             Constants.STORAGE_KEYS.DRY_RUN_MODE,
@@ -771,33 +821,38 @@ const XUnfollowRadarContent = (function () {
         if (suppressPersistence) return;
         sessionLimit = Constants.getSessionLimit(currentPlan);
 
-        const sessionExpired = data[Constants.STORAGE_KEYS.SESSION_START] &&
-            (now - data[Constants.STORAGE_KEYS.SESSION_START]) > Constants.TIMING.SESSION_DURATION;
-
-        // Reset session-scoped state if 24 hours passed
-        if (sessionExpired) {
-            sessionCount = 0;
-            await chrome.storage.local.set({
-                [Constants.STORAGE_KEYS.SESSION_COUNT]: 0,
-                [Constants.STORAGE_KEYS.SESSION_START]: now,
-                [Constants.STORAGE_KEYS.TEST_COMPLETE]: false
-            });
-        } else {
-            sessionCount = data[Constants.STORAGE_KEYS.SESSION_COUNT] || 0;
-        }
+        actionTimestamps = SafetyWindow.fromStorage({
+            timestamps: data[Constants.STORAGE_KEYS.ACTION_TIMESTAMPS],
+            legacyCount: data[Constants.STORAGE_KEYS.SESSION_COUNT],
+            legacyStart: data[Constants.STORAGE_KEYS.SESSION_START],
+            now,
+            durationMs: Constants.TIMING.SESSION_DURATION,
+            maxLegacyCount: Constants.LIMITS.PRO_MAX_SESSION
+        });
+        sessionCount = actionTimestamps.length;
 
         totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
         testMode = data[Constants.STORAGE_KEYS.TEST_MODE] !== undefined ? data[Constants.STORAGE_KEYS.TEST_MODE] : true;
-        testComplete = sessionExpired ? false : (data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false);
+        const storedTestComplete = data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false;
+        testCompletedAt = storedTestComplete
+            ? (data[Constants.STORAGE_KEYS.TEST_COMPLETED_AT] || data[Constants.STORAGE_KEYS.SESSION_START] || now)
+            : null;
+        testComplete = storedTestComplete &&
+            (now - testCompletedAt) < Constants.TIMING.SESSION_DURATION;
+        if (!testComplete) testCompletedAt = null;
         keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
         whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
         dryRunMode = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
         undoQueue = data[Constants.STORAGE_KEYS.UNDO_QUEUE] || [];
         rateLimitUntil = data[Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL] || null;
 
-        if (!data[Constants.STORAGE_KEYS.SESSION_START]) {
-            await chrome.storage.local.set({ [Constants.STORAGE_KEYS.SESSION_START]: now });
-        }
+        await chrome.storage.local.set({
+            [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
+            [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
+            [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null,
+            [Constants.STORAGE_KEYS.TEST_COMPLETE]: testComplete,
+            [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: testCompletedAt
+        });
 
         // Initialize stats if not exists
         if (!data[Constants.STORAGE_KEYS.UNFOLLOW_STATS]) {
@@ -867,12 +922,16 @@ const XUnfollowRadarContent = (function () {
 
                 case Constants.ACTIONS.CONTINUE_TEST:
                     testComplete = true;
+                    testCompletedAt = Date.now();
                     isPaused = false;
                     isRunning = true;
                     if (!operationController || operationController.signal.aborted) {
                         operationController = new AbortController();
                     }
-                    chrome.storage.local.set({ [Constants.STORAGE_KEYS.TEST_COMPLETE]: true });
+                    chrome.storage.local.set({
+                        [Constants.STORAGE_KEYS.TEST_COMPLETE]: true,
+                        [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: testCompletedAt
+                    });
                     mainLoop().catch(err => {
                         if (err.name !== 'AbortError') {
                             console.error('mainLoop error:', err);
@@ -918,6 +977,9 @@ const XUnfollowRadarContent = (function () {
                     stopActiveOperation();
                     suppressPersistence = true;
                     sessionCount = 0;
+                    actionTimestamps = [];
+                    testComplete = false;
+                    testCompletedAt = null;
                     totalUnfollowed = 0;
                     undoQueue = [];
                     keywords = [];

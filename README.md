@@ -9,7 +9,7 @@ Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chro
 - ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
 - ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
 - ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
-- ✅ 24 saatte otomatik counter sıfırlama
+- ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
 - ✅ Batch modu: Pro planda ilk 50 gerçek işlemden sonra devam onayı ister
 - ✅ Toplam istatistik saklama
 - ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
@@ -64,7 +64,7 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 - **Batch Sistemi**: Pro planda ilk 50 işlem → açık devam onayı
 - **Toplam Limit**: Sınırsız (istatistik olarak tutuluyor)
 - **Gecikme**: 2-5 saniye (rastgele)
-- **Reset**: 24 saat sonra otomatik
+- **Güvenlik penceresi**: Her gerçek işlem, yapıldığı andan 24 saat sonra sayaçtan çıkar
 - **Rate Limit**: 15 dakika otomatik bekleme ve devam
 - **Recent Profiles**: Son 10 işlemin profili manuel yeniden takip için açılabilir
 - **History**: 30 günlük geçmiş saklanır

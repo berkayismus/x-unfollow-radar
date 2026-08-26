@@ -32,7 +32,7 @@
         "rateLimit": "Rate Limit!",
         "rateLimitDesc": "Twitter tarafından hız sınırına takıldınız.",
         "dailyLimitReached": "24 Saatlik Limit Doldu",
-        "dailyLimitDesc": "Günlük limitinize ulaştınız. Yeni oturum için 24 saat beklemeniz gerekiyor."
+        "dailyLimitDesc": "24 saatlik sınıra ulaştınız. Yaklaşık {hours} saat içinde en az bir işlem hakkı açılacak."
     },
     "buttons": {
         "start": "Takipten çıkarmayı başlat",
@@ -79,7 +79,7 @@
         "item2": "2-5 saniye gecikme ile çalışır",
         "item3": "Pro planda ilk 50 gerçek işlemden sonra onay ister",
         "item4": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat",
-        "item5": "24 saat sonra limit otomatik sıfırlanır"
+        "item5": "Her gerçek işlem 24 saat sonra güvenlik sayacından çıkar"
     },
     "footer": {
         "requirementsTitle": "Gereksinimler",

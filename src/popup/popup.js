@@ -257,12 +257,28 @@ const XUnfollowRadarPopup = (function () {
             Constants.STORAGE_KEYS.SESSION_COUNT,
             Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED,
             Constants.STORAGE_KEYS.LAST_RUN,
-            Constants.STORAGE_KEYS.SESSION_START
+            Constants.STORAGE_KEYS.SESSION_START,
+            Constants.STORAGE_KEYS.ACTION_TIMESTAMPS
         ]);
 
-        const sessionCount = data[Constants.STORAGE_KEYS.SESSION_COUNT] || 0;
+        const now = Date.now();
+        const actionTimestamps = SafetyWindow.fromStorage({
+            timestamps: data[Constants.STORAGE_KEYS.ACTION_TIMESTAMPS],
+            legacyCount: data[Constants.STORAGE_KEYS.SESSION_COUNT],
+            legacyStart: data[Constants.STORAGE_KEYS.SESSION_START],
+            now,
+            durationMs: Constants.TIMING.SESSION_DURATION,
+            maxLegacyCount: Constants.LIMITS.PRO_MAX_SESSION
+        });
+        const sessionCount = actionTimestamps.length;
         const totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
         const lastRun = data[Constants.STORAGE_KEYS.LAST_RUN] || '-';
+
+        await chrome.storage.local.set({
+            [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
+            [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
+            [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
+        });
 
         const maxSession = Constants.getSessionLimit(currentPlan);
         elements.sessionCount.textContent = `${sessionCount}/${maxSession}`;
@@ -277,9 +293,8 @@ const XUnfollowRadarPopup = (function () {
         }
 
         if (sessionCount >= maxSession) {
-            const now = Date.now();
-            const sessionStart = data[Constants.STORAGE_KEYS.SESSION_START] || now;
-            const timeLeft = Constants.TIMING.SESSION_DURATION - (now - sessionStart);
+            const nextSlotAt = SafetyWindow.nextSlotAt(actionTimestamps, Constants.TIMING.SESSION_DURATION);
+            const timeLeft = (nextSlotAt || now) - now;
 
             if (timeLeft > 0) {
                 elements.limitReachedAlert.style.display = 'block';
@@ -290,6 +305,9 @@ const XUnfollowRadarPopup = (function () {
                     alertText.textContent = I18n.t('alerts.dailyLimitDesc', { hours: hoursLeft });
                 }
             }
+        } else {
+            elements.limitReachedAlert.style.display = 'none';
+            elements.startBtn.disabled = false;
         }
     }
 

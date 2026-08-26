@@ -33,7 +33,7 @@ Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize
 ✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
 ✅ **Batch Onayı**: Pro planda ilk 50 gerçek işlemden sonra devam onayı
 ✅ **İstatistik Takibi**: Toplam ve oturum bazlı istatistikler
-✅ **Otomatik Reset**: 24 saatte bir otomatik sıfırlama
+✅ **Kayan Güvenlik Penceresi**: Her gerçek işlem 24 saat sonra sayaçtan çıkar
 ✅ **Dry-run**: Hesapta değişiklik yapmadan adayları test eder
 
 ### 🔒 GÜVENLİK VE GİZLİLİK
@@ -91,7 +91,7 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 ✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
 ✅ **Batch Confirmation**: Pro asks for confirmation after the first 50 real actions
 ✅ **Statistics Tracking**: Total and session-based statistics
-✅ **Auto Reset**: Automatic reset every 24 hours
+✅ **Rolling Safety Window**: Each real action leaves the count after 24 hours
 ✅ **Dry Run**: Tests candidates without changing the account
 
 ### 🔒 SECURITY & PRIVACY

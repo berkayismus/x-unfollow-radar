@@ -85,11 +85,46 @@ function testDomInterpretation() {
     assert.equal(dom.dialogMatchesUsername(linkDialog, '@targetuser'), true);
 }
 
+function testRollingSafetyWindow() {
+    const context = { window: {} };
+    vm.runInNewContext(read('src/shared/safety-window.js'), context);
+    const safetyWindow = context.window.SafetyWindow;
+    const hour = 60 * 60 * 1000;
+    const now = 100 * hour;
+
+    assert.deepEqual(
+        Array.from(safetyWindow.prune([now - (25 * hour), now - hour, now, now + hour], now, 24 * hour)),
+        [now - hour, now, now + hour]
+    );
+    assert.equal(safetyWindow.nextSlotAt([now - hour], 24 * hour), now + (23 * hour));
+
+    const migrated = safetyWindow.fromStorage({
+        timestamps: undefined,
+        legacyCount: 3,
+        legacyStart: now - (2 * hour),
+        now,
+        durationMs: 24 * hour,
+        maxLegacyCount: 500
+    });
+    assert.deepEqual(Array.from(migrated), Array(3).fill(now - (2 * hour)));
+
+    const expiredLegacy = safetyWindow.fromStorage({
+        timestamps: undefined,
+        legacyCount: 3,
+        legacyStart: now - (25 * hour),
+        now,
+        durationMs: 24 * hour,
+        maxLegacyCount: 500
+    });
+    assert.deepEqual(Array.from(expiredLegacy), []);
+}
+
 function testManifestScope() {
     const manifest = JSON.parse(read('manifest.json'));
     assert.equal(manifest.web_accessible_resources, undefined);
     assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/safety-window.js'));
 }
 
 function testCriticalRegressionGuards() {
@@ -107,6 +142,7 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /processedUsers\.size - seenBeforeCycle/);
     assert.match(contentSource, /updateDailyStats\(Constants\.USER_ACTIONS\.DRY_RUN\)/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
+    assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.ACTION_TIMESTAMPS/);
     assert.match(contentSource, /case Constants\.ACTIONS\.DELETE_ALL_DATA/);
     assert.match(popupSource, /chrome\.storage\.local\.clear\(\)/);
     assert.match(contentSource, /new AbortController\(\)/);
@@ -120,6 +156,7 @@ testSessionLimits();
 testLocaleParity();
 testCsvSafety();
 testDomInterpretation();
+testRollingSafetyWindow();
 testManifestScope();
 testCriticalRegressionGuards();
 
