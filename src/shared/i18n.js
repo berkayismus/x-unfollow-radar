@@ -1,7 +1,6 @@
 /**
  * @fileoverview Internationalization module for X Unfollow Radar Extension
  * @description Handles loading and applying translations for multiple languages
- * @version 2.0.0
  */
 
 /**
@@ -16,13 +15,13 @@ const I18n = (function () {
     // ═══════════════════════════════════════════════════════════════
 
     /** @type {string} Current active locale */
-    let currentLocale = 'tr';
+    let currentLocale = Constants.LOCALES.DEFAULT;
 
     /** @type {Object} Translation strings for current locale */
     let translations = {};
 
     /** @type {string[]} List of supported locale codes */
-    const supportedLocales = ['tr', 'en', 'de'];
+    const supportedLocales = Constants.LOCALES.SUPPORTED;
 
     /** @type {Object<string, Object>} Cache for loaded translations */
     const translationCache = {};

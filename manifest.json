@@ -23,6 +23,7 @@
             "matches": ["https://twitter.com/*/following", "https://x.com/*/following"],
             "js": [
                 "src/shared/constants.js",
+                "src/shared/storage-migrations.js",
                 "src/shared/dom.js",
                 "src/shared/user-detection.js",
                 "src/shared/safety-window.js",

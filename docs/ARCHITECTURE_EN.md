@@ -86,6 +86,7 @@ The background worker simply listens for these messages and relays them to the p
 The heart of the extension is `mainLoop()` in `src/content/index.js`:
 
 1. **Initialization** – `initStorage()`:
+    - Runs idempotent `schemaVersion` migrations before reading application state.
     - Reads all relevant keys from `chrome.storage.local`:
         - Successful real-action timestamps for the rolling 24-hour safety window
         - Total unfollowed count

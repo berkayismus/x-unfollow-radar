@@ -30,6 +30,7 @@ function testSessionLimits() {
     assert.equal(constants.getSessionLimit(constants.PLANS.EXPIRED), 50);
     assert.equal(constants.getSessionLimit('unknown'), 50);
     assert.deepEqual(Array.from(constants.LOCALES.SUPPORTED), ['tr', 'en', 'de']);
+    assert.equal(constants.STORAGE_KEYS.SCHEMA_VERSION, 'schemaVersion');
     assert.equal(constants.GUMROAD.PRODUCT_ID, 'XOdP9O_AruVvy5u7zkmD9Q==');
     assert.equal(constants.GUMROAD.PRODUCT_PERMALINK, undefined);
 }
@@ -235,6 +236,7 @@ function testManifestScope() {
     assert.equal(manifest.web_accessible_resources, undefined);
     assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/storage-migrations.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/user-detection.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/safety-window.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/run-state.js'));

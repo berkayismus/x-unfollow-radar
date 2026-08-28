@@ -100,9 +100,18 @@ npm run lint
 npm test
 npm run test:e2e
 npm run package:check
+npm run release:check
 ```
 
 GitHub Actions her push ve pull request'te lint, regresyon testleri ve eklenti paket bütünlüğü doğrulamasını çalıştırır.
+
+Yeni sürüm hazırlarken `package.json`, `package-lock.json` ve `manifest.json` sürümlerini tek komutla eşitleyin:
+
+```bash
+npm run release -- patch
+# veya
+npm run release -- 2.1.0
+```
 
 ### Dosya Yapısı
 

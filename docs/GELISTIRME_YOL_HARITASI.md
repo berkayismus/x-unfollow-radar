@@ -69,9 +69,9 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 - [x] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
 - [x] Playwright unpacked-extension smoke testleri ekle.
 - [x] GitHub Actions üzerinde test ve paket doğrulama akışı kur.
-- [ ] Storage `schemaVersion` ve idempotent migration altyapısı ekle.
-- [ ] Tek kaynaktan manifest/dosya sürümü üreten release komutu ekle.
-- [ ] Kullanılmayan sabit ve state alanlarını temizle.
+- [x] Storage `schemaVersion` ve idempotent migration altyapısı ekle.
+- [x] Tek kaynaktan manifest/dosya sürümü üreten release komutu ekle.
+- [x] Kullanılmayan sabit ve state alanlarını temizle.
 
 **Faz 3 çıkış kriteri:** Her değişiklikte syntax, lint, unit, DOM fixture ve temel extension akışı otomatik doğrulanır.
 

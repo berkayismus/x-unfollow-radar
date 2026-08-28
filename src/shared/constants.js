@@ -1,7 +1,6 @@
 /**
  * @fileoverview Constants module for Twitter Auto Unfollow Extension
  * @description Centralizes all magic numbers, DOM selectors, and configuration values
- * @version 1.0.0
  */
 
 /**
@@ -57,8 +56,6 @@ const Constants = (function () {
      * @constant {Object}
      */
     const LIMITS = Object.freeze({
-        /** Maximum unfollows per 24-hour session (free plan default) */
-        MAX_SESSION: 50,
         /** Free plan daily unfollow limit */
         FREE_MAX_SESSION: 50,
         /** Pro plan daily unfollow limit */
@@ -77,10 +74,6 @@ const Constants = (function () {
         MAX_RUN_ITEM_RECORDS: 500,
         /** Maximum candidates retained in one preview scan */
         MAX_CANDIDATES: 500,
-        /** Number of scroll cycles before processing */
-        SCROLL_CYCLES_BEFORE_PROCESS: 8,
-        /** Users to process per cycle */
-        PROCESS_BATCH_SIZE: 5,
         /** Consecutive empty scans before stopping */
         MAX_EMPTY_SCANS: 8,
         /** Same user count streak before stopping scroll */
@@ -115,10 +108,6 @@ const Constants = (function () {
      * @constant {Object}
      */
     const SELECTORS = Object.freeze({
-        /** Primary column container (main content area, excludes sidebar) */
-        PRIMARY_COLUMN: '[data-testid="primaryColumn"]',
-        /** User cell container */
-        USER_CELL: '[data-testid="UserCell"]',
         /** User cell within primary column only (excludes "Who to follow" sidebar) */
         USER_CELL_MAIN: '[data-testid="primaryColumn"] [data-testid="UserCell"]',
         /** Confirmation button for unfollow dialog */
@@ -169,6 +158,7 @@ const Constants = (function () {
      * @constant {Object}
      */
     const STORAGE_KEYS = Object.freeze({
+        SCHEMA_VERSION: 'schemaVersion',
         SESSION_COUNT: 'sessionCount',
         SESSION_START: 'sessionStart',
         ACTION_TIMESTAMPS: 'actionTimestamps',
@@ -216,7 +206,6 @@ const Constants = (function () {
      * @constant {Object}
      */
     const ACTIONS = Object.freeze({
-        START: 'START',
         SCAN_CANDIDATES: 'SCAN_CANDIDATES',
         EXECUTE_SELECTED: 'EXECUTE_SELECTED',
         STOP: 'STOP',
@@ -227,8 +216,6 @@ const Constants = (function () {
         TOGGLE_DRY_RUN: 'TOGGLE_DRY_RUN',
         RESET_STATS: 'RESET_STATS',
         DELETE_ALL_DATA: 'DELETE_ALL_DATA',
-        UNDO_LAST: 'UNDO_LAST',
-        UNDO_SINGLE: 'UNDO_SINGLE',
         VERIFY_LICENSE: 'VERIFY_LICENSE',
         GET_PLAN: 'GET_PLAN'
     });
@@ -269,8 +256,6 @@ const Constants = (function () {
     const USER_ACTIONS = Object.freeze({
         UNFOLLOWED: 'unfollowed',
         DRY_RUN: 'dry-run',
-        SKIPPED_WHITELIST: 'skipped:whitelist',
-        SKIPPED_KEYWORD: 'skipped:keyword',
         MANUAL: 'manual'
     });
 
@@ -341,9 +326,6 @@ const Constants = (function () {
      * @constant {Object}
      */
     const LOCALES = Object.freeze({
-        TURKISH: 'tr',
-        ENGLISH: 'en',
-        GERMAN: 'de',
         DEFAULT: 'tr',
         SUPPORTED: ['tr', 'en', 'de']
     });

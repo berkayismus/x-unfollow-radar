@@ -32,3 +32,5 @@ jobs:
               run: npm run test:e2e
             - name: Validate extension package
               run: npm run package:check
+            - name: Verify release versions
+              run: npm run release:check

@@ -7,6 +7,7 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 const constantsSource = fs.readFileSync(path.join(root, 'src/shared/constants.js'), 'utf8');
+const storageMigrationsSource = fs.readFileSync(path.join(root, 'src/shared/storage-migrations.js'), 'utf8');
 const backgroundSource = fs.readFileSync(path.join(root, 'src/background/index.js'), 'utf8');
 
 function createHarness(fetchImpl, initialStorage = {}) {
@@ -40,6 +41,7 @@ function createHarness(fetchImpl, initialStorage = {}) {
             storage: {
                 local: {
                     async get(keys) {
+                        if (keys === null) return { ...storage };
                         const output = {};
                         keys.forEach((key) => {
                             if (key in storage) output[key] = storage[key];
@@ -54,7 +56,12 @@ function createHarness(fetchImpl, initialStorage = {}) {
         }
     });
 
-    context.importScripts = () => vm.runInContext(constantsSource, context);
+    context.importScripts = (...urls) => {
+        urls.forEach((url) => {
+            if (url.endsWith('constants.js')) vm.runInContext(constantsSource, context);
+            if (url.endsWith('storage-migrations.js')) vm.runInContext(storageMigrationsSource, context);
+        });
+    };
     vm.runInContext(backgroundSource, context);
 
     async function send(message) {

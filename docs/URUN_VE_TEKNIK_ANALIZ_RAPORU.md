@@ -248,7 +248,7 @@ Proje package/test altyapısı içermiyor. DOM tabanlı otomasyon X değişiklik
 
 #### P3.2 - Kullanılmayan ve tekrar eden sabitler var
 
-`operationStartTime`, `operationSpeeds`, `SCROLL_CYCLES_BEFORE_PROCESS`, `PROCESS_BATCH_SIZE` ve background içindeki `EXPIRY_WARNING_MS` fiilen kullanılmıyor. Gumroad ayarları iki yerde tanımlı.
+Bu bulgu Faz 3 kapsamında giderildi: kullanılmayan state/sabit alanları kaldırıldı, çalışma başlangıç state'i kullanım amacına göre adlandırıldı ve Gumroad ayarları ortak sabitler modülünde tekilleştirildi.
 
 **Öneri:** Kullanılmayan kodu kaldırın veya tamamlayın; lint ile `no-unused-vars` uygulayın.
 

@@ -1,7 +1,6 @@
 /**
  * @fileoverview X Unfollow Radar - Popup Script
  * @description Handles the popup UI, user interactions, and communication with content script
- * @version 2.0.0
  */
 
 /**
@@ -1870,6 +1869,10 @@ const XUnfollowRadarPopup = (function () {
     async function init() {
         // Cache DOM elements first
         cacheElements();
+
+        await StorageMigrations.migrate(chrome.storage.local, {
+            maxLegacyCount: Constants.LIMITS.PRO_MAX_SESSION
+        });
 
         // Initialize i18n
         await I18n.init();

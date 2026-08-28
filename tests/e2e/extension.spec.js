@@ -19,6 +19,9 @@ test('loads the unpacked extension and preserves the approval-first popup flow',
         const serviceWorkerUrl = new URL(serviceWorker.url());
         const extensionId = serviceWorkerUrl.hostname;
         expect(serviceWorkerUrl.pathname).toBe('/src/background/index.js');
+        await expect
+            .poll(() => serviceWorker.evaluate(() => chrome.storage.local.get('schemaVersion')))
+            .toEqual({ schemaVersion: 1 });
 
         await serviceWorker.evaluate(async () => {
             await chrome.storage.local.set({

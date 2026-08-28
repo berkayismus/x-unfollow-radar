@@ -48,12 +48,13 @@ module.exports = [
                 I18n: 'readonly',
                 RunStateUtils: 'readonly',
                 SafetyWindow: 'readonly',
+                StorageMigrations: 'readonly',
                 UserDetection: 'readonly'
             }
         }
     },
     {
-        files: ['src/shared/i18n.js'],
+        files: ['src/shared/i18n.js', 'src/shared/storage-migrations.js'],
         languageOptions: {
             globals: { Constants: 'readonly' }
         }

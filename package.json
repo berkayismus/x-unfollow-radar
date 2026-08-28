@@ -7,9 +7,11 @@
         "format:check": "prettier --check .",
         "lint": "eslint . --max-warnings 0",
         "package:check": "node scripts/validate-package.js",
+        "release": "node scripts/release.js",
+        "release:check": "node scripts/release.js --check",
         "test:e2e": "playwright test",
-        "test:syntax": "node --check src/shared/constants.js && node --check src/shared/csv.js && node --check src/shared/dom.js && node --check src/shared/user-detection.js && node --check src/shared/safety-window.js && node --check src/shared/run-state.js && node --check src/shared/candidates.js && node --check src/shared/i18n.js && node --check src/content/index.js && node --check src/background/index.js && node --check src/popup/popup.js",
-        "test:smoke": "node tests/smoke.test.js && node tests/user-detection.test.js && node tests/background.test.js",
+        "test:syntax": "node --check src/shared/constants.js && node --check src/shared/storage-migrations.js && node --check src/shared/csv.js && node --check src/shared/dom.js && node --check src/shared/user-detection.js && node --check src/shared/safety-window.js && node --check src/shared/run-state.js && node --check src/shared/candidates.js && node --check src/shared/i18n.js && node --check src/content/index.js && node --check src/background/index.js && node --check src/popup/popup.js",
+        "test:smoke": "node tests/smoke.test.js && node tests/storage-migrations.test.js && node tests/user-detection.test.js && node tests/release.test.js && node tests/background.test.js",
         "test": "npm run test:syntax && npm run test:smoke"
     },
     "devDependencies": {

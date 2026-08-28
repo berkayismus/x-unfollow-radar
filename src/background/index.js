@@ -1,12 +1,15 @@
 /**
  * @fileoverview X Unfollow Radar - Background Service Worker
  * @description Handles message relay between content script and popup, and Gumroad license verification
- * @version 2.1.0
  */
 
-importScripts(chrome.runtime.getURL('src/shared/constants.js'));
+importScripts(
+    chrome.runtime.getURL('src/shared/constants.js'),
+    chrome.runtime.getURL('src/shared/storage-migrations.js')
+);
 
 const SharedConstants = self.Constants;
+const SharedStorageMigrations = self.StorageMigrations;
 
 /**
  * X Unfollow Radar Background Module
@@ -283,9 +286,12 @@ const XUnfollowRadarBackground = (function () {
      * Initializes the background service worker
      * @returns {void}
      */
-    function init() {
+    async function init() {
         console.log('🔵 X Unfollow Radar - Background Service Worker initialized');
         chrome.runtime.onMessage.addListener(handleMessage);
+        await SharedStorageMigrations.migrate(chrome.storage.local, {
+            maxLegacyCount: SharedConstants.LIMITS.PRO_MAX_SESSION
+        });
         console.log('✅ Message listener attached');
     }
 
@@ -299,4 +305,6 @@ const XUnfollowRadarBackground = (function () {
 })();
 
 // Auto-initialize
-XUnfollowRadarBackground.init();
+XUnfollowRadarBackground.init().catch((error) => {
+    console.error('Background initialization failed:', error);
+});

@@ -1,7 +1,6 @@
 /**
  * @fileoverview X Unfollow Radar - Content Script
  * @description Handles the automatic unfollowing of non-followers on X
- * @version 2.0.0
  */
 
 /**
@@ -91,7 +90,7 @@ const XUnfollowRadarContent = (function () {
     let selectedUsernames = new Set();
 
     /** @type {number|null} Timestamp when current operation started */
-    let operationStartTime = null;
+    let operationStartedAt = null;
 
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Utilities
@@ -830,7 +829,7 @@ const XUnfollowRadarContent = (function () {
             await randomDelay(Constants.TIMING.BUTTON_CLICK_MIN, Constants.TIMING.BUTTON_CLICK_MAX);
         }
         if (operationMode === 'execute' && !runState) {
-            const startedAt = operationStartTime || Date.now();
+            const startedAt = operationStartedAt || Date.now();
             runState = RunStateUtils.create({
                 id: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
                 startedAt,
@@ -966,6 +965,11 @@ const XUnfollowRadarContent = (function () {
     async function initStorage() {
         if (suppressPersistence) return;
 
+        await StorageMigrations.migrate(chrome.storage.local, {
+            maxLegacyCount: Constants.LIMITS.PRO_MAX_SESSION
+        });
+        if (suppressPersistence) return;
+
         const storageKeys = [
             Constants.STORAGE_KEYS.SESSION_COUNT,
             Constants.STORAGE_KEYS.SESSION_START,
@@ -1078,7 +1082,6 @@ const XUnfollowRadarContent = (function () {
     function setupMessageListener() {
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             switch (message.action) {
-                case Constants.ACTIONS.START:
                 case Constants.ACTIONS.SCAN_CANDIDATES:
                     console.log('Candidate scan message received');
                     if (!isRunning) {
@@ -1094,7 +1097,7 @@ const XUnfollowRadarContent = (function () {
                         candidateScan = CandidateUtils.create(Date.now());
                         unfollowQueue = [];
                         processedUsers = new Set();
-                        operationStartTime = Date.now();
+                        operationStartedAt = Date.now();
                         window.scrollTo(0, 0);
                         persistCandidateScan();
                         mainLoop().catch((err) => {
@@ -1134,7 +1137,7 @@ const XUnfollowRadarContent = (function () {
                     runState = null;
                     unfollowQueue = [];
                     processedUsers = new Set();
-                    operationStartTime = Date.now();
+                    operationStartedAt = Date.now();
                     if (candidateScan) {
                         CandidateUtils.setSelection(candidateScan, usernames);
                         candidateScan.status = 'executing';
@@ -1255,30 +1258,6 @@ const XUnfollowRadarContent = (function () {
                     sendResponse({ success: true });
                     break;
 
-                case Constants.ACTIONS.UNDO_LAST:
-                    if (undoQueue.length > 0) {
-                        const lastUser = undoQueue[undoQueue.length - 1];
-                        sendResponse({
-                            success: true,
-                            manual: true,
-                            username: lastUser.username,
-                            profileUrl: `https://x.com/${lastUser.username}`
-                        });
-                    } else {
-                        sendResponse({ success: false, message: 'No recent profiles available' });
-                    }
-                    break;
-
-                case Constants.ACTIONS.UNDO_SINGLE:
-                    const username = message.username;
-                    sendResponse({
-                        success: true,
-                        manual: true,
-                        username,
-                        profileUrl: `https://x.com/${username}`
-                    });
-                    break;
-
                 default:
                     sendResponse({ success: false, message: 'Unknown action' });
             }
@@ -1294,7 +1273,7 @@ const XUnfollowRadarContent = (function () {
         const url = window.location.href;
         if (url.includes('/following')) {
             console.log('🚀 Twitter Auto Unfollow Extension LOADED and READY');
-            console.log('Extension version: 2.0.0');
+            console.log(`Extension version: ${chrome.runtime.getManifest().version}`);
             initStorage().then(() => {
                 sendStatus(Constants.STATUS.READY);
                 console.log('✅ Storage initialized');

@@ -77,6 +77,7 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 
 1. `initStorage()`
     - Son 24 saatteki gerçek işlem zamanlarını, son çalışma durumunu, toplam takipten çıkma, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
+    - `schemaVersion` tabanlı idempotent migration katmanı eski sayaç verilerini yeni aksiyon zamanı şemasına güvenle taşır.
     - Her aday için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
     - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
 
