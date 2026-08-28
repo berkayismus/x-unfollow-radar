@@ -354,12 +354,6 @@ Temel ilke: filtreleme, limit ve istatistik mantığı saf JavaScript fonksiyonl
 
 **Çıkış kriteri:** Her commit'te sözdizimi, lint, unit ve temel extension akışı otomatik doğrulanıyor.
 
-### Faz 4 - Ürün büyümesi
-
-- Ön izleme/seçim deneyimi.
-- Gelişmiş filtreler ve çalışma raporu.
-- Kullanıcı onaylı, politika açısından daha sürdürülebilir temizlik akışı.
-
 ## 7. Önerilen başarı metrikleri
 
 - Taranan benzersiz kullanıcı / toplam beklenen kullanıcı oranı

@@ -75,14 +75,4 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 
 **Faz 3 çıkış kriteri:** Her değişiklikte syntax, lint, unit, DOM fixture ve temel extension akışı otomatik doğrulanır.
 
-## Faz 4 - Ürün büyümesi
-
-Amaç: Riski düşük ve kullanıcı kontrollü bir takip yönetimi ürünü oluşturmak.
-
-- [x] Aday ön izleme, çoklu seçim ve açık işlem onayı ekle.
-- [ ] Gelişmiş filtre kuralları ve kural simülatörü geliştir.
-- [ ] Whitelist/ayar JSON içe-dışa aktarma ekle.
-- [ ] Çoklu X hesabı için verileri hesap kimliğine göre ayır.
-- [ ] Ortak çekirdeği Chrome API ve X DOM adaptörlerinden ayır.
-
-**Faz 4 çıkış kriteri:** Aday seçimi kullanıcı onayı olmadan hesap değişikliği yapmaz ve çoklu hesap verileri birbirine karışmaz.
+Planlanan geliştirme kapsamı Faz 1-3 ile tamamlanmıştır.
