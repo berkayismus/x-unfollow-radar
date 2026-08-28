@@ -29,6 +29,7 @@ Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize
 ### 🎯 ÖZELLİKLER
 
 ✅ **Otomatik Tespit**: "Follows you" badge'i olmayan kullanıcıları otomatik bulur
+✅ **Açık Kullanıcı Onayı**: Önizleme listesinden yalnızca seçtiğiniz hesapları işler
 ✅ **Kontrollü Tempo**: İşlemler arasında 2-5 saniye rastgele gecikme
 ✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
 ✅ **Batch Onayı**: Pro planda ilk 50 gerçek işlemden sonra devam onayı
@@ -50,12 +51,12 @@ Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize
 1. Twitter/X hesabınıza giriş yapın
 2. "Following" (Takip Edilenler) sayfanıza gidin
 3. Eklenti simgesine tıklayın
-4. "Başlat" butonuna basın
-5. Otomatik işlemi izleyin!
+4. "Adayları tara" butonuna basın
+5. Önizleme listesinden hesapları seçip işlemi açıkça onaylayın
 
 ### 📊 NASIL ÇALIŞIR?
 
-Extension sayfanızı otomatik olarak kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri tespit eder. Whitelist ve keyword filtrelerini uygular; gerçek modda kontrollü gecikmelerle takipten çıkma işlemini gerçekleştirir.
+Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri aday listesine ekler. Whitelist ve keyword filtrelerini uygular; yalnızca önizlemede seçip açıkça onayladığınız hesapları kontrollü gecikmelerle işler.
 
 ### ⚠️ ÖNEMLİ NOTLAR
 
@@ -88,6 +89,7 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 ### 🎯 FEATURES
 
 ✅ **Auto Detection**: Automatically finds users without "Follows you" badge
+✅ **Explicit User Approval**: Processes only the accounts selected in the preview
 ✅ **Controlled Pacing**: Random 2-5 second delays between actions
 ✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
 ✅ **Batch Confirmation**: Pro asks for confirmation after the first 50 real actions
@@ -109,8 +111,8 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 1. Log in to your Twitter/X account
 2. Go to your "Following" page
 3. Click the extension icon
-4. Press "Start" button
-5. Watch the automation work!
+4. Press "Scan candidates"
+5. Select accounts in the preview and explicitly confirm the operation
 
 ---
 
@@ -123,13 +125,13 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 - Display "Session: 15/50" and "Total: 234"
 - Status: "Çalışıyor..." (Running)
 
-### Screenshot 2: Test Mode Alert
-- Show the test mode confirmation screen
-- "Test Tamamlandı - Devam Et?" message visible
+### Screenshot 2: Candidate Preview
+- Show the candidate checklist and selected count
+- "Seçilenleri işle" button visible
 
-### Screenshot 3: Working on Twitter
-- Show the extension working on Twitter Following page
-- Extension popup visible with active status
+### Screenshot 3: Approved Operation
+- Show the extension processing explicitly selected accounts
+- Extension popup visible with active status and run summary
 
 ### Screenshot 4: Statistics View
 - Show completed statistics
@@ -139,7 +141,7 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 ## Promotional Images (Optional but Recommended)
 
 ### Small Tile (440x280px)
-- Extension icon + "Auto Unfollow" text
+- Extension icon + "Scan, Select, Approve" text
 - Gradient background (purple to blue)
 
 ### Large Tile (920x680px)

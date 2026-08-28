@@ -51,9 +51,9 @@ Eklenti üç ana parçaya ayrılır:
 
 ### 3.1. Popup → Content Script
 
-- Kullanıcı popup'tan **Başlat**'a bastığında:
-  - `popup.js` → `chrome.tabs.sendMessage(..., { action: Constants.ACTIONS.START })`
-  - `content/index.js` içindeki message listener bu mesajı yakalar, `isRunning = true` yapar ve `mainLoop()` fonksiyonunu tetikler.
+- Kullanıcı **Adayları tara**'ya bastığında popup `SCAN_CANDIDATES` gönderir; content script yalnızca aday önizlemesini oluşturur.
+- Kullanıcı listeden seçim yapıp açık onay verdiğinde popup `EXECUTE_SELECTED` mesajıyla yalnızca seçilen kullanıcı adlarını gönderir.
+- Content script ikinci aşamada seçilen hesapları sayfada yeniden bulur ve işlem kuyruğuna alır.
 
 - **Durdur**, **Devam Et (50 kişi daha)**, **Dry-run toggle** ve filtre güncellemeleri de benzer şekilde `chrome.tabs.sendMessage` ile content script'e iletilir.
 
@@ -80,13 +80,16 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
    - Her aday için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
    - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
 
-2. Sonsuz döngü içinde:
+2. Tarama aşamasında:
    - `scanUsers()` ile ekrandaki kullanıcı kartlarını tarar.
-   - \"Follows you\" badge'i olmayanları, whitelist/keyword kontrolünden geçirip `unfollowQueue`'ya ekler.
+   - \"Follows you\" badge'i olmayanları whitelist/keyword kontrolünden geçirip kalıcı aday önizlemesine ekler; hesap değişikliği yapmaz.
+
+3. Kullanıcı onaylı yürütme aşamasında:
+   - Yalnızca seçilmiş kullanıcı adları sayfada yeniden bulunup `unfollowQueue`'ya eklenir.
    - Kuyruktaki her kullanıcı için `unfollowUser()` çağrılır:
      - Dry-run ise sadece simüle eder ve istatistikleri günceller.
      - Normal modda \"Following\" butonu + onay butonu tıklanır; istatistikler, geçmiş ve son profiller kuyruğu güncellenir.
-   - Kullanıcılar tükendiğinde `autoScroll()` ile sayfa aşağıya kaydırılır, yeni kullanıcılar yüklenir ve süreç devam eder.
+   - Seçilen kullanıcılar tükendiğinde veya sayfanın sonuna gelindiğinde çalışma tamamlanır.
    - Rate limit veya 24 saatlik limit dolduğunda uygun STATUS değerleri gönderilir ve döngü sonlandırılır / duraklatılır.
 
 ## 5. Rate Limit ve Güvenlik

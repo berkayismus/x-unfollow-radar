@@ -142,6 +142,10 @@ function testRunStateMachine() {
     assert.equal(run.summary.failed, 1);
     assert.ok(runs.skip(run, 'carol', 'whitelist', 170, 100));
     assert.equal(run.summary.skipped, 1);
+    runs.queue(run, 'dave', 175, 'unfollowed');
+    assert.ok(runs.skipQueued(run, 'dave', 'protected:whitelist', 176, 100));
+    assert.equal(run.summary.queued, 0);
+    assert.equal(run.summary.skipped, 2);
     runs.setStatus(run, 'completed', 180, true);
     assert.equal(run.status, 'completed');
     assert.equal(run.finishedAt, 180);
@@ -152,6 +156,33 @@ function testRunStateMachine() {
     assert.equal(run.summary.failed, 1, 'trimming records must preserve aggregate counts');
 }
 
+function testCandidateSelectionWorkflow() {
+    const context = { window: {}, Set };
+    vm.runInNewContext(read('src/shared/candidates.js'), context);
+    const candidates = context.window.CandidateUtils;
+    const scan = candidates.create(100);
+
+    assert.equal(candidates.add(scan, {
+        username: 'alice', displayName: 'Alice', preview: '@alice', discoveredAt: 110
+    }, 2), true);
+    assert.equal(scan.candidates[0].selected, false, 'candidates must require explicit selection');
+    assert.equal(candidates.add(scan, {
+        username: 'alice', displayName: 'Alice', preview: '@alice', discoveredAt: 120
+    }, 2), false, 'candidate usernames must be unique');
+    candidates.add(scan, {
+        username: 'bob', displayName: 'Bob', preview: '@bob', discoveredAt: 130
+    }, 2);
+    assert.equal(candidates.add(scan, {
+        username: 'carol', displayName: 'Carol', preview: '@carol', discoveredAt: 140
+    }, 2), false);
+    assert.equal(scan.truncated, true);
+    candidates.exclude(scan, 'whitelist');
+    candidates.setSelection(scan, ['bob']);
+    assert.deepEqual(Array.from(candidates.selectedUsernames(scan)), ['bob']);
+    candidates.complete(scan, 200);
+    assert.equal(scan.status, 'ready');
+}
+
 function testManifestScope() {
     const manifest = JSON.parse(read('manifest.json'));
     assert.equal(manifest.web_accessible_resources, undefined);
@@ -159,6 +190,7 @@ function testManifestScope() {
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/safety-window.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/run-state.js'));
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/candidates.js'));
 }
 
 function testCriticalRegressionGuards() {
@@ -175,6 +207,7 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /sessionLimit = Constants\.getSessionLimit\(currentPlan\)/);
     assert.match(contentSource, /processedUsers\.size - seenBeforeCycle/);
     assert.match(contentSource, /updateDailyStats\(Constants\.USER_ACTIONS\.DRY_RUN\)/);
+    assert.match(contentSource, /if \(!dryRunMode && testMode && !testComplete/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.ACTION_TIMESTAMPS/);
     assert.match(resetHandler, /STORAGE_KEYS\.RUN_STATE/);
@@ -187,6 +220,11 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /pauseIfRateLimited\(\)/);
     assert.match(contentSource, /RunStateUtils\.ITEM_STATUS\.ATTEMPTING/);
     assert.match(popupSource, /loadLastRunState\(\)/);
+    assert.match(popupSource, /Constants\.ACTIONS\.SCAN_CANDIDATES/);
+    assert.match(popupSource, /Constants\.ACTIONS\.EXECUTE_SELECTED/);
+    assert.match(popupSource, /confirm\(I18n\.t\('candidates\.confirmExecution'/);
+    assert.match(contentSource, /operationMode === 'scan'/);
+    assert.match(contentSource, /operationMode === 'execute'/);
 }
 
 testSessionLimits();
@@ -195,6 +233,7 @@ testCsvSafety();
 testDomInterpretation();
 testRollingSafetyWindow();
 testRunStateMachine();
+testCandidateSelectionWorkflow();
 testManifestScope();
 testCriticalRegressionGuards();
 

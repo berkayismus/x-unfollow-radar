@@ -99,15 +99,17 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
    - Prunes each successful action timestamp individually after 24 hours and derives the safety count from the remaining records.
    - Initializes missing structures (stats, history).
 
-2. **Loop**:
-   - Call `scanUsers()` to inspect currently visible user cells in the primary column.
+2. **Candidate scan**:
+   - Call `scanUsers()` to inspect currently visible user cells in the primary column without changing accounts.
    - For each user:
      - Extract username from the profile link.
      - Skip if already processed.
      - If user has a \"Follows you\" badge → skip.
      - Apply whitelist + keyword checks:
        - Whitelisted or matched keyword → mark as skipped (`USER_PROCESSED`), do not queue.
-       - Otherwise, push the cell into `unfollowQueue`.
+       - Otherwise, persist the account in the candidate preview with selection disabled by default.
+3. **Explicitly approved execution**:
+   - After the user selects candidates and confirms, locate only those usernames again and push their cells into `unfollowQueue`.
    - Process the `unfollowQueue`:
      - Respect session and batch limits.
      - For each user, call `unfollowUser(cell)`:

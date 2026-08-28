@@ -75,6 +75,8 @@ const Constants = (function () {
         MAX_RUN_SKIPPED_RECORDS: 500,
         /** Maximum action-state records retained for the latest run */
         MAX_RUN_ITEM_RECORDS: 500,
+        /** Maximum candidates retained in one preview scan */
+        MAX_CANDIDATES: 500,
         /** Number of scroll cycles before processing */
         SCROLL_CYCLES_BEFORE_PROCESS: 8,
         /** Users to process per cycle */
@@ -183,6 +185,7 @@ const Constants = (function () {
         UNFOLLOW_STATS: 'unfollowStats',
         UNFOLLOW_HISTORY: 'unfollowHistory',
         RUN_STATE: 'runState',
+        CANDIDATE_SCAN: 'candidateScan',
         THEME: 'theme',
         LANGUAGE: 'language',
         PLAN: 'plan',
@@ -204,7 +207,8 @@ const Constants = (function () {
         TEST_COMPLETE: 'TEST_COMPLETE',
         RATE_LIMIT_HIT: 'RATE_LIMIT_HIT',
         USER_PROCESSED: 'USER_PROCESSED',
-        RUN_STATE_UPDATED: 'RUN_STATE_UPDATED'
+        RUN_STATE_UPDATED: 'RUN_STATE_UPDATED',
+        CANDIDATES_UPDATED: 'CANDIDATES_UPDATED'
     });
 
     /**
@@ -213,6 +217,8 @@ const Constants = (function () {
      */
     const ACTIONS = Object.freeze({
         START: 'START',
+        SCAN_CANDIDATES: 'SCAN_CANDIDATES',
+        EXECUTE_SELECTED: 'EXECUTE_SELECTED',
         STOP: 'STOP',
         CONTINUE_TEST: 'CONTINUE_TEST',
         GET_STATUS: 'GET_STATUS',
@@ -240,6 +246,8 @@ const Constants = (function () {
         IDLE: 'idle',
         STARTED: 'started',
         SCANNING: 'scanning',
+        CANDIDATE_SCANNING: 'candidate_scanning',
+        CANDIDATE_SCAN_COMPLETE: 'candidate_scan_complete',
         UNFOLLOWED: 'unfollowed',
         STOPPED: 'stopped',
         COMPLETED: 'completed',

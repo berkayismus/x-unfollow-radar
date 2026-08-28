@@ -13,6 +13,7 @@ The extension uses `chrome.storage.local` to keep the following information on t
 - Daily real-operation and dry-run statistics
 - Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons
 - The latest run's queued, attempting, successful, failed, and skipped usernames, status timestamps, and reasons
+- The latest candidate preview, including candidate usernames, visible profile preview text, selection state, and scan timestamps
 - Up to 10 recently unfollowed usernames used by the “Open profile” feature
 - User-created keyword filters and whitelisted X usernames
 - Dry-run, language, and theme preferences
@@ -47,6 +48,7 @@ The extension operates inside the user's existing X/Twitter browser session. It 
 - Unfollow history is automatically limited to the most recent 30 days.
 - The recent-profile list is limited to 10 entries.
 - Detailed per-user run state is limited to the latest run, retains at most 500 action records and 500 skipped-user records, and is replaced when a new run starts. Aggregate counts for that run remain complete.
+- Candidate previews retain at most 500 records and are replaced when a new scan starts.
 - Counters, filters, preferences, and license information remain until the user resets or deletes them, or uninstalls the extension.
 - Gumroad verification records held by Gumroad are governed by Gumroad's own policies.
 

@@ -54,7 +54,7 @@ Amaç: Kod, ürün beyanı ve mağaza açıklamalarını aynı gerçeğe bağlam
 - [x] Lisans doğrulamasını 24 saatlik periyodik entitlement kontrolüyle güçlendir.
 - [x] Refund, chargeback, dispute, subscription-ended, expired ve çevrimdışı lisans durumlarını tanımla.
 - [x] Gumroad ürün kimliği doğrulandıktan sonra yeni ürünler için `product_permalink` yerine `product_id` kullan.
-- [ ] X otomasyon politikasına uygun kullanıcı seçimli/onaylı ürün akışını yayın varsayılanı yap.
+- [x] X otomasyon politikasına uygun kullanıcı seçimli/onaylı ürün akışını yayın varsayılanı yap.
 
 **Faz 2 çıkış kriteri:** Kod, manifest, mağaza metni ve gizlilik politikası birbiriyle tutarlıdır.
 
@@ -79,7 +79,7 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 
 Amaç: Riski düşük ve kullanıcı kontrollü bir takip yönetimi ürünü oluşturmak.
 
-- [ ] Aday ön izleme, çoklu seçim ve açık işlem onayı ekle.
+- [x] Aday ön izleme, çoklu seçim ve açık işlem onayı ekle.
 - [ ] Gelişmiş filtre kuralları ve kural simülatörü geliştir.
 - [ ] Whitelist/ayar JSON içe-dışa aktarma ekle.
 - [ ] Çoklu X hesabı için verileri hesap kimliğine göre ayır.

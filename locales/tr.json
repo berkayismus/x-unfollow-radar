@@ -1,7 +1,7 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Seni takip etmeyenleri bul ve güvenle takipten çık"
+        "subtitle": "Adayları tara, seç ve onaylayarak işle"
     },
     "trust": {
         "worksOnFollowing": "Following sayfasında çalışır",
@@ -35,7 +35,7 @@
         "dailyLimitDesc": "24 saatlik sınıra ulaştınız. Yaklaşık {hours} saat içinde en az bir işlem hakkı açılacak."
     },
     "buttons": {
-        "start": "Takipten çıkarmayı başlat",
+        "start": "Adayları tara",
         "stop": "Durdur",
         "continue": "Devam Et (50 kişi daha)",
         "undo": "Profili aç",
@@ -49,6 +49,29 @@
     "controls": {
         "dryRunMode": "Dry run (takipten çıkarma yok)",
         "dryRunDesc": "Açıkken takipten çıkarmayı simüle eder, gerçek değişiklik yapmaz"
+    },
+    "candidates": {
+        "title": "Aday Önizleme",
+        "hint": "İşlem yapılacak hesapları seçin.",
+        "selectAll": "Tümünü seç",
+        "clearSelection": "Seçimi kaldır",
+        "execute": "Seçilenleri işle",
+        "selectUser": "@{username} kullanıcısını seç",
+        "selectionLimit": "Mevcut güvenlik pencerenizde en fazla {count} kullanıcı seçebilirsiniz.",
+        "confirmExecution": "Seçtiğiniz {count} kullanıcı için işlem başlatılacak. Devam edilsin mi?",
+        "scanComplete": "{count} aday bulundu. Seçiminizi yapın.",
+        "excluded": "{count} hesap filtrelerle korundu.",
+        "truncated": "Önizleme ilk 500 adayla sınırlandı.",
+        "status": {
+            "scanning": "Adaylar taranıyor",
+            "ready": "Adaylar seçime hazır",
+            "executing": "Seçilenler işleniyor",
+            "completed": "Seçili işlem tamamlandı; yeni işlem için tekrar tarayın",
+            "stopped": "İşlem durduruldu; yeniden tarayın",
+            "interrupted": "Tarama kesintiye uğradı; yeniden tarayın",
+            "limit_reached": "Güvenlik limiti doldu; daha sonra yeniden tarayın",
+            "error": "İşlem hatayla durdu; yeniden tarayın"
+        }
     },
     "filters": {
         "keywordsTitle": "Anahtar Kelimeler",
@@ -169,8 +192,8 @@
         "current": "TR"
     },
     "aria": {
-        "startButton": "Otomatik takipten çıkarmayı başlat",
-        "stopButton": "Otomatik takipten çıkarmayı durdur",
+        "startButton": "Takip etmeyen adayları tara",
+        "stopButton": "Aktif tarama veya işlemi durdur",
         "continueButton": "50 kişi daha takipten çık",
         "resetButton": "İstatistikleri sıfırla; aktif güvenlik limitini koru",
         "deleteAllDataButton": "Filtreler ve lisans dahil tüm yerel verileri sil",

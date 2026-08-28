@@ -1,11 +1,12 @@
 # X Unfollow Radar - Chrome Extension
 
-Seni takip etmeyen kullanıcıları otomatik tespit edip takipten çıkaran Chrome eklentisi.
+Seni takip etmeyen adayları tarayan ve yalnızca seçip açıkça onayladığın hesapları işleyen Chrome eklentisi.
 
 ## 🎯 Özellikler
 
 ### Temel Özellikler
 - ✅ Otomatik scroll ve kullanıcı taraması
+- ✅ Aday önizleme, çoklu seçim ve işlem öncesi açık onay
 - ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
 - ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
 - ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
@@ -54,11 +55,12 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 3. Eklenti simgesine tıklayın
 4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
 5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
-6. "Başlat" butonuna tıklayın
-7. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
-8. Pro planda "Devam Et" diyerek kalan günlük limite kadar ilerleyin
-9. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
-10. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
+6. "Adayları tara" butonuna tıklayın
+7. Önizleme listesinden işlem yapılacak hesapları seçin
+8. "Seçilenleri işle" butonuna basıp son onayı verin
+9. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
+10. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
+11. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
 
 ## ⚙️ Ayarlar ve Limitler
 

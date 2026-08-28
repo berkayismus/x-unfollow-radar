@@ -81,6 +81,15 @@ const XUnfollowRadarContent = (function () {
     /** @type {Object|null} Persisted state machine for the latest run */
     let runState = null;
 
+    /** @type {'scan'|'execute'|null} Current two-stage workflow operation */
+    let operationMode = null;
+
+    /** @type {Object|null} Persisted candidate preview scan */
+    let candidateScan = null;
+
+    /** @type {Set<string>} Selected usernames still being located for execution */
+    let selectedUsernames = new Set();
+
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
@@ -224,6 +233,24 @@ const XUnfollowRadarContent = (function () {
         if (!runState) return;
         RunStateUtils.setStatus(runState, status, Date.now(), finished);
         await persistRunState();
+        if (finished && operationMode === 'execute' && candidateScan) {
+            candidateScan.status = status;
+            await persistCandidateScan();
+        }
+    }
+
+    async function persistCandidateScan() {
+        if (!candidateScan || suppressPersistence) return;
+        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.CANDIDATE_SCAN]: candidateScan });
+        chrome.runtime.sendMessage({
+            type: Constants.MESSAGE_TYPES.CANDIDATES_UPDATED,
+            data: {
+                status: candidateScan.status,
+                count: candidateScan.candidates.length,
+                excluded: candidateScan.excluded,
+                truncated: candidateScan.truncated
+            }
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -558,6 +585,7 @@ const XUnfollowRadarContent = (function () {
         const userCells = document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN);
         let newUsersFound = 0;
         let runChanged = false;
+        let candidatesChanged = false;
 
         userCells.forEach(cell => {
             const username = getUsernameFromCell(cell);
@@ -566,37 +594,58 @@ const XUnfollowRadarContent = (function () {
 
             processedUsers.add(username);
 
-            if (!hasFollowsYouBadge(cell)) {
+            if (operationMode === 'scan') {
+                if (hasFollowsYouBadge(cell)) return;
                 const skipCheck = shouldSkipUser(cell, username);
                 if (skipCheck.skip) {
-                    RunStateUtils.skip(
-                        runState,
-                        username,
-                        skipCheck.reason,
-                        Date.now(),
-                        Constants.LIMITS.MAX_RUN_SKIPPED_RECORDS
-                    );
-                    runChanged = true;
-                    chrome.runtime.sendMessage({
-                        type: Constants.MESSAGE_TYPES.USER_PROCESSED,
-                        data: { username, action: `skipped:${skipCheck.reason}`, timestamp: Date.now() }
-                    });
+                    CandidateUtils.exclude(candidateScan, skipCheck.reason);
+                    candidatesChanged = true;
                     return;
                 }
 
-                unfollowQueue.push(cell);
-                RunStateUtils.queue(
+                const text = (cell.innerText || cell.textContent || '').trim();
+                const wasTruncated = candidateScan.truncated;
+                if (CandidateUtils.add(candidateScan, {
+                    username,
+                    displayName: text.split('\n').find(line => line.trim() && !line.trim().startsWith('@')) || username,
+                    preview: text.slice(0, 280),
+                    discoveredAt: Date.now()
+                }, Constants.LIMITS.MAX_CANDIDATES)) {
+                    newUsersFound++;
+                    candidatesChanged = true;
+                } else if (!wasTruncated && candidateScan.truncated) {
+                    candidatesChanged = true;
+                }
+                return;
+            }
+
+            if (operationMode !== 'execute' || !selectedUsernames.has(username)) return;
+            selectedUsernames.delete(username);
+
+            const skipCheck = shouldSkipUser(cell, username);
+            if (hasFollowsYouBadge(cell) || skipCheck.skip) {
+                const reason = hasFollowsYouBadge(cell) ? 'follows_you_now' : `protected:${skipCheck.reason}`;
+                RunStateUtils.skipQueued(
                     runState,
                     username,
+                    reason,
                     Date.now(),
-                    dryRunMode ? Constants.USER_ACTIONS.DRY_RUN : Constants.USER_ACTIONS.UNFOLLOWED
+                    Constants.LIMITS.MAX_RUN_SKIPPED_RECORDS
                 );
                 runChanged = true;
-                newUsersFound++;
+                chrome.runtime.sendMessage({
+                    type: Constants.MESSAGE_TYPES.USER_PROCESSED,
+                    data: { username, action: `skipped:${reason}`, timestamp: Date.now() }
+                });
+                return;
             }
+
+            unfollowQueue.push(cell);
+            newUsersFound++;
         });
 
         if (runChanged) await persistRunState();
+        if (candidatesChanged) await persistCandidateScan();
 
         if (newUsersFound > 0) {
             console.log(`Found ${newUsersFound} non-followers`);
@@ -666,7 +715,15 @@ const XUnfollowRadarContent = (function () {
                 .map(getUsernameFromCell)
                 .filter(username => username !== 'Unknown')
         );
-        window.scrollTo(0, document.documentElement.scrollHeight);
+        if (operationMode === 'execute') {
+            const step = Math.max(Constants.UI.SCROLL_AMOUNT, Math.floor(window.innerHeight * 0.8));
+            window.scrollTo(0, Math.min(
+                document.documentElement.scrollTop + step,
+                document.documentElement.scrollHeight
+            ));
+        } else {
+            window.scrollTo(0, document.documentElement.scrollHeight);
+        }
         await Promise.all([
             randomDelay(Constants.TIMING.SCROLL_DELAY, Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA),
             waitForNewUserCards(usernamesBeforeScroll, operationController?.signal)
@@ -702,7 +759,8 @@ const XUnfollowRadarContent = (function () {
                 return false;
             }
 
-            if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
+            if (!dryRunMode && testMode && !testComplete &&
+                sessionCount >= Constants.LIMITS.BATCH_SIZE) {
                 isPaused = true;
                 await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
@@ -785,12 +843,23 @@ const XUnfollowRadarContent = (function () {
         console.log('mainLoop started, isRunning:', isRunning);
         await initStorage();
         if (!isRunning || operationController?.signal.aborted) return;
-        if (!runState) {
+        if (operationMode === 'execute') {
+            await randomDelay(Constants.TIMING.BUTTON_CLICK_MIN, Constants.TIMING.BUTTON_CLICK_MAX);
+        }
+        if (operationMode === 'execute' && !runState) {
             const startedAt = operationStartTime || Date.now();
             runState = RunStateUtils.create({
                 id: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
                 startedAt,
                 dryRun: dryRunMode
+            });
+            selectedUsernames.forEach(username => {
+                RunStateUtils.queue(
+                    runState,
+                    username,
+                    startedAt,
+                    dryRunMode ? Constants.USER_ACTIONS.DRY_RUN : Constants.USER_ACTIONS.UNFOLLOWED
+                );
             });
             if (isPaused) RunStateUtils.setStatus(runState, 'paused', Date.now());
             await persistRunState();
@@ -800,7 +869,7 @@ const XUnfollowRadarContent = (function () {
             const remainingMinutes = Math.ceil((rateLimitUntil - Date.now()) / 60000);
             sendStatus(Constants.STATUS.RATE_LIMIT, { remainingMinutes });
         } else {
-            sendStatus(Constants.STATUS.STARTED);
+            sendStatus(operationMode === 'scan' ? Constants.STATUS.CANDIDATE_SCANNING : Constants.STATUS.STARTED);
         }
 
         let noNewUserStreak = 0;
@@ -815,9 +884,9 @@ const XUnfollowRadarContent = (function () {
                 continue;
             }
 
-            await refreshSafetyWindow();
+            if (operationMode === 'execute') await refreshSafetyWindow();
 
-            if (!dryRunMode && sessionCount >= sessionLimit) {
+            if (operationMode === 'execute' && !dryRunMode && sessionCount >= sessionLimit) {
                 isRunning = false;
                 await updateRunStatus('limit_reached', true);
                 sendStatus(Constants.STATUS.LIMIT_REACHED);
@@ -825,7 +894,8 @@ const XUnfollowRadarContent = (function () {
             }
 
             // Check if we reached a batch milestone
-            if (testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
+            if (operationMode === 'execute' && !dryRunMode && testMode && !testComplete &&
+                sessionCount >= Constants.LIMITS.BATCH_SIZE) {
                 isPaused = true;
                 await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
@@ -838,15 +908,22 @@ const XUnfollowRadarContent = (function () {
             // Scan and process the current viewport before scrolling so X's
             // virtualized list cannot remove queued DOM nodes first.
             await scanUsers();
-            if (!await processQueue()) {
+            if (operationMode === 'execute' && !await processQueue()) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
+            }
+
+            if (operationMode === 'execute' && selectedUsernames.size === 0 && unfollowQueue.length === 0) {
+                isRunning = false;
+                await updateRunStatus('completed', true);
+                sendStatus(Constants.STATUS.COMPLETED);
+                break;
             }
 
             // Scroll to load more users
             await autoScroll();
             await scanUsers();
-            if (!await processQueue()) {
+            if (operationMode === 'execute' && !await processQueue()) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
             }
@@ -860,13 +937,32 @@ const XUnfollowRadarContent = (function () {
             if (exhausted && unfollowQueue.length === 0) {
                 console.log('No more unique users found - exhausted following list');
                 isRunning = false;
-                await updateRunStatus('completed', true);
-                sendStatus(Constants.STATUS.COMPLETED);
+                if (operationMode === 'scan') {
+                    CandidateUtils.complete(candidateScan, Date.now());
+                    await persistCandidateScan();
+                    sendStatus(Constants.STATUS.CANDIDATE_SCAN_COMPLETE, {
+                        candidateCount: candidateScan.candidates.length
+                    });
+                } else {
+                    for (const username of selectedUsernames) {
+                        RunStateUtils.transition(
+                            runState,
+                            username,
+                            RunStateUtils.ITEM_STATUS.FAILED,
+                            Date.now(),
+                            'not_found'
+                        );
+                    }
+                    selectedUsernames.clear();
+                    RunStateUtils.trimCompleted(runState, Constants.LIMITS.MAX_RUN_ITEM_RECORDS);
+                    await updateRunStatus('completed', true);
+                    sendStatus(Constants.STATUS.COMPLETED);
+                }
                 break;
             }
 
             // Random pause to appear more human
-            if (Math.random() < Constants.UI.HUMAN_PAUSE_PROBABILITY) {
+            if (operationMode === 'execute' && Math.random() < Constants.UI.HUMAN_PAUSE_PROBABILITY) {
                 await randomDelay(Constants.TIMING.HUMAN_PAUSE_MIN, Constants.TIMING.HUMAN_PAUSE_MAX);
             }
         }
@@ -900,7 +996,8 @@ const XUnfollowRadarContent = (function () {
             Constants.STORAGE_KEYS.RATE_LIMIT_UNTIL,
             Constants.STORAGE_KEYS.UNFOLLOW_STATS,
             Constants.STORAGE_KEYS.UNFOLLOW_HISTORY,
-            Constants.STORAGE_KEYS.RUN_STATE
+            Constants.STORAGE_KEYS.RUN_STATE,
+            Constants.STORAGE_KEYS.CANDIDATE_SCAN
         ];
 
         const data = await chrome.storage.local.get(storageKeys);
@@ -948,6 +1045,12 @@ const XUnfollowRadarContent = (function () {
             await chrome.storage.local.set({ [Constants.STORAGE_KEYS.RUN_STATE]: storedRunState });
         }
 
+        if (!candidateScan) candidateScan = data[Constants.STORAGE_KEYS.CANDIDATE_SCAN] || null;
+        if (!isRunning && candidateScan && ['scanning', 'executing'].includes(candidateScan.status)) {
+            candidateScan.status = 'interrupted';
+            await chrome.storage.local.set({ [Constants.STORAGE_KEYS.CANDIDATE_SCAN]: candidateScan });
+        }
+
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
             [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
@@ -991,36 +1094,99 @@ const XUnfollowRadarContent = (function () {
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             switch (message.action) {
                 case Constants.ACTIONS.START:
-                    console.log('START message received');
+                case Constants.ACTIONS.SCAN_CANDIDATES:
+                    console.log('Candidate scan message received');
                     if (!isRunning) {
-                        console.log('Starting mainLoop...');
                         stopActiveOperation();
                         operationController = new AbortController();
+                        operationMode = 'scan';
                         isRunning = true;
                         isPaused = false;
                         suppressPersistence = false;
                         consecutiveFailures = 0;
                         runState = null;
+                        selectedUsernames = new Set();
+                        candidateScan = CandidateUtils.create(Date.now());
                         unfollowQueue = [];
                         processedUsers = new Set();
                         operationStartTime = Date.now();
                         operationSpeeds = [];
+                        window.scrollTo(0, 0);
+                        persistCandidateScan();
                         mainLoop().catch(err => {
                             if (err.name === 'AbortError') return;
                             console.error('mainLoop error:', err);
                             isRunning = false;
-                            updateRunStatus('error', true);
+                            if (candidateScan) {
+                                candidateScan.status = 'error';
+                                persistCandidateScan();
+                            }
                             sendStatus(Constants.STATUS.ERROR);
                         });
                     }
                     sendResponse({ success: true });
                     break;
 
+                case Constants.ACTIONS.EXECUTE_SELECTED: {
+                    const candidateUsernames = new Set(
+                        (candidateScan?.candidates || []).map(candidate => candidate.username)
+                    );
+                    const usernames = Array.from(new Set(message.usernames || []))
+                        .filter(username => candidateUsernames.has(username));
+                    if (isRunning || candidateScan?.status !== 'ready' || usernames.length === 0) {
+                        sendResponse({ success: false, error: isRunning ? 'operation_active' : 'empty_selection' });
+                        break;
+                    }
+
+                    stopActiveOperation();
+                    operationController = new AbortController();
+                    operationMode = 'execute';
+                    selectedUsernames = new Set(usernames);
+                    isRunning = true;
+                    isPaused = false;
+                    suppressPersistence = false;
+                    consecutiveFailures = 0;
+                    runState = null;
+                    unfollowQueue = [];
+                    processedUsers = new Set();
+                    operationStartTime = Date.now();
+                    operationSpeeds = [];
+                    if (candidateScan) {
+                        CandidateUtils.setSelection(candidateScan, usernames);
+                        candidateScan.status = 'executing';
+                        persistCandidateScan();
+                    }
+                    window.scrollTo(0, 0);
+                    mainLoop().catch(err => {
+                        if (err.name === 'AbortError') return;
+                        console.error('mainLoop error:', err);
+                        isRunning = false;
+                        if (runState) updateRunStatus('error', true);
+                        else if (candidateScan) {
+                            candidateScan.status = 'error';
+                            persistCandidateScan();
+                        }
+                        sendStatus(Constants.STATUS.ERROR);
+                    });
+                    sendResponse({ success: true, selectedCount: usernames.length });
+                    break;
+                }
+
                 case Constants.ACTIONS.STOP:
                     isRunning = false;
                     isPaused = false;
                     stopActiveOperation();
-                    updateRunStatus('stopped', true);
+                    if (operationMode === 'scan' && candidateScan) {
+                        candidateScan.status = 'stopped';
+                        persistCandidateScan();
+                    } else if (runState) {
+                        updateRunStatus('stopped', true);
+                    } else if (candidateScan) {
+                        candidateScan.status = 'stopped';
+                        persistCandidateScan();
+                    } else {
+                        operationMode = null;
+                    }
                     sendStatus(Constants.STATUS.STOPPED);
                     sendResponse({ success: true });
                     break;
@@ -1050,7 +1216,13 @@ const XUnfollowRadarContent = (function () {
                     break;
 
                 case Constants.ACTIONS.GET_STATUS:
-                    sendResponse({ success: true, isRunning, runStatus: runState?.status || null });
+                    sendResponse({
+                        success: true,
+                        isRunning,
+                        operationMode,
+                        runStatus: runState?.status || null,
+                        candidateStatus: candidateScan?.status || null
+                    });
                     break;
 
                 case Constants.ACTIONS.UPDATE_KEYWORDS:
@@ -1093,6 +1265,9 @@ const XUnfollowRadarContent = (function () {
                     whitelist = {};
                     dryRunMode = false;
                     runState = null;
+                    candidateScan = null;
+                    selectedUsernames = new Set();
+                    operationMode = null;
                     sendResponse({ success: true });
                     break;
 
