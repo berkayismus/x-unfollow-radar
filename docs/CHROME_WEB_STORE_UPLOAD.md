@@ -1,54 +1,76 @@
 # Chrome Web Store'a Yükleme Adımları
 
-Bu dosya, **x-unfollow-radar.zip** paketini Chrome Web Store'a yüklerken takip edeceğin adımları özetler.
+Bu belge, X Unfollow Radar için doğrulanmış kaynaklardan temiz bir ZIP üretme ve Chrome Web Store Developer Dashboard'a gönderme adımlarını özetler.
 
-## Hazırlanan dosyalar
+## 1. Gönderim öncesi doğrulama
 
-- **ZIP paketi:** Proje kökünde `x-unfollow-radar.zip` (manifest ve tüm gerekli dosyalar kökte)
-- **Gizlilik politikası:** `PRIVACY_POLICY.md` güncellendi (başlık: X Unfollow Radar, iletişim: GitHub linki)
-
-## 1. Developer hesabı (henüz yoksa)
-
-1. https://chrome.google.com/webstore/devconsole adresine git
-2. Google hesabınla giriş yap
-3. Tek seferlik **$5** developer kayıt ücretini öde
-4. Publisher name ve e-posta doğrulamasını tamamla
-
-## 2. Yeni eklenti yükle
-
-1. [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) → **New Item**
-2. **Dosya seç** → Proje klasöründen `x-unfollow-radar.zip` dosyasını seç
-3. Yükleme tamamlanınca hata çıkarsa (manifest, ikon vb.) ekrandaki mesaja göre düzeltip ZIP’i yeniden oluşturup tekrar yükle
-
-## 3. Store listing sekmesi
-
-- **Short description (max 132 karakter):**  
-  `Seni takip etmeyen kullanıcıları otomatik tespit et ve takipten çık. Güvenli, hızlı, kolay!`
-- **Detailed description:** `STORE_LISTING.md` içindeki Türkçe veya İngilizce detaylı açıklamayı kopyala-yapıştır
-- **Category:** Productivity
-- **Screenshot:** En az 1 adet (1280x800 veya 640x400 px) — eklenti popup’ının ekran görüntüsü yeterli
-
-## 4. Privacy sekmesi
-
-- **Privacy Policy URL:**  
-  `https://github.com/berkayismus/x-unfollow-radar/blob/main/PRIVACY_POLICY.md`  
-  (Repo public olduğu sürece bu link çalışır.)
-
-## 5. Distribution ve Support
-
-- **Distribution:** Public veya Unlisted tercihini seç
-- **Support email:** Chrome Web Store’da görünecek destek e-postasını gir (zorunlu)
-- İsteğe bağlı: Support URL olarak `https://github.com/berkayismus/x-unfollow-radar` ekle
-
-## 6. İncelemeye gönder
-
-- Tüm zorunlu alanları doldurduktan sonra **Submit for review** ile gönder
-- İnceleme genelde 1–3 iş günü sürer; reddedilirse e-posta ile gerekçe ve düzeltme bilgisi gelir
-
----
-
-**ZIP’i yeniden oluşturmak için (proje kökünde):**
+Proje kökünde:
 
 ```bash
-zip -r x-unfollow-radar.zip . -x "*.git*" "*/.DS_Store" "*.DS_Store" "README.md" "STORE_LISTING.md" "docs/*" ".cursor/*" "*.zip" "https:*" "https/*"
+npm ci
+npm run lint
+npm test
+npm run test:e2e
+npm run package:check
+npm run release:check
 ```
+
+Yeni bir mağaza sürümü hazırlanıyorsa önce sürümü yükseltin ve testleri yeniden çalıştırın:
+
+```bash
+npm run release -- patch
+```
+
+## 2. Temiz ZIP oluşturma
+
+Bu repoda hazır bir `x-unfollow-radar.zip` takip edilmiyor. Paketi yalnızca çalışma zamanı dosyalarından üretin:
+
+```bash
+zip -r x-unfollow-radar.zip manifest.json src assets/icons locales vendor -x "*.DS_Store"
+```
+
+Bu yöntem `node_modules`, testler, dokümanlar, Git geçmişi ve mağazaya ayrıca yüklenecek tanıtım görsellerini extension paketinin dışında bırakır. ZIP'i açıp `manifest.json` dosyasının arşiv kökünde olduğunu kontrol edin.
+
+## 3. Hazır mağaza varlıkları
+
+- Gizlilik politikası: `PRIVACY_POLICY.md`
+- Türkçe ve İngilizce açıklamalar: `STORE_LISTING.md`
+- 1280x800 ekran görüntüleri: `assets/store-screenshots/`
+- 440x280 küçük tanıtım görseli: `assets/promo/x-unfollow-radar-tile-en-440x280.png`
+- 1400x560 marquee görseli: `assets/promo/x-unfollow-radar-hero-en-1400x560.png`
+- 16/48/128 ikonları: `assets/icons/`
+
+## 4. Developer hesabı
+
+1. [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) sayfasına gidin.
+2. Yayıncı hesabını kaydedin, gösterilen tek seferlik kayıt ücretini ödeyin ve sözleşmeleri kabul edin.
+3. Sık kontrol edilen bir geliştirici e-postası kullanın ve gerekli hesap doğrulamalarını tamamlayın.
+
+Güncel hesap adımları için [resmî kayıt rehberini](https://developer.chrome.com/docs/webstore/register) esas alın.
+
+## 5. Yeni öğe ve mağaza kaydı
+
+1. Dashboard'da **Add new item / New item** seçeneğini açın.
+2. `x-unfollow-radar.zip` dosyasını yükleyin.
+3. **Store listing** alanlarını `STORE_LISTING.md` içeriğiyle doldurun.
+4. Kısa açıklama olarak şu güncel metni kullanın:
+
+    `Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem temposuyla following listeni yönet.`
+
+5. `assets/store-screenshots/` altındaki ekran görüntülerini ve küçük tanıtım görselini yükleyin.
+6. Kategoriyi **Productivity** olarak değerlendirin.
+
+## 6. Privacy, dağıtım ve destek
+
+- Privacy Policy URL: `https://github.com/berkayismus/x-unfollow-radar/blob/main/PRIVACY_POLICY.md`
+- Privacy practices bölümünde yerel olarak işlenen X kullanıcı adı/sayfa içeriği verilerini ve Gumroad'a gönderilen lisans anahtarını politika ile aynı biçimde beyan edin.
+- Extension'ın tek amacını aday tarama ve kullanıcı onaylı following-listesi yönetimi olarak açıklayın.
+- Distribution görünürlüğünü ve bölgeleri seçin.
+- Dashboard'da doğrulanmış destek e-postasını girin.
+- İsteğe bağlı destek URL'si: `https://github.com/berkayismus/x-unfollow-radar/issues`
+
+Yerel veri işleme de mağaza beyanlarında açıklanmalıdır. Güncel gereksinimler için [Chrome Web Store kullanıcı verisi rehberini](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq) kontrol edin.
+
+## 7. İncelemeye gönderme
+
+Tüm zorunlu alanlar tamamlandıktan sonra **Submit for review** seçeneğini kullanın. İnceleme süresi gönderimin niteliğine göre değişir; sabit bir süre varsaymayın. Güncel akış için [resmî yayın rehberini](https://developer.chrome.com/docs/webstore/publish/) izleyin.

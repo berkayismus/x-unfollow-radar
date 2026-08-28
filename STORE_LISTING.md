@@ -28,11 +28,11 @@ Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem
 
 **X Unfollow Radar** - Sosyal Medya Yönetimini Kolaylaştırın! 🚀
 
-Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize yardımcı olan bir Chrome eklentisi.
+Görünür \"Follows you\" bilgisine göre adayları tespit edip following listenizi yönetmenize yardımcı olan bir Chrome eklentisi.
 
 ### 🎯 ÖZELLİKLER
 
-✅ **Otomatik Tespit**: "Follows you" badge'i olmayan kullanıcıları otomatik bulur
+✅ **Aday Tespiti**: "Follows you" badge'i görünmeyen kullanıcıları aday olarak listeler
 ✅ **Açık Kullanıcı Onayı**: Önizleme listesinden yalnızca seçtiğiniz hesapları işler
 ✅ **Kontrollü Tempo**: İşlemler arasında 2-5 saniye rastgele gecikme
 ✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
@@ -47,7 +47,7 @@ Seni takip etmeyen kullanıcıları tespit edip following listenizi yönetmenize
 🔐 **Şifrenizi ASLA toplamaz**
 🔐 **X kullanıcı listeleri ve geçmiş cihazda tutulur**
 🔐 **Yalnızca Pro lisans anahtarı doğrulama için doğrudan Gumroad'a gönderilir**
-🔐 **Açık kaynak ve şeffaf**
+🔐 **Kaynak kodu herkese açık ve incelenebilir**
 🔐 **Tüm yerel verileri tek işlemle silme kontrolü sunar**
 
 ### ⚡ KULLANIM
@@ -64,7 +64,7 @@ Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you"
 
 ### ⚠️ ÖNEMLİ NOTLAR
 
-- Bu eklenti sadece sizi takip etmeyen kullanıcıları işler
+- Tespit, X'in görünür "Follows you" bilgisine dayanır; işlem öncesinde aday listesini kontrol edin
 - Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
 - Günlük Twitter/X limitlerine dikkat edin
 - Aşırı kullanım hesap kısıtlamalarına yol açabilir
@@ -81,7 +81,7 @@ Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you"
 Sorun yaşarsanız veya öneriniz varsa:
 
 - GitHub üzerinden issue açabilirsiniz
-- Email ile iletişime geçebilirsiniz
+- [GitHub üzerinden issue açabilirsiniz](https://github.com/berkayismus/x-unfollow-radar/issues)
 
 ---
 
@@ -89,11 +89,11 @@ Sorun yaşarsanız veya öneriniz varsa:
 
 **X Unfollow Radar** - Simplify Your Social Media Management! 🚀
 
-A Chrome extension that detects accounts that do not follow you back and helps manage your Following list.
+A Chrome extension that identifies candidates from the visible "Follows you" state and helps manage your Following list.
 
 ### 🎯 FEATURES
 
-✅ **Auto Detection**: Automatically finds users without "Follows you" badge
+✅ **Candidate Detection**: Lists users whose cards do not show the "Follows you" badge
 ✅ **Explicit User Approval**: Processes only the accounts selected in the preview
 ✅ **Controlled Pacing**: Random 2-5 second delays between actions
 ✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
@@ -108,7 +108,7 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 🔐 **NEVER collects your password**
 🔐 **X account lists and history remain on the device**
 🔐 **Only the Pro license key is sent directly to Gumroad for verification**
-🔐 **Open source and transparent**
+🔐 **Publicly reviewable source code**
 🔐 **Provides a control to delete all local extension data**
 
 ### ⚡ HOW TO USE
@@ -121,50 +121,38 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 
 ---
 
-## Screenshots Required
+## Prepared Store Screenshots
 
-You need to provide at least 1 screenshot (1280x800px or 640x400px):
+The repository already contains three 1280x800 screenshots under `assets/store-screenshots/`:
 
 ### Screenshot 1: Main Popup Interface
 
-- Show the popup with statistics
-- Display "Session: 15/50" and "Total: 234"
-- Status: "Çalışıyor..." (Running)
+- `assets/store-screenshots/store-screenshot-main-en-1280x800.png`
 
-### Screenshot 2: Candidate Preview
+### Screenshot 2: Filters
 
-- Show the candidate checklist and selected count
-- "Seçilenleri işle" button visible
+- `assets/store-screenshots/store-screenshot-filters-en-1280x800.png`
 
-### Screenshot 3: Approved Operation
+### Screenshot 3: Statistics
 
-- Show the extension processing explicitly selected accounts
-- Extension popup visible with active status and run summary
+- `assets/store-screenshots/store-screenshot-stats-en-1280x800.png`
 
-### Screenshot 4: Statistics View
-
-- Show completed statistics
-- Last run date visible
-- Reset button highlighted
-
-## Promotional Images (Optional but Recommended)
+## Promotional Images
 
 ### Small Tile (440x280px)
 
-- Extension icon + "Scan, Select, Approve" text
-- Gradient background (purple to blue)
+- Hazır: `assets/promo/x-unfollow-radar-tile-en-440x280.png`
 
 ### Large Tile (920x680px)
 
+- İsteğe bağlı; henüz repoda hazır değil
 - Feature highlights with icons
 - Clean, modern design
 - Call to action: "Takipçi Yönetimini Kolaylaştırın!"
 
 ### Marquee (1400x560px)
 
-- Hero image with main features
-- Screenshots montage
-- Professional and trustworthy look
+- Hazır: `assets/promo/x-unfollow-radar-hero-en-1400x560.png`
 
 ---
 
@@ -178,9 +166,9 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 
 ### Support Information
 
-**Website**: [Your website or GitHub page]
-**Support Email**: [Your email]
-**Privacy Policy URL**: [Link to PRIVACY_POLICY.md hosted online]
+**Website**: https://github.com/berkayismus/x-unfollow-radar
+**Support Email**: Chrome Web Store Developer Dashboard'da doğrulanmış destek e-postası girilmelidir.
+**Privacy Policy URL**: https://github.com/berkayismus/x-unfollow-radar/blob/main/PRIVACY_POLICY.md
 
 ---
 
@@ -188,16 +176,15 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 
 Before submitting to Chrome Web Store:
 
-- [ ] All files tested and working
+- [x] Automated lint, unit, package, and Playwright checks pass
 - [ ] Privacy policy hosted online
-- [ ] Screenshots prepared (1280x800px)
-- [ ] Detailed description written
+- [x] Three screenshots prepared (1280x800px)
+- [x] Detailed description written
 - [ ] Icons look professional
-- [ ] Extension tested on multiple accounts
 - [ ] No console errors
 - [ ] Permissions justified in description
 - [ ] Support email set up
-- [ ] Developer account created ($5 paid)
+- [ ] Developer account registered and current fee paid
 
 ---
 
@@ -206,8 +193,11 @@ Before submitting to Chrome Web Store:
 1. **Prepare ZIP file**:
 
     ```bash
-    cd /tmp/x_unfollow_radar
-    zip -r x_unfollow_radar.zip . -x "*.git*" "*.DS_Store" "README.md" "STORE_LISTING.md"
+    npm ci
+    npm run lint
+    npm test
+    npm run package:check
+    zip -r x-unfollow-radar.zip manifest.json src assets/icons locales vendor -x "*.DS_Store"
     ```
 
 2. **Go to Chrome Developer Dashboard**:
@@ -225,7 +215,7 @@ Before submitting to Chrome Web Store:
 
 6. **Submit for review**
 
-7. **Wait for approval** (typically 1-3 business days)
+7. **Track the review status** in the Developer Dashboard; review duration varies by submission.
 
 ---
 

@@ -44,9 +44,9 @@ Seni takip etmeyen adayları tarayan ve yalnızca seçip açıkça onayladığı
 5. Bu klasörü seçin
 6. Eklenti yüklendi! 🎉
 
-### Chrome Web Store'dan Kurulum (Yakında)
+### Chrome Web Store'dan Kurulum
 
-Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek.
+Bu repoda henüz doğrulanmış bir Chrome Web Store bağlantısı belgelenmemiştir. Yayın tamamlandığında mağaza bağlantısı bu bölüme eklenmelidir.
 
 ## 🚀 Kullanım
 
@@ -103,7 +103,7 @@ npm run package:check
 npm run release:check
 ```
 
-GitHub Actions her push ve pull request'te lint, regresyon testleri ve eklenti paket bütünlüğü doğrulamasını çalıştırır.
+GitHub Actions her push ve pull request'te lint, format, regresyon, Playwright unpacked-extension, paket bütünlüğü ve sürüm senkronizasyonu kontrollerini çalıştırır.
 
 Yeni sürüm hazırlarken `package.json`, `package-lock.json` ve `manifest.json` sürümlerini tek komutla eşitleyin:
 
@@ -132,14 +132,22 @@ x_unfollow_radar/
 │   │   ├── popup.js           # UI controller and handlers
 │   │   └── popup.css          # CSS with dark mode support
 │   └── shared/
-│       ├── constants.js       # Centralized configuration
-│       └── i18n.js            # Internationalization module
+│       ├── constants.js            # Merkezi yapılandırma
+│       ├── storage-migrations.js   # İdempotent storage migration'ları
+│       ├── user-detection.js       # Test edilebilir UserCell yorumlama
+│       ├── safety-window.js        # Kayan 24 saat güvenlik sayacı
+│       ├── run-state.js            # Çalışma durum makinesi
+│       └── i18n.js                 # Uluslararasılaştırma
 │
-├── assets/                    # Static assets
-│   └── icons/
+├── assets/                    # İkon, mağaza görseli ve promo dosyaları
+│   ├── icons/
 │       ├── icon16.png
 │       ├── icon48.png
 │       └── icon128.png
+│   ├── store-screenshots/
+│   └── promo/
+├── tests/                     # Unit, fixture, background ve Playwright testleri
+├── scripts/                   # Paket ve release doğrulama komutları
 │
 ├── vendor/                    # Third-party libraries
 │   ├── chartist.min.js        # Chart library
@@ -155,9 +163,9 @@ x_unfollow_radar/
 
 - Rastgele gecikmeler (2-5 saniye)
 - Ücretsiz 50 / Pro 500 işlem limiti
-- Organik duraklamalar (%10 rastgele)
+- Organik duraklamalar (%15 olasılıkla)
 - Algılanan rate-limit bekleme durumunu saklama ve otomatik devam
-- 24 saatlik reset mekanizması
+- Her gerçek işlemi kendi zamanından 24 saat sonra düşüren kayan güvenlik penceresi
 
 ## 🤝 Katkıda Bulunma
 
@@ -174,7 +182,7 @@ Bu proje kişisel kullanım içindir. Ticari kullanım için iletişime geçin.
 
 ## 📞 Destek
 
-Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
+Sorun yaşarsanız veya öneriniz varsa [GitHub üzerinden issue açın](https://github.com/berkayismus/x-unfollow-radar/issues).
 
 ---
 
@@ -182,4 +190,4 @@ Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
 
 **⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
 
-_Son güncelleme: Ağustos 2026_
+_Son güncelleme: 28 Ağustos 2026_

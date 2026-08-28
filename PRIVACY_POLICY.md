@@ -1,15 +1,15 @@
 # Privacy Policy - X Unfollow Radar
 
-**Last updated: August 26, 2026**
+**Last updated: August 28, 2026**
 
-X Unfollow Radar is a browser extension that analyzes the X/Twitter “Following” page and assists the user with managing accounts they follow. This policy describes the data used by version 2.0.3 and later.
+X Unfollow Radar is a browser extension that analyzes the X/Twitter “Following” page and assists the user with managing accounts they follow. This policy describes the data used by the current documented version, 2.0.3.
 
 ## 1. Data processed on the device
 
 The extension uses `chrome.storage.local` to keep the following information on the user's device:
 
 - Timestamps of successful real actions and the latest batch confirmation retained for rolling 24-hour safety controls
-- Total operation count and last-run timestamp
+- Total successful real-operation count and last-run timestamp
 - Daily real-operation and dry-run statistics
 - Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons
 - The latest run's queued, attempting, successful, failed, and skipped usernames, status timestamps, and reasons
@@ -49,7 +49,9 @@ The extension operates inside the user's existing X/Twitter browser session. It 
 - The recent-profile list is limited to 10 entries.
 - Detailed per-user run state is limited to the latest run, retains at most 500 action records and 500 skipped-user records, and is replaced when a new run starts. Aggregate counts for that run remain complete.
 - Candidate previews retain at most 500 records and are replaced when a new scan starts.
-- Counters, filters, preferences, and license information remain until the user resets or deletes them, or uninstalls the extension.
+- Successful-action timestamps leave the rolling safety window individually after 24 hours.
+- Aggregate statistics and history remain until the user resets statistics, deletes all local data, or uninstalls the extension.
+- Filters, preferences, and license information remain until the user deletes all local data or uninstalls the extension.
 - Gumroad verification records held by Gumroad are governed by Gumroad's own policies.
 
 ## 5. User controls and deletion

@@ -4,7 +4,7 @@ This document describes the high-level architecture of the X Unfollow Radar Chro
 
 ## 1. Overview
 
-- **Goal**: Detect users on Twitter/X who do not follow you back and automatically unfollow them.
+- **Goal**: Scan for accounts that appear not to follow back, then process only the candidates explicitly selected and approved by the user.
 - **Tech stack**:
     - Chrome Extension Manifest V3
     - Vanilla JavaScript (no framework)
@@ -26,10 +26,10 @@ The extension is split into three main parts:
 - `src/content/index.js`  
   Core automation logic:
     - Scans user cells in the main column (`USER_CELL_MAIN`).
-    - Queues users who do **not** have the \"Follows you\" badge.
+    - Adds users without the \"Follows you\" badge to a filtered candidate preview.
     - Applies whitelist and keyword filters.
-    - Clicks the \"Following\" button and the confirmation button to unfollow.
-    - Persists detected rate-limit state and manages waiting / resume logic; broader X UI error detection remains planned.
+    - Acts only on explicitly selected candidates and verifies that the confirmation dialog belongs to the target user.
+    - Detects known rate-limit signals in visible X toast, alert, and dialog text and persists waiting/resume state.
 
 - `src/popup/popup.html / popup.js / popup.css`  
   Three-tab popup UI (Main / Filters / Statistics):
@@ -38,7 +38,7 @@ The extension is split into three main parts:
     - **Statistics tab**: last 30 days chart and CSV export.
 
 - `src/background/index.js`  
-  Service worker which receives messages from the content script (status, rate limit, test complete, user processed) and relays them to the popup.
+  Service worker that relays runtime messages, verifies Gumroad licenses, and starts storage migrations.
 
 - `src/shared/constants.js`  
   Central configuration:
@@ -59,9 +59,10 @@ The extension is split into three main parts:
 
 The popup talks to the content script via `chrome.tabs.sendMessage`:
 
-- **Start**:
-    - `popup.js` sends `{ action: Constants.ACTIONS.START }`.
-    - The content script's message listener picks this up, sets `isRunning = true`, and starts `mainLoop()`.
+- **Candidate scan**:
+    - `popup.js` sends `SCAN_CANDIDATES`; no account-changing action occurs during this stage.
+- **Approved execution**:
+    - After explicit selection and confirmation, `popup.js` sends `EXECUTE_SELECTED` with only the selected usernames.
 
 - **Stop / Continue test / Dry-run toggle / Filters**:
     - Implemented as `ACTION` messages (`STOP`, `CONTINUE_TEST`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
@@ -75,9 +76,9 @@ The content script pushes updates back via `chrome.runtime.sendMessage`:
     - `sendStatus(status, data)` wraps current state (session count, total unfollowed, flags) plus additional info.
     - Popup’s `handleStatusUpdate` updates UI, button states, and alerts.
 
-2. **Per-user updates** (`USER_PROCESSED`):
-    - Carries `username`, an action from `Constants.USER_ACTIONS` (unfollowed, dry-run, skipped:*), and a timestamp.
-    - Popup appends entries to the \"Processed Users\" list with proper styling (success, dry-run, skipped).
+2. **Per-user and persisted-run updates** (`USER_PROCESSED`, `RUN_STATE_UPDATED`, `CANDIDATES_UPDATED`):
+    - Real and dry-run actions are emitted as per-user updates.
+    - Skipped and failed records are represented in the persisted run state and summary.
 
 The background worker simply listens for these messages and relays them to the popup, creating a loose coupling between page context (content script) and UI context (popup).
 
@@ -126,7 +127,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
 ## 5. Rate Limiting & Safety
 
 - **Rate limit detection**:
-    - Any 429-like scenario (or other heuristics) triggers `handleRateLimit()`.
+    - Known patterns in visible X toast, alert, and dialog text trigger `handleRateLimit()`.
     - The function:
         - Sets `rateLimitUntil` to a future timestamp (`TIMING.RATE_LIMIT_WAIT`).
         - Persists this timestamp to storage.

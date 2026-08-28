@@ -4,7 +4,7 @@ Bu dokümanda X Unfollow Radar Chrome eklentisinin yüksek seviye mimarisi, ana 
 
 ## 1. Genel Bakış
 
-- **Amaç**: Twitter/X üzerinde seni takip etmeyen kullanıcıları tespit edip otomatik olarak takipten çıkmak.
+- **Amaç**: Twitter/X üzerinde seni takip etmeyen adayları taramak ve yalnızca kullanıcının seçip açıkça onayladığı hesapları kontrollü biçimde işlemek.
 - **Teknolojiler**:
     - Chrome Extension Manifest V3
     - Vanilla JavaScript (framework yok)
@@ -26,10 +26,10 @@ Eklenti üç ana parçaya ayrılır:
 - `src/content/index.js`  
   Asıl iş yükü burada:
     - Sayfadaki kullanıcı kartlarını (`USER_CELL_MAIN`) tarar.
-    - \"Follows you\" badge'i olmayanları kuyruklar.
+    - \"Follows you\" badge'i olmayanları filtrelerden geçirip aday önizlemesine ekler.
     - Whitelist ve keyword filtrelerini uygular.
-    - \"Following\" butonuna tıklayıp çıkan onay penceresinden takipten çıkarma işlemini yapar.
-    - Algılanan rate-limit durumunu saklar ve bekleme/devam mantığını yönetir; daha geniş X arayüz hata tespiti planlanmaktadır.
+    - Yalnızca açıkça seçilmiş adaylar için \"Following\" ve hedef kullanıcıya ait onay butonunu kullanır.
+    - X'in görünür toast, alert ve dialog metinlerinden rate-limit sinyallerini algılar; bekleme/devam durumunu saklar.
 
 - `src/popup/popup.html / popup.js / popup.css`  
   3 sekmeli (Main / Filters / Statistics) popup arayüzü:
@@ -38,7 +38,7 @@ Eklenti üç ana parçaya ayrılır:
     - İstatistikler sekmesi: Son 30 gün grafiği ve CSV export.
 
 - `src/background/index.js`  
-  Content script → Popup arasındaki mesajları relay eder (özellikle status update, rate limit, test complete olayları).
+  Content script → Popup mesajlarını relay eder, Gumroad lisans doğrulamasını yürütür ve storage migration'ını başlatır.
 
 - `src/shared/constants.js`  
   Zamanlama, limitler, selector'lar, metin pattern'leri, storage key'leri ve mesaj tipleri gibi merkezi sabit değerleri içerir.
@@ -65,8 +65,8 @@ Content script, çalışma sırasında popup'a iki kanal üzerinden bilgi gönde
     - `sendStatus(status, data)` fonksiyonu ile `chrome.runtime.sendMessage` kullanılır.
     - Örnek: `STATUS.SCANNING`, `STATUS.UNFOLLOWED`, `STATUS.LIMIT_REACHED` gibi.
 
-2. **Kullanıcı işlendi** (`USER_PROCESSED`):
-    - Her kullanıcı için `USER_ACTIONS` (unfollowed, dry-run, skipped) bilgisi ve zaman damgası gönderilir.
+2. **Kullanıcı ve çalışma güncellemeleri** (`USER_PROCESSED`, `RUN_STATE_UPDATED`, `CANDIDATES_UPDATED`):
+    - Gerçek/dry-run işlemleri kullanıcı güncellemesi olarak; atlanan ve başarısız kayıtlar kalıcı çalışma durumu üzerinden gönderilir.
     - Popup, bu bilgiyi kullanarak \"Processed Users\" listesini günceller.
 
 Background service worker ( `src/background/index.js` ) bu mesajları dinler ve doğrudan popup'a relay eder. Böylece content script ile popup arasında gevşek bağlı (loosely coupled) bir iletişim katmanı oluşur.
@@ -95,7 +95,7 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 
 ## 5. Rate Limit ve Güvenlik
 
-- **Rate Limit**: HTTP 429 veya ilgili hatalar yakalandığında:
+- **Rate Limit**: X arayüzündeki bilinen toast, alert veya dialog sinyalleri algılandığında:
     - `handleRateLimit()` fonksiyonu `RATE_LIMIT_HIT` mesajı yollar, bekleme süresini (`RATE_LIMIT_WAIT`) hesaplar ve `isPaused = true` yapar.
     - Popup, kalan süreyi bir geri sayım olarak gösterir.
 
