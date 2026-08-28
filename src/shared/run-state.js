@@ -44,7 +44,7 @@ const RunStateUtils = (function () {
     }
 
     function queue(run, username, timestamp, mode) {
-        if (!run || run.items.some(item => item.username === username)) return null;
+        if (!run || run.items.some((item) => item.username === username)) return null;
         const item = {
             username,
             status: ITEM_STATUS.QUEUED,
@@ -62,7 +62,7 @@ const RunStateUtils = (function () {
 
     function transition(run, username, nextStatus, timestamp, reason = null) {
         if (!run) return null;
-        const item = run.items.find(candidate => candidate.username === username);
+        const item = run.items.find((candidate) => candidate.username === username);
         if (!item || !ALLOWED_TRANSITIONS[item.status]?.includes(nextStatus)) return null;
 
         if (item.status === ITEM_STATUS.QUEUED) run.summary.queued--;
@@ -98,9 +98,7 @@ const RunStateUtils = (function () {
 
     function skipQueued(run, username, reason, timestamp, maxRecords) {
         if (!run) return null;
-        const index = run.items.findIndex(item =>
-            item.username === username && item.status === ITEM_STATUS.QUEUED
-        );
+        const index = run.items.findIndex((item) => item.username === username && item.status === ITEM_STATUS.QUEUED);
         if (index === -1) return null;
         run.items.splice(index, 1);
         run.summary.queued--;
@@ -117,8 +115,8 @@ const RunStateUtils = (function () {
     function trimCompleted(run, maxRecords) {
         if (!run || run.items.length <= maxRecords) return;
         while (run.items.length > maxRecords) {
-            const index = run.items.findIndex(item =>
-                item.status === ITEM_STATUS.SUCCEEDED || item.status === ITEM_STATUS.FAILED
+            const index = run.items.findIndex(
+                (item) => item.status === ITEM_STATUS.SUCCEEDED || item.status === ITEM_STATUS.FAILED
             );
             if (index === -1) break;
             run.items.splice(index, 1);

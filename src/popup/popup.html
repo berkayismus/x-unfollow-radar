@@ -1,300 +1,532 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>X Unfollow Radar</title>
+        <link rel="stylesheet" href="popup.css" />
+        <link rel="stylesheet" href="../../vendor/chartist.min.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X Unfollow Radar</title>
-    <link rel="stylesheet" href="popup.css">
-    <link rel="stylesheet" href="../../vendor/chartist.min.css">
-</head>
-
-<body>
-    <div class="container" role="main">
-        <!-- Header with Dark Mode Toggle -->
-        <header class="header">
-            <div class="header-content">
-                <h1>🔴 <span data-i18n="app.title">X Unfollow Radar</span> <span id="proBadge" class="pro-badge" style="display:none;" aria-label="Pro plan active">PRO</span></h1>
-                <div class="header-buttons">
-                    <div class="lang-dropdown">
-                        <button id="langToggle" class="lang-toggle" type="button" role="button"
-                            aria-haspopup="listbox" aria-expanded="false"
-                            data-i18n-aria="aria.languageToggle" title="Change Language">
-                            TR
+    <body>
+        <div class="container" role="main">
+            <!-- Header with Dark Mode Toggle -->
+            <header class="header">
+                <div class="header-content">
+                    <h1>
+                        🔴 <span data-i18n="app.title">X Unfollow Radar</span>
+                        <span id="proBadge" class="pro-badge" style="display: none" aria-label="Pro plan active"
+                            >PRO</span
+                        >
+                    </h1>
+                    <div class="header-buttons">
+                        <div class="lang-dropdown">
+                            <button
+                                id="langToggle"
+                                class="lang-toggle"
+                                type="button"
+                                role="button"
+                                aria-haspopup="listbox"
+                                aria-expanded="false"
+                                data-i18n-aria="aria.languageToggle"
+                                title="Change Language"
+                            >
+                                TR
+                            </button>
+                            <div id="langMenu" class="lang-menu" role="listbox" aria-label="Language selection" hidden>
+                                <button type="button" class="lang-option" data-locale="tr" role="option">TR</button>
+                                <button type="button" class="lang-option" data-locale="en" role="option">EN</button>
+                                <button type="button" class="lang-option" data-locale="de" role="option">DE</button>
+                            </div>
+                        </div>
+                        <button
+                            id="themeToggle"
+                            class="theme-toggle"
+                            type="button"
+                            role="button"
+                            aria-label="Toggle theme"
+                            aria-pressed="false"
+                            data-i18n-aria="aria.themeToggle"
+                            title="Dark Mode"
+                        >
+                            🌙
                         </button>
-                        <div id="langMenu" class="lang-menu" role="listbox" aria-label="Language selection" hidden>
-                            <button type="button" class="lang-option" data-locale="tr" role="option">TR</button>
-                            <button type="button" class="lang-option" data-locale="en" role="option">EN</button>
-                            <button type="button" class="lang-option" data-locale="de" role="option">DE</button>
+                    </div>
+                </div>
+                <p class="subtitle" data-i18n="app.subtitle">Adayları tara, seç ve onaylayarak işle</p>
+                <div class="trust-row" role="note" aria-label="Product highlights">
+                    <span class="trust-pill" data-i18n="trust.worksOnFollowing">Works on Following</span>
+                    <span class="trust-pill" data-i18n="trust.rateLimitSafe">Controlled pacing</span>
+                    <span class="trust-pill" data-i18n="trust.dryRun">Dry run</span>
+                </div>
+            </header>
+
+            <!-- Tabs -->
+            <div class="tabs" role="tablist" aria-label="Extension sections">
+                <button
+                    class="tab-btn active"
+                    data-tab="main"
+                    data-i18n="tabs.main"
+                    role="tab"
+                    id="tab-main"
+                    aria-selected="true"
+                    aria-controls="main-tab"
+                    tabindex="0"
+                >
+                    Ana
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="filters"
+                    data-i18n="tabs.filters"
+                    role="tab"
+                    id="tab-filters"
+                    aria-selected="false"
+                    aria-controls="filters-tab"
+                    tabindex="-1"
+                >
+                    Filtreler
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="stats"
+                    data-i18n="tabs.stats"
+                    role="tab"
+                    id="tab-stats"
+                    aria-selected="false"
+                    aria-controls="stats-tab"
+                    tabindex="-1"
+                >
+                    İstatistikler
+                </button>
+            </div>
+
+            <!-- Main Tab -->
+            <div class="tab-content active" id="main-tab" role="tabpanel" aria-labelledby="tab-main" tabindex="0">
+                <!-- Stats Cards -->
+                <div class="stats" role="region" aria-label="Statistics">
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="stats.dailyLimit">24 Saatlik Limit</span>
+                        <span class="stat-value" id="sessionCount" aria-live="polite">0/50</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="stats.totalUnfollowed">Toplam Çıkarılan</span>
+                        <span class="stat-value" id="totalCount" aria-live="polite">0</span>
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="status-bar" role="status" aria-live="polite">
+                    <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
+                    <span id="statusText" data-i18n="status.ready">Hazır</span>
+                </div>
+
+                <!-- License expired banner -->
+                <div id="licenseExpiredBanner" class="license-expired-banner" style="display: none" role="alert">
+                    <div class="expired-banner-text">
+                        <strong data-i18n="license.expiredTitle">License Expired</strong>
+                        <span data-i18n="license.expiredDesc">Renew to keep Pro features.</span>
+                    </div>
+                    <a
+                        href="https://cayliverse.gumroad.com/l/vvbndt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-upgrade btn-upgrade-sm"
+                        data-i18n="license.renewNow"
+                        >Renew</a
+                    >
+                </div>
+
+                <!-- Expiry warning banner — shown when <= 14 days remain -->
+                <div id="licenseExpirySoonBanner" class="license-expiry-soon-banner" style="display: none" role="note">
+                    <span id="licenseExpirySoonText" data-i18n="license.expiresSoon">License expires soon</span>
+                    <a
+                        href="https://cayliverse.gumroad.com/l/vvbndt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn-link"
+                        data-i18n="license.renewNow"
+                        >Renew</a
+                    >
+                </div>
+
+                <!-- Upgrade CTA — shown only on free plan -->
+                <div id="upgradeCta" class="upgrade-cta" style="display: none" role="note">
+                    <div class="upgrade-cta-text">
+                        <strong data-i18n="pro.upgradeTitle">Upgrade to Pro</strong>
+                        <span data-i18n="pro.upgradeDesc">500/day limit + CSV export</span>
+                    </div>
+                    <button id="showLicenseBtn" class="btn btn-upgrade" type="button" data-i18n="pro.upgradeCta">
+                        Activate
+                    </button>
+                </div>
+
+                <!-- Alerts -->
+                <div
+                    id="testModeAlert"
+                    class="alert alert-warning"
+                    style="display: none"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    <p>
+                        <strong>⚠️ <span data-i18n="alerts.batchComplete">Batch Tamamlandı</span></strong>
+                    </p>
+                    <p data-i18n="alerts.batchCompleteDesc">50 kişi takipten çıkarıldı. Devam etmek istiyor musunuz?</p>
+                    <button id="continueBtn" class="btn btn-success" type="button" data-i18n-aria="aria.continueButton">
+                        ✓ <span data-i18n="buttons.continue">Devam Et (50 kişi daha)</span>
+                    </button>
+                </div>
+
+                <div
+                    id="rateLimitAlert"
+                    class="alert alert-danger"
+                    style="display: none"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    <p>
+                        <strong>🚫 <span data-i18n="alerts.rateLimit">Rate Limit!</span></strong>
+                    </p>
+                    <p id="rateLimitText" data-i18n="alerts.rateLimitDesc">
+                        Twitter tarafından hız sınırına takıldınız.
+                    </p>
+                    <p id="rateLimitCountdown" style="font-weight: bold" aria-live="polite">--</p>
+                </div>
+
+                <div
+                    id="limitReachedAlert"
+                    class="alert alert-info"
+                    style="display: none"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    <p>
+                        <strong>✋ <span data-i18n="alerts.dailyLimitReached">24 Saatlik Limit Doldu</span></strong>
+                    </p>
+                    <p data-i18n="alerts.dailyLimitDesc">
+                        Günlük plan limitinize ulaştınız. Güvenlik penceresi dolana kadar beklemeniz gerekiyor.
+                    </p>
+                </div>
+
+                <!-- Controls: Dry run + Reset on same row -->
+                <div class="control-row">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="dryRunMode" aria-describedby="dryrun-desc" />
+                        <span data-i18n="controls.dryRunMode">Dry Run Mode (Test)</span>
+                    </label>
+                    <span id="dryrun-desc" class="sr-only" data-i18n="controls.dryRunDesc"
+                        >When enabled, simulates unfollowing without making changes</span
+                    >
+                    <button id="resetBtn" class="btn btn-ghost" type="button" data-i18n-aria="aria.resetButton">
+                        <span data-i18n="buttons.reset">İstatistikleri sıfırla</span>
+                    </button>
+                </div>
+
+                <!-- Primary action — full width -->
+                <div class="controls" role="group" aria-label="Main controls">
+                    <button id="startBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.startButton">
+                        ▶ <span data-i18n="buttons.start">Adayları tara</span>
+                    </button>
+                    <button
+                        id="stopBtn"
+                        class="btn btn-danger"
+                        style="display: none"
+                        type="button"
+                        data-i18n-aria="aria.stopButton"
+                    >
+                        ■ <span data-i18n="buttons.stop">Durdur</span>
+                    </button>
+                </div>
+
+                <section id="candidatePanel" class="candidate-panel" hidden aria-labelledby="candidateTitle">
+                    <div class="candidate-header">
+                        <h3 id="candidateTitle" data-i18n="candidates.title">Aday Önizleme</h3>
+                        <span id="candidateCount">0</span>
+                    </div>
+                    <p id="candidateHint" class="candidate-hint" data-i18n="candidates.hint">
+                        İşlem yapılacak hesapları seçin.
+                    </p>
+                    <div class="candidate-actions">
+                        <button
+                            id="selectAllCandidatesBtn"
+                            type="button"
+                            class="btn btn-ghost"
+                            data-i18n="candidates.selectAll"
+                        >
+                            Tümünü seç
+                        </button>
+                        <button
+                            id="clearCandidateSelectionBtn"
+                            type="button"
+                            class="btn btn-ghost"
+                            data-i18n="candidates.clearSelection"
+                        >
+                            Seçimi kaldır
+                        </button>
+                    </div>
+                    <ul id="candidateList" class="candidate-list" role="list"></ul>
+                    <button id="executeSelectedBtn" class="btn btn-success candidate-execute" type="button" disabled>
+                        <span data-i18n="candidates.execute">Seçilenleri işle</span> (<span id="selectedCandidateCount"
+                            >0</span
+                        >)
+                    </button>
+                </section>
+
+                <!-- Undo — full width, only shown when items available -->
+                <div class="controls-undo">
+                    <button
+                        id="undoBtn"
+                        class="btn"
+                        style="display: none"
+                        type="button"
+                        data-i18n-aria="aria.undoButton"
+                    >
+                        ↗ <span data-i18n="buttons.undo">Profili aç</span> (<span id="undoCount" aria-hidden="true"
+                            >0</span
+                        >)
+                    </button>
+                </div>
+
+                <section class="run-summary" aria-labelledby="runSummaryTitle">
+                    <h3 id="runSummaryTitle" data-i18n="runSummary.title">Son Çalışma Özeti</h3>
+                    <div class="run-summary-grid">
+                        <div><span id="runRealCount">0</span><small data-i18n="runSummary.real">Gerçek</small></div>
+                        <div><span id="runDryCount">0</span><small data-i18n="runSummary.dryRun">Dry run</small></div>
+                        <div>
+                            <span id="runSkippedCount">0</span><small data-i18n="runSummary.skipped">Atlanan</small>
+                        </div>
+                        <div>
+                            <span id="runFailedCount">0</span><small data-i18n="runSummary.failed">Başarısız</small>
                         </div>
                     </div>
-                    <button id="themeToggle" class="theme-toggle" type="button" role="button" aria-label="Toggle theme"
-                        aria-pressed="false" data-i18n-aria="aria.themeToggle" title="Dark Mode">🌙</button>
-                </div>
-            </div>
-            <p class="subtitle" data-i18n="app.subtitle">Adayları tara, seç ve onaylayarak işle</p>
-            <div class="trust-row" role="note" aria-label="Product highlights">
-                <span class="trust-pill" data-i18n="trust.worksOnFollowing">Works on Following</span>
-                <span class="trust-pill" data-i18n="trust.rateLimitSafe">Controlled pacing</span>
-                <span class="trust-pill" data-i18n="trust.dryRun">Dry run</span>
-            </div>
-        </header>
+                </section>
 
-        <!-- Tabs -->
-        <div class="tabs" role="tablist" aria-label="Extension sections">
-            <button class="tab-btn active" data-tab="main" data-i18n="tabs.main" role="tab" id="tab-main"
-                aria-selected="true" aria-controls="main-tab" tabindex="0">Ana</button>
-            <button class="tab-btn" data-tab="filters" data-i18n="tabs.filters" role="tab" id="tab-filters"
-                aria-selected="false" aria-controls="filters-tab" tabindex="-1">Filtreler</button>
-            <button class="tab-btn" data-tab="stats" data-i18n="tabs.stats" role="tab" id="tab-stats"
-                aria-selected="false" aria-controls="stats-tab" tabindex="-1">İstatistikler</button>
-        </div>
-
-        <!-- Main Tab -->
-        <div class="tab-content active" id="main-tab" role="tabpanel" aria-labelledby="tab-main" tabindex="0">
-            <!-- Stats Cards -->
-            <div class="stats" role="region" aria-label="Statistics">
-                <div class="stat-item">
-                    <span class="stat-label" data-i18n="stats.dailyLimit">24 Saatlik Limit</span>
-                    <span class="stat-value" id="sessionCount" aria-live="polite">0/50</span>
+                <!-- Real-time User List -->
+                <div class="user-list-container" aria-labelledby="userListTitle">
+                    <h3 id="userListTitle">
+                        <span data-i18n="userList.title">İşlenen Kullanıcılar</span>
+                        <span id="runStatusBadge" class="run-status-badge"></span>
+                    </h3>
+                    <ul
+                        class="user-list"
+                        id="userList"
+                        role="list"
+                        aria-live="polite"
+                        aria-label="Processed users"
+                    ></ul>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label" data-i18n="stats.totalUnfollowed">Toplam Çıkarılan</span>
-                    <span class="stat-value" id="totalCount" aria-live="polite">0</span>
+
+                <div class="info">
+                    <p class="last-run">
+                        <span data-i18n="info.lastRun">Son çalıştırma</span>: <span id="lastRun">-</span>
+                    </p>
                 </div>
             </div>
 
-            <!-- Status Bar -->
-            <div class="status-bar" role="status" aria-live="polite">
-                <span class="status-indicator" id="statusIndicator" aria-hidden="true"></span>
-                <span id="statusText" data-i18n="status.ready">Hazır</span>
-            </div>
-
-            <!-- License expired banner -->
-            <div id="licenseExpiredBanner" class="license-expired-banner" style="display:none;" role="alert">
-                <div class="expired-banner-text">
-                    <strong data-i18n="license.expiredTitle">License Expired</strong>
-                    <span data-i18n="license.expiredDesc">Renew to keep Pro features.</span>
-                </div>
-                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
-                    class="btn btn-upgrade btn-upgrade-sm" data-i18n="license.renewNow">Renew</a>
-            </div>
-
-            <!-- Expiry warning banner — shown when <= 14 days remain -->
-            <div id="licenseExpirySoonBanner" class="license-expiry-soon-banner" style="display:none;" role="note">
-                <span id="licenseExpirySoonText" data-i18n="license.expiresSoon">License expires soon</span>
-                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
-                    class="btn-link" data-i18n="license.renewNow">Renew</a>
-            </div>
-
-            <!-- Upgrade CTA — shown only on free plan -->
-            <div id="upgradeCta" class="upgrade-cta" style="display:none;" role="note">
-                <div class="upgrade-cta-text">
-                    <strong data-i18n="pro.upgradeTitle">Upgrade to Pro</strong>
-                    <span data-i18n="pro.upgradeDesc">500/day limit + CSV export</span>
-                </div>
-                <button id="showLicenseBtn" class="btn btn-upgrade" type="button" data-i18n="pro.upgradeCta">Activate</button>
-            </div>
-
-            <!-- Alerts -->
-            <div id="testModeAlert" class="alert alert-warning" style="display: none;" role="alert"
-                aria-live="assertive">
-                <p><strong>⚠️ <span data-i18n="alerts.batchComplete">Batch Tamamlandı</span></strong></p>
-                <p data-i18n="alerts.batchCompleteDesc">50 kişi takipten çıkarıldı. Devam etmek istiyor musunuz?</p>
-                <button id="continueBtn" class="btn btn-success" type="button" data-i18n-aria="aria.continueButton">✓
-                    <span data-i18n="buttons.continue">Devam Et (50 kişi
-                        daha)</span></button>
-            </div>
-
-            <div id="rateLimitAlert" class="alert alert-danger" style="display: none;" role="alert"
-                aria-live="assertive">
-                <p><strong>🚫 <span data-i18n="alerts.rateLimit">Rate Limit!</span></strong></p>
-                <p id="rateLimitText" data-i18n="alerts.rateLimitDesc">Twitter tarafından hız sınırına takıldınız.</p>
-                <p id="rateLimitCountdown" style="font-weight: bold;" aria-live="polite">--</p>
-            </div>
-
-            <div id="limitReachedAlert" class="alert alert-info" style="display: none;" role="alert"
-                aria-live="assertive">
-                <p><strong>✋ <span data-i18n="alerts.dailyLimitReached">24 Saatlik Limit Doldu</span></strong></p>
-                <p data-i18n="alerts.dailyLimitDesc">Günlük plan limitinize ulaştınız. Güvenlik penceresi dolana kadar
-                    beklemeniz gerekiyor.</p>
-            </div>
-
-            <!-- Controls: Dry run + Reset on same row -->
-            <div class="control-row">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="dryRunMode" aria-describedby="dryrun-desc">
-                    <span data-i18n="controls.dryRunMode">Dry Run Mode (Test)</span>
-                </label>
-                <span id="dryrun-desc" class="sr-only" data-i18n="controls.dryRunDesc">When enabled, simulates unfollowing without making changes</span>
-                <button id="resetBtn" class="btn btn-ghost" type="button" data-i18n-aria="aria.resetButton">
-                    <span data-i18n="buttons.reset">İstatistikleri sıfırla</span>
-                </button>
-            </div>
-
-            <!-- Primary action — full width -->
-            <div class="controls" role="group" aria-label="Main controls">
-                <button id="startBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.startButton">▶ <span
-                        data-i18n="buttons.start">Adayları tara</span></button>
-                <button id="stopBtn" class="btn btn-danger" style="display: none;" type="button"
-                    data-i18n-aria="aria.stopButton">■ <span data-i18n="buttons.stop">Durdur</span></button>
-            </div>
-
-            <section id="candidatePanel" class="candidate-panel" hidden aria-labelledby="candidateTitle">
-                <div class="candidate-header">
-                    <h3 id="candidateTitle" data-i18n="candidates.title">Aday Önizleme</h3>
-                    <span id="candidateCount">0</span>
-                </div>
-                <p id="candidateHint" class="candidate-hint" data-i18n="candidates.hint">İşlem yapılacak hesapları seçin.</p>
-                <div class="candidate-actions">
-                    <button id="selectAllCandidatesBtn" type="button" class="btn btn-ghost" data-i18n="candidates.selectAll">Tümünü seç</button>
-                    <button id="clearCandidateSelectionBtn" type="button" class="btn btn-ghost" data-i18n="candidates.clearSelection">Seçimi kaldır</button>
-                </div>
-                <ul id="candidateList" class="candidate-list" role="list"></ul>
-                <button id="executeSelectedBtn" class="btn btn-success candidate-execute" type="button" disabled>
-                    <span data-i18n="candidates.execute">Seçilenleri işle</span> (<span id="selectedCandidateCount">0</span>)
-                </button>
-            </section>
-
-            <!-- Undo — full width, only shown when items available -->
-            <div class="controls-undo">
-                <button id="undoBtn" class="btn" style="display: none;" type="button"
-                    data-i18n-aria="aria.undoButton">↗ <span data-i18n="buttons.undo">Profili aç</span> (<span
-                        id="undoCount" aria-hidden="true">0</span>)</button>
-            </div>
-
-            <section class="run-summary" aria-labelledby="runSummaryTitle">
-                <h3 id="runSummaryTitle" data-i18n="runSummary.title">Son Çalışma Özeti</h3>
-                <div class="run-summary-grid">
-                    <div><span id="runRealCount">0</span><small data-i18n="runSummary.real">Gerçek</small></div>
-                    <div><span id="runDryCount">0</span><small data-i18n="runSummary.dryRun">Dry run</small></div>
-                    <div><span id="runSkippedCount">0</span><small data-i18n="runSummary.skipped">Atlanan</small></div>
-                    <div><span id="runFailedCount">0</span><small data-i18n="runSummary.failed">Başarısız</small></div>
-                </div>
-            </section>
-
-            <!-- Real-time User List -->
-            <div class="user-list-container" aria-labelledby="userListTitle">
-                <h3 id="userListTitle"><span data-i18n="userList.title">İşlenen Kullanıcılar</span>
-                    <span id="runStatusBadge" class="run-status-badge"></span>
-                </h3>
-                <ul class="user-list" id="userList" role="list" aria-live="polite" aria-label="Processed users"></ul>
-            </div>
-
-            <div class="info">
-                <p class="last-run"><span data-i18n="info.lastRun">Son çalıştırma</span>: <span id="lastRun">-</span>
-                </p>
-            </div>
-        </div>
-
-        <!-- Filters Tab -->
-        <div class="tab-content" id="filters-tab" role="tabpanel" aria-labelledby="filtersTabBtn" hidden>
-            <!-- Keywords Section -->
-            <section class="filter-section" aria-labelledby="keywordsTitle">
-                <h3 id="keywordsTitle">🔍 <span data-i18n="filters.keywordsTitle">Anahtar Kelimeler</span></h3>
-                <p class="filter-desc" data-i18n="filters.keywordsDesc">Bu kelimeleri içeren kullanıcılar atlanacak</p>
-                <div class="input-group" role="group" aria-label="Add keyword">
-                    <input type="text" id="keywordInput" data-i18n-placeholder="filters.keywordsPlaceholder"
-                        data-i18n-aria="aria.keywordInput" placeholder="Örn: crypto, nft, bot">
-                    <button id="addKeywordBtn" class="btn btn-primary" type="button"
-                        data-i18n="buttons.addKeyword">Ekle</button>
-                </div>
-                <ul class="filter-list" id="keywordList" role="list" aria-label="Keyword filter list"></ul>
-            </section>
-
-            <!-- Whitelist Section -->
-            <section class="filter-section" aria-labelledby="whitelistTitle">
-                <h3 id="whitelistTitle">⭐ <span data-i18n="filters.whitelistTitle">Whitelist</span></h3>
-                <p class="filter-desc" data-i18n="filters.whitelistDesc">Bu kullanıcılar asla takipten çıkarılmayacak
-                </p>
-                <div class="input-group" role="group" aria-label="Add to whitelist">
-                    <input type="text" id="whitelistInput" data-i18n-placeholder="filters.whitelistPlaceholder"
-                        data-i18n-aria="aria.whitelistInput" placeholder="@kullaniciadi">
-                    <button id="addWhitelistBtn" class="btn btn-primary" type="button"
-                        data-i18n="buttons.addUser">Ekle</button>
-                </div>
-                <ul class="filter-list" id="whitelistList" role="list" aria-label="Whitelist"></ul>
-            </section>
-        </div>
-
-        <!-- Stats Tab -->
-        <div class="tab-content" id="stats-tab" role="tabpanel" aria-labelledby="statsTabBtn" hidden>
-            <section class="stats-section" aria-labelledby="statsTitle">
-                <h3 id="statsTitle">📊 <span data-i18n="statsTab.last30Days">Son 30 Gün</span></h3>
-                <div id="statsEmptyState" class="empty-state" style="display:none;" role="note" aria-live="polite">
-                    <p class="empty-title" data-i18n="statsTab.emptyTitle">No stats yet</p>
-                    <p class="empty-desc" data-i18n="statsTab.emptyDesc">Run once to see your last 30 days chart.</p>
-                </div>
-                <div class="ct-chart" id="chart" role="img" aria-label="Unfollow statistics chart for last 30 days"></div>
-                <div class="pro-gate" id="csvProGate">
-                    <button id="exportCsvBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.exportCsvButton">📥
-                        <span data-i18n="buttons.exportCsv">CSV İndir</span></button>
-                    <div id="csvLockOverlay" class="csv-lock-overlay" style="display:none;" role="note" aria-label="Pro feature">
-                        <span class="lock-icon">🔒</span>
-                        <span data-i18n="features.csvLocked">Pro özelliği</span>
-                        <button id="csvUpgradeBtn" class="btn btn-upgrade btn-upgrade-sm" type="button" data-i18n="pro.upgradeCta">Activate</button>
+            <!-- Filters Tab -->
+            <div class="tab-content" id="filters-tab" role="tabpanel" aria-labelledby="filtersTabBtn" hidden>
+                <!-- Keywords Section -->
+                <section class="filter-section" aria-labelledby="keywordsTitle">
+                    <h3 id="keywordsTitle">🔍 <span data-i18n="filters.keywordsTitle">Anahtar Kelimeler</span></h3>
+                    <p class="filter-desc" data-i18n="filters.keywordsDesc">
+                        Bu kelimeleri içeren kullanıcılar atlanacak
+                    </p>
+                    <div class="input-group" role="group" aria-label="Add keyword">
+                        <input
+                            type="text"
+                            id="keywordInput"
+                            data-i18n-placeholder="filters.keywordsPlaceholder"
+                            data-i18n-aria="aria.keywordInput"
+                            placeholder="Örn: crypto, nft, bot"
+                        />
+                        <button id="addKeywordBtn" class="btn btn-primary" type="button" data-i18n="buttons.addKeyword">
+                            Ekle
+                        </button>
                     </div>
+                    <ul class="filter-list" id="keywordList" role="list" aria-label="Keyword filter list"></ul>
+                </section>
+
+                <!-- Whitelist Section -->
+                <section class="filter-section" aria-labelledby="whitelistTitle">
+                    <h3 id="whitelistTitle">⭐ <span data-i18n="filters.whitelistTitle">Whitelist</span></h3>
+                    <p class="filter-desc" data-i18n="filters.whitelistDesc">
+                        Bu kullanıcılar asla takipten çıkarılmayacak
+                    </p>
+                    <div class="input-group" role="group" aria-label="Add to whitelist">
+                        <input
+                            type="text"
+                            id="whitelistInput"
+                            data-i18n-placeholder="filters.whitelistPlaceholder"
+                            data-i18n-aria="aria.whitelistInput"
+                            placeholder="@kullaniciadi"
+                        />
+                        <button id="addWhitelistBtn" class="btn btn-primary" type="button" data-i18n="buttons.addUser">
+                            Ekle
+                        </button>
+                    </div>
+                    <ul class="filter-list" id="whitelistList" role="list" aria-label="Whitelist"></ul>
+                </section>
+            </div>
+
+            <!-- Stats Tab -->
+            <div class="tab-content" id="stats-tab" role="tabpanel" aria-labelledby="statsTabBtn" hidden>
+                <section class="stats-section" aria-labelledby="statsTitle">
+                    <h3 id="statsTitle">📊 <span data-i18n="statsTab.last30Days">Son 30 Gün</span></h3>
+                    <div id="statsEmptyState" class="empty-state" style="display: none" role="note" aria-live="polite">
+                        <p class="empty-title" data-i18n="statsTab.emptyTitle">No stats yet</p>
+                        <p class="empty-desc" data-i18n="statsTab.emptyDesc">
+                            Run once to see your last 30 days chart.
+                        </p>
+                    </div>
+                    <div
+                        class="ct-chart"
+                        id="chart"
+                        role="img"
+                        aria-label="Unfollow statistics chart for last 30 days"
+                    ></div>
+                    <div class="pro-gate" id="csvProGate">
+                        <button
+                            id="exportCsvBtn"
+                            class="btn btn-primary"
+                            type="button"
+                            data-i18n-aria="aria.exportCsvButton"
+                        >
+                            📥 <span data-i18n="buttons.exportCsv">CSV İndir</span>
+                        </button>
+                        <div
+                            id="csvLockOverlay"
+                            class="csv-lock-overlay"
+                            style="display: none"
+                            role="note"
+                            aria-label="Pro feature"
+                        >
+                            <span class="lock-icon">🔒</span>
+                            <span data-i18n="features.csvLocked">Pro özelliği</span>
+                            <button
+                                id="csvUpgradeBtn"
+                                class="btn btn-upgrade btn-upgrade-sm"
+                                type="button"
+                                data-i18n="pro.upgradeCta"
+                            >
+                                Activate
+                            </button>
+                        </div>
+                    </div>
+                    <p class="hint" data-i18n="statsTab.exportHint">Download your unfollow history as CSV.</p>
+                </section>
+            </div>
+
+            <!-- License Activation Section -->
+            <section
+                id="licenseSection"
+                class="license-section"
+                aria-labelledby="licenseSectionTitle"
+                style="display: none"
+            >
+                <h3 id="licenseSectionTitle" data-i18n="license.sectionTitle">Activate Pro</h3>
+                <div
+                    id="licenseActivated"
+                    class="license-activated"
+                    style="display: none"
+                    role="status"
+                    aria-live="polite"
+                >
+                    ✓ <span data-i18n="license.activated">Pro license is active</span>
+                    <span id="licenseDaysRemaining" class="license-days-remaining"></span>
+                    <button
+                        id="deactivateLicenseBtn"
+                        class="btn btn-ghost btn-sm"
+                        type="button"
+                        data-i18n="license.deactivate"
+                    >
+                        Remove
+                    </button>
                 </div>
-                <p class="hint" data-i18n="statsTab.exportHint">Download your unfollow history as CSV.</p>
+                <div id="licenseExpiredNotice" class="license-expired-notice" style="display: none" role="alert">
+                    ✕ <span data-i18n="license.expiredTitle">License Expired</span>
+                    <a
+                        href="https://cayliverse.gumroad.com/l/vvbndt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-upgrade btn-upgrade-sm"
+                        data-i18n="license.renewNow"
+                        >Renew</a
+                    >
+                </div>
+                <div id="licenseForm">
+                    <a
+                        id="buyProBtn"
+                        class="btn btn-upgrade btn-buy"
+                        href="https://cayliverse.gumroad.com/l/vvbndt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-i18n="license.buyNow"
+                        >🛒 Buy Pro on Gumroad</a
+                    >
+                    <p class="license-already-have" data-i18n="license.alreadyHave">Already have a license key?</p>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="licenseKeyInput"
+                            data-i18n-placeholder="license.inputPlaceholder"
+                            placeholder="XXXX-XXXX-XXXX-XXXX"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+                        <button
+                            id="activateLicenseBtn"
+                            class="btn btn-primary"
+                            type="button"
+                            data-i18n="license.activate"
+                        >
+                            Activate
+                        </button>
+                    </div>
+                    <p
+                        id="licenseError"
+                        class="license-error"
+                        style="display: none"
+                        role="alert"
+                        aria-live="assertive"
+                    ></p>
+                </div>
             </section>
+
+            <!-- Footer Info -->
+            <aside class="footer-info" role="note" aria-label="Requirements and safety">
+                <div class="info-card">
+                    <p class="info-title">✅ <span data-i18n="footer.requirementsTitle">Requirements</span></p>
+                    <ul>
+                        <li data-i18n="footer.requirement1">Open X → Following page</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <p class="info-title">🛡️ <span data-i18n="footer.safetyTitle">Safety</span></p>
+                    <ul>
+                        <li data-i18n="footer.safety1">2–5s delay between actions</li>
+                        <li data-i18n="footer.safety2">Pro: confirmation after the first 50 real actions</li>
+                        <li data-i18n="footer.safety3">Free: 50 / Pro: 500 users per 24 hours</li>
+                    </ul>
+                </div>
+                <button
+                    id="deleteAllDataBtn"
+                    class="btn btn-ghost data-delete-btn"
+                    type="button"
+                    data-i18n-aria="aria.deleteAllDataButton"
+                >
+                    <span data-i18n="buttons.deleteAllData">Tüm yerel verileri sil</span>
+                </button>
+            </aside>
         </div>
 
-        <!-- License Activation Section -->
-        <section id="licenseSection" class="license-section" aria-labelledby="licenseSectionTitle" style="display:none;">
-            <h3 id="licenseSectionTitle" data-i18n="license.sectionTitle">Activate Pro</h3>
-            <div id="licenseActivated" class="license-activated" style="display:none;" role="status" aria-live="polite">
-                ✓ <span data-i18n="license.activated">Pro license is active</span>
-                <span id="licenseDaysRemaining" class="license-days-remaining"></span>
-                <button id="deactivateLicenseBtn" class="btn btn-ghost btn-sm" type="button" data-i18n="license.deactivate">Remove</button>
-            </div>
-            <div id="licenseExpiredNotice" class="license-expired-notice" style="display:none;" role="alert">
-                ✕ <span data-i18n="license.expiredTitle">License Expired</span>
-                <a href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer"
-                    class="btn btn-upgrade btn-upgrade-sm" data-i18n="license.renewNow">Renew</a>
-            </div>
-            <div id="licenseForm">
-                <a id="buyProBtn" class="btn btn-upgrade btn-buy" href="https://cayliverse.gumroad.com/l/vvbndt" target="_blank" rel="noopener noreferrer" data-i18n="license.buyNow">🛒 Buy Pro on Gumroad</a>
-                <p class="license-already-have" data-i18n="license.alreadyHave">Already have a license key?</p>
-                <div class="input-group">
-                    <input type="text" id="licenseKeyInput" data-i18n-placeholder="license.inputPlaceholder"
-                        placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
-                    <button id="activateLicenseBtn" class="btn btn-primary" type="button" data-i18n="license.activate">Activate</button>
-                </div>
-                <p id="licenseError" class="license-error" style="display:none;" role="alert" aria-live="assertive"></p>
-            </div>
-        </section>
-
-        <!-- Footer Info -->
-        <aside class="footer-info" role="note" aria-label="Requirements and safety">
-            <div class="info-card">
-                <p class="info-title">✅ <span data-i18n="footer.requirementsTitle">Requirements</span></p>
-                <ul>
-                    <li data-i18n="footer.requirement1">Open X → Following page</li>
-                </ul>
-            </div>
-            <div class="info-card">
-                <p class="info-title">🛡️ <span data-i18n="footer.safetyTitle">Safety</span></p>
-                <ul>
-                    <li data-i18n="footer.safety1">2–5s delay between actions</li>
-                    <li data-i18n="footer.safety2">Pro: confirmation after the first 50 real actions</li>
-                    <li data-i18n="footer.safety3">Free: 50 / Pro: 500 users per 24 hours</li>
-                </ul>
-            </div>
-            <button id="deleteAllDataBtn" class="btn btn-ghost data-delete-btn" type="button"
-                data-i18n-aria="aria.deleteAllDataButton">
-                <span data-i18n="buttons.deleteAllData">Tüm yerel verileri sil</span>
-            </button>
-        </aside>
-    </div>
-
-    <script src="../../vendor/chartist.min.js"></script>
-    <script src="../shared/constants.js"></script>
-    <script src="../shared/csv.js"></script>
-    <script src="../shared/safety-window.js"></script>
-    <script src="../shared/run-state.js"></script>
-    <script src="../shared/candidates.js"></script>
-    <script src="../shared/i18n.js"></script>
-    <script src="popup.js"></script>
-</body>
-
+        <script src="../../vendor/chartist.min.js"></script>
+        <script src="../shared/constants.js"></script>
+        <script src="../shared/csv.js"></script>
+        <script src="../shared/safety-window.js"></script>
+        <script src="../shared/run-state.js"></script>
+        <script src="../shared/candidates.js"></script>
+        <script src="../shared/i18n.js"></script>
+        <script src="popup.js"></script>
+    </body>
 </html>

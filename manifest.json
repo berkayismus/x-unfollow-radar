@@ -1,48 +1,39 @@
 {
-  "manifest_version": 3,
-  "name": "X Unfollow Radar",
-  "version": "2.0.3",
-  "description": "Seni takip etmeyen adaylar\u0131 bulur ve yaln\u0131zca a\u00e7\u0131k onay\u0131ndan sonra se\u00e7tiklerini i\u015fler",
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://twitter.com/*",
-    "https://x.com/*",
-    "*://api.gumroad.com/*"
-  ],
-  "icons": {
-    "16": "assets/icons/icon16.png",
-    "48": "assets/icons/icon48.png",
-    "128": "assets/icons/icon128.png"
-  },
-  "action": {
-    "default_popup": "src/popup/popup.html",
-    "default_icon": {
-      "16": "assets/icons/icon16.png",
-      "48": "assets/icons/icon48.png",
-      "128": "assets/icons/icon128.png"
+    "manifest_version": 3,
+    "name": "X Unfollow Radar",
+    "version": "2.0.3",
+    "description": "Seni takip etmeyen adaylar\u0131 bulur ve yaln\u0131zca a\u00e7\u0131k onay\u0131ndan sonra se\u00e7tiklerini i\u015fler",
+    "permissions": ["storage", "activeTab"],
+    "host_permissions": ["https://twitter.com/*", "https://x.com/*", "*://api.gumroad.com/*"],
+    "icons": {
+        "16": "assets/icons/icon16.png",
+        "48": "assets/icons/icon48.png",
+        "128": "assets/icons/icon128.png"
+    },
+    "action": {
+        "default_popup": "src/popup/popup.html",
+        "default_icon": {
+            "16": "assets/icons/icon16.png",
+            "48": "assets/icons/icon48.png",
+            "128": "assets/icons/icon128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://twitter.com/*/following", "https://x.com/*/following"],
+            "js": [
+                "src/shared/constants.js",
+                "src/shared/dom.js",
+                "src/shared/user-detection.js",
+                "src/shared/safety-window.js",
+                "src/shared/run-state.js",
+                "src/shared/candidates.js",
+                "src/content/index.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "background": {
+        "service_worker": "src/background/index.js"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://twitter.com/*/following",
-        "https://x.com/*/following"
-      ],
-      "js": [
-        "src/shared/constants.js",
-        "src/shared/dom.js",
-        "src/shared/safety-window.js",
-        "src/shared/run-state.js",
-        "src/shared/candidates.js",
-        "src/content/index.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ],
-  "background": {
-    "service_worker": "src/background/index.js"
-  }
 }

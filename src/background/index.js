@@ -64,7 +64,7 @@ const XUnfollowRadarBackground = (function () {
                 return {
                     success: false,
                     plan: null,
-                    error: response.status === 404 ? 'invalid_key' : (data.message || 'verification_failed')
+                    error: response.status === 404 ? 'invalid_key' : data.message || 'verification_failed'
                 };
             }
 
@@ -106,9 +106,8 @@ const XUnfollowRadarBackground = (function () {
         if (purchase.chargebacked) return 'chargebacked';
         if (purchase.disputed && !purchase.dispute_won) return 'disputed';
 
-        const endedAt = purchase.subscription_ended_at ||
-            purchase.subscription_cancelled_at ||
-            purchase.subscription_failed_at;
+        const endedAt =
+            purchase.subscription_ended_at || purchase.subscription_cancelled_at || purchase.subscription_failed_at;
         if (endedAt) {
             const endTimestamp = Date.parse(endedAt);
             if (!Number.isFinite(endTimestamp) || endTimestamp <= Date.now()) {
@@ -174,8 +173,8 @@ const XUnfollowRadarBackground = (function () {
                 verificationStatus = 'expired';
                 await chrome.storage.local.set({ plan });
             } else {
-                const verificationDue = !lastVerifiedAt ||
-                    (now - lastVerifiedAt) >= SharedConstants.GUMROAD.VERIFY_INTERVAL_MS;
+                const verificationDue =
+                    !lastVerifiedAt || now - lastVerifiedAt >= SharedConstants.GUMROAD.VERIFY_INTERVAL_MS;
 
                 if (verificationDue && data.licenseKey) {
                     const verification = await verifyLicenseWithGumroad(data.licenseKey);
@@ -189,8 +188,8 @@ const XUnfollowRadarBackground = (function () {
                             licenseLastVerifiedAt: now
                         });
                     } else if (verification.error === 'network_error') {
-                        const withinGrace = lastVerifiedAt &&
-                            (now - lastVerifiedAt) <= SharedConstants.GUMROAD.OFFLINE_GRACE_MS;
+                        const withinGrace =
+                            lastVerifiedAt && now - lastVerifiedAt <= SharedConstants.GUMROAD.OFFLINE_GRACE_MS;
                         verificationStatus = withinGrace ? 'offline_grace' : 'verification_required';
                         if (!withinGrace) plan = SharedConstants.PLANS.FREE;
                     } else {

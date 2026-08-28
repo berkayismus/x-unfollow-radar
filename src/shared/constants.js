@@ -308,9 +308,7 @@ const Constants = (function () {
      * @returns {number}
      */
     function getSessionLimit(plan) {
-        return plan === PLANS.PRO
-            ? LIMITS.PRO_MAX_SESSION
-            : LIMITS.FREE_MAX_SESSION;
+        return plan === PLANS.PRO ? LIMITS.PRO_MAX_SESSION : LIMITS.FREE_MAX_SESSION;
     }
 
     // ═══════════════════════════════════════════════════════════════

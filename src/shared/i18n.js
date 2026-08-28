@@ -73,7 +73,7 @@ const I18n = (function () {
      */
     function applyTranslations() {
         // Translate elements with data-i18n attribute (textContent)
-        document.querySelectorAll('[data-i18n]').forEach(element => {
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
             const key = element.getAttribute('data-i18n');
             const translation = t(key);
 
@@ -83,7 +83,7 @@ const I18n = (function () {
         });
 
         // Translate placeholders
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
             const key = element.getAttribute('data-i18n-placeholder');
             const translation = t(key);
 
@@ -93,7 +93,7 @@ const I18n = (function () {
         });
 
         // Translate titles
-        document.querySelectorAll('[data-i18n-title]').forEach(element => {
+        document.querySelectorAll('[data-i18n-title]').forEach((element) => {
             const key = element.getAttribute('data-i18n-title');
             const translation = t(key);
 
@@ -103,7 +103,7 @@ const I18n = (function () {
         });
 
         // Translate ARIA labels
-        document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+        document.querySelectorAll('[data-i18n-aria]').forEach((element) => {
             const key = element.getAttribute('data-i18n-aria');
             const translation = t(key);
 
@@ -220,7 +220,7 @@ const I18n = (function () {
 
         // Replace placeholders like {count}
         if (typeof value === 'string') {
-            Object.keys(replacements).forEach(placeholder => {
+            Object.keys(replacements).forEach((placeholder) => {
                 const regex = new RegExp(`{${placeholder}}`, 'g');
                 value = value.replace(regex, replacements[placeholder]);
             });

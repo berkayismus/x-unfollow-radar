@@ -26,9 +26,7 @@ const CsvUtils = (function () {
      * @returns {string}
      */
     function serialize(rows) {
-        return rows
-            .map(row => row.map(escapeField).join(','))
-            .join('\r\n');
+        return rows.map((row) => row.map(escapeField).join(',')).join('\r\n');
     }
 
     return Object.freeze({ escapeField, serialize });

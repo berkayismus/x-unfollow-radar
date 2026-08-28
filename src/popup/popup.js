@@ -174,14 +174,14 @@ const XUnfollowRadarPopup = (function () {
      * @returns {void}
      */
     function switchTab(tabName) {
-        elements.tabBtns.forEach(btn => {
+        elements.tabBtns.forEach((btn) => {
             const isActive = btn.dataset.tab === tabName;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-selected', isActive);
             btn.setAttribute('tabindex', isActive ? '0' : '-1');
         });
 
-        elements.tabContents.forEach(content => {
+        elements.tabContents.forEach((content) => {
             const isActive = content.id === `${tabName}-tab`;
             content.classList.toggle('active', isActive);
             content.hidden = !isActive;
@@ -204,13 +204,14 @@ const XUnfollowRadarPopup = (function () {
     function handleTabKeyboard(e) {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             const tabs = Array.from(document.querySelectorAll('.tab-btn'));
-            const currentIndex = tabs.findIndex(t => t === document.activeElement);
+            const currentIndex = tabs.findIndex((t) => t === document.activeElement);
 
             if (currentIndex === -1) return;
 
-            const nextIndex = e.key === 'ArrowRight'
-                ? (currentIndex + 1) % tabs.length
-                : (currentIndex - 1 + tabs.length) % tabs.length;
+            const nextIndex =
+                e.key === 'ArrowRight'
+                    ? (currentIndex + 1) % tabs.length
+                    : (currentIndex - 1 + tabs.length) % tabs.length;
 
             tabs[nextIndex].focus();
             tabs[nextIndex].click();
@@ -268,9 +269,7 @@ const XUnfollowRadarPopup = (function () {
         elements.runDryCount.textContent = summary.dryRunSucceeded || 0;
         elements.runSkippedCount.textContent = summary.skipped || 0;
         elements.runFailedCount.textContent = summary.failed || 0;
-        elements.runStatusBadge.textContent = status
-            ? I18n.t(`runSummary.status.${status}`)
-            : '';
+        elements.runStatusBadge.textContent = status ? I18n.t(`runSummary.status.${status}`) : '';
     }
 
     function actionForRunItem(item) {
@@ -286,10 +285,10 @@ const XUnfollowRadarPopup = (function () {
     }
 
     function removeDisplayedUser(username) {
-        Array.from(elements.userList.querySelectorAll('li')).forEach(item => {
+        Array.from(elements.userList.querySelectorAll('li')).forEach((item) => {
             if (item.dataset.username === username) item.remove();
         });
-        Array.from(displayedUsers).forEach(key => {
+        Array.from(displayedUsers).forEach((key) => {
             if (key.startsWith(`${username}:`)) displayedUsers.delete(key);
         });
     }
@@ -305,12 +304,12 @@ const XUnfollowRadarPopup = (function () {
         displayedUsers.clear();
         if (!run) return;
 
-        const itemRecords = (run.items || []).map(item => ({
+        const itemRecords = (run.items || []).map((item) => ({
             username: item.username,
             action: actionForRunItem(item),
             timestamp: item.completedAt || item.attemptedAt || item.queuedAt
         }));
-        const skippedRecords = (run.skipped || []).map(item => ({
+        const skippedRecords = (run.skipped || []).map((item) => ({
             username: item.username,
             action: `skipped:${item.reason}`,
             timestamp: item.timestamp
@@ -363,13 +362,12 @@ const XUnfollowRadarPopup = (function () {
         let hint = I18n.t(statusKey, {
             count: candidateScan.candidates?.length || 0
         });
-        const excludedCount = (candidateScan.excluded?.whitelist || 0) +
-            (candidateScan.excluded?.keyword || 0);
+        const excludedCount = (candidateScan.excluded?.whitelist || 0) + (candidateScan.excluded?.keyword || 0);
         if (excludedCount > 0) hint += ` ${I18n.t('candidates.excluded', { count: excludedCount })}`;
         if (candidateScan.truncated) hint += ` ${I18n.t('candidates.truncated')}`;
         elements.candidateHint.textContent = hint;
 
-        (candidateScan.candidates || []).forEach(candidate => {
+        (candidateScan.candidates || []).forEach((candidate) => {
             const item = createElement('li');
             const checkbox = createElement('input', {
                 type: 'checkbox',
@@ -785,7 +783,7 @@ const XUnfollowRadarPopup = (function () {
         const limit = availableActionSlots();
         const usernames = candidateScan.candidates
             .slice(0, Number.isFinite(limit) ? limit : candidateScan.candidates.length)
-            .map(candidate => candidate.username);
+            .map((candidate) => candidate.username);
         CandidateUtils.setSelection(candidateScan, usernames);
         await persistCandidateSelection();
         renderCandidateScan();
@@ -888,7 +886,9 @@ const XUnfollowRadarPopup = (function () {
                 if (currentTab) {
                     await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.RESET_STATS });
                 }
-            } catch (_) { /* Content script may not be active. */ }
+            } catch (_) {
+                /* Content script may not be active. */
+            }
 
             elements.totalCount.textContent = '0';
             elements.lastRun.textContent = '-';
@@ -914,9 +914,11 @@ const XUnfollowRadarPopup = (function () {
             if (currentTab) {
                 await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.DELETE_ALL_DATA });
             }
-        } catch (_) { /* Content script may not be active. */ }
+        } catch (_) {
+            /* Content script may not be active. */
+        }
 
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise((resolve) => setTimeout(resolve, 250));
         await chrome.storage.local.clear();
         window.location.reload();
     }
@@ -1017,7 +1019,7 @@ const XUnfollowRadarPopup = (function () {
         const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.KEYWORDS]);
         const keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
 
-        const filtered = keywords.filter(k => k !== keyword);
+        const filtered = keywords.filter((k) => k !== keyword);
         await chrome.storage.local.set({ [Constants.STORAGE_KEYS.KEYWORDS]: filtered });
 
         try {
@@ -1040,17 +1042,21 @@ const XUnfollowRadarPopup = (function () {
     function renderKeywordList(keywords) {
         elements.keywordList.innerHTML = '';
 
-        keywords.forEach(keyword => {
+        keywords.forEach((keyword) => {
             const li = createElement('li');
 
             const span = createElement('span', {}, keyword);
             li.appendChild(span);
 
-            const removeBtn = createElement('button', {
-                className: 'remove-btn',
-                'aria-label': I18n.t('aria.removeKeyword', { keyword }),
-                dataset: { keyword }
-            }, '✕');
+            const removeBtn = createElement(
+                'button',
+                {
+                    className: 'remove-btn',
+                    'aria-label': I18n.t('aria.removeKeyword', { keyword }),
+                    dataset: { keyword }
+                },
+                '✕'
+            );
 
             removeBtn.addEventListener('click', () => handleRemoveKeyword(keyword));
             li.appendChild(removeBtn);
@@ -1129,17 +1135,21 @@ const XUnfollowRadarPopup = (function () {
     function renderWhitelistList(whitelist) {
         elements.whitelistList.innerHTML = '';
 
-        Object.keys(whitelist).forEach(username => {
+        Object.keys(whitelist).forEach((username) => {
             const li = createElement('li');
 
             const span = createElement('span', {}, `@${username}`);
             li.appendChild(span);
 
-            const removeBtn = createElement('button', {
-                className: 'remove-btn',
-                'aria-label': I18n.t('aria.removeWhitelist', { username }),
-                dataset: { username }
-            }, '✕');
+            const removeBtn = createElement(
+                'button',
+                {
+                    className: 'remove-btn',
+                    'aria-label': I18n.t('aria.removeWhitelist', { username }),
+                    dataset: { username }
+                },
+                '✕'
+            );
 
             removeBtn.addEventListener('click', () => handleRemoveWhitelist(username));
             li.appendChild(removeBtn);
@@ -1249,13 +1259,13 @@ const XUnfollowRadarPopup = (function () {
         const series = [];
 
         for (let i = Constants.LIMITS.CHART_DAYS - 1; i >= 0; i--) {
-            const date = new Date(Date.now() - (i * 24 * 60 * 60 * 1000));
+            const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
             const dateStr = date.toISOString().split('T')[0];
             labels.push(date.getDate() + '/' + (date.getMonth() + 1));
             series.push(stats.daily[dateStr]?.unfollowed || 0);
         }
 
-        const hasAnyData = series.some(v => v > 0);
+        const hasAnyData = series.some((v) => v > 0);
         if (elements.statsEmptyState) {
             elements.statsEmptyState.style.display = hasAnyData ? 'none' : 'block';
         }
@@ -1273,22 +1283,26 @@ const XUnfollowRadarPopup = (function () {
         if (chart) {
             chart.update({ labels, series: [series] });
         } else {
-            chart = new Chartist.Line(elements.chartContainer, {
-                labels,
-                series: [series]
-            }, {
-                fullWidth: true,
-                chartPadding: { right: 20 },
-                low: 0,
-                showArea: true,
-                axisX: {
-                    labelInterpolationFnc: function (value, index) {
-                        // Keep labels readable: show roughly weekly ticks
-                        const step = 7;
-                        return index % step === 0 ? value : null;
+            chart = new Chartist.Line(
+                elements.chartContainer,
+                {
+                    labels,
+                    series: [series]
+                },
+                {
+                    fullWidth: true,
+                    chartPadding: { right: 20 },
+                    low: 0,
+                    showArea: true,
+                    axisX: {
+                        labelInterpolationFnc: function (value, index) {
+                            // Keep labels readable: show roughly weekly ticks
+                            const step = 7;
+                            return index % step === 0 ? value : null;
+                        }
                     }
                 }
-            });
+            );
         }
     }
 
@@ -1308,11 +1322,7 @@ const XUnfollowRadarPopup = (function () {
 
         const rows = [
             ['Username', 'Date', 'Reason'],
-            ...history.map(item => [
-                item.username,
-                item.date,
-                item.reason
-            ])
+            ...history.map((item) => [item.username, item.date, item.reason])
         ];
         const csvContent = `\uFEFF${CsvUtils.serialize(rows)}`;
 
@@ -1356,9 +1366,8 @@ const XUnfollowRadarPopup = (function () {
         });
 
         // Check if user is already in whitelist
-        const data = knownWhitelist === null
-            ? await chrome.storage.local.get([Constants.STORAGE_KEYS.WHITELIST])
-            : null;
+        const data =
+            knownWhitelist === null ? await chrome.storage.local.get([Constants.STORAGE_KEYS.WHITELIST]) : null;
         const whitelist = knownWhitelist || data?.[Constants.STORAGE_KEYS.WHITELIST] || {};
         const cleanUsername = username.replace('@', '').toLowerCase();
         const isInWhitelist = !!whitelist[cleanUsername];
@@ -1398,11 +1407,15 @@ const XUnfollowRadarPopup = (function () {
         li.dataset.action = action;
 
         // Build the list item using DOM methods
-        const iconSpan = createElement('span', {
-            className: 'user-icon',
-            title: statusLabel,
-            'aria-label': statusLabel
-        }, icon);
+        const iconSpan = createElement(
+            'span',
+            {
+                className: 'user-icon',
+                title: statusLabel,
+                'aria-label': statusLabel
+            },
+            icon
+        );
         const nameSpan = createElement('span', { className: 'user-name' }, `@${username}`);
         const timeSpan = createElement('span', { className: 'user-time' }, time);
         const actionsDiv = createElement('div', { className: 'user-actions' });
@@ -1413,11 +1426,15 @@ const XUnfollowRadarPopup = (function () {
 
         // Add undo button for unfollowed users
         if (action === Constants.USER_ACTIONS.UNFOLLOWED) {
-            const undoBtn = createElement('button', {
-                className: 'action-btn undo-btn',
-                title: I18n.t('userList.undoBtn'),
-                'aria-label': I18n.t('aria.undoUser', { username })
-            }, '↶');
+            const undoBtn = createElement(
+                'button',
+                {
+                    className: 'action-btn undo-btn',
+                    title: I18n.t('userList.undoBtn'),
+                    'aria-label': I18n.t('aria.undoUser', { username })
+                },
+                '↶'
+            );
             undoBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 handleUndoSingleUser(username);
@@ -1427,11 +1444,15 @@ const XUnfollowRadarPopup = (function () {
 
         // Add whitelist button if not in whitelist
         if (!isInWhitelist) {
-            const whitelistBtn = createElement('button', {
-                className: 'action-btn whitelist-btn',
-                title: I18n.t('userList.addToWhitelist'),
-                'aria-label': I18n.t('aria.whitelistUser', { username })
-            }, '⭐');
+            const whitelistBtn = createElement(
+                'button',
+                {
+                    className: 'action-btn whitelist-btn',
+                    title: I18n.t('userList.addToWhitelist'),
+                    'aria-label': I18n.t('aria.whitelistUser', { username })
+                },
+                '⭐'
+            );
             whitelistBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 handleAddToWhitelistFromList(username, whitelistBtn);
@@ -1572,16 +1593,22 @@ const XUnfollowRadarPopup = (function () {
                 isRunning = false;
                 elements.startBtn.style.display = 'block';
                 elements.stopBtn.style.display = 'none';
-                updateStatus('ready', `✓ ${I18n.t('candidates.scanComplete', {
-                    count: data.candidateCount || 0
-                })}`);
+                updateStatus(
+                    'ready',
+                    `✓ ${I18n.t('candidates.scanComplete', {
+                        count: data.candidateCount || 0
+                    })}`
+                );
                 loadCandidateScan();
                 break;
             case Constants.STATUS.STARTED:
                 updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
                 break;
             case Constants.STATUS.SCANNING:
-                updateStatus('active', `🔍 ${I18n.t('status.scanning')}... (${data.queueSize || 0} ${I18n.t('aria.found')})`);
+                updateStatus(
+                    'active',
+                    `🔍 ${I18n.t('status.scanning')}... (${data.queueSize || 0} ${I18n.t('aria.found')})`
+                );
                 break;
             case Constants.STATUS.UNFOLLOWED:
                 const prefix = data.dryRun ? '[DRY RUN] ' : '';
@@ -1617,7 +1644,9 @@ const XUnfollowRadarPopup = (function () {
                 updateStatus('ready', `✓ ${I18n.t('status.ready')}`);
                 break;
             case Constants.STATUS.RATE_LIMIT:
-                handleRateLimitMessage({ remainingMinutes: data.remainingMinutes || Constants.TIMING.RATE_LIMIT_MINUTES });
+                handleRateLimitMessage({
+                    remainingMinutes: data.remainingMinutes || Constants.TIMING.RATE_LIMIT_MINUTES
+                });
                 break;
             case Constants.STATUS.RESUMED:
                 elements.rateLimitAlert.style.display = 'none';
@@ -1630,9 +1659,12 @@ const XUnfollowRadarPopup = (function () {
                 isRunning = false;
                 elements.startBtn.style.display = 'block';
                 elements.stopBtn.style.display = 'none';
-                updateStatus('stopped', `⚠️ ${I18n.t(
-                    data.reason === 'circuit_breaker' ? 'messages.tooManyFailures' : 'messages.operationFailed'
-                )}`);
+                updateStatus(
+                    'stopped',
+                    `⚠️ ${I18n.t(
+                        data.reason === 'circuit_breaker' ? 'messages.tooManyFailures' : 'messages.operationFailed'
+                    )}`
+                );
                 break;
         }
 
@@ -1761,7 +1793,7 @@ const XUnfollowRadarPopup = (function () {
      */
     function setupEventListeners() {
         // Tab switching with click
-        elements.tabBtns.forEach(btn => {
+        elements.tabBtns.forEach((btn) => {
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
@@ -1816,7 +1848,7 @@ const XUnfollowRadarPopup = (function () {
 
         // Language
         elements.langToggle.addEventListener('click', handleLanguageToggle);
-        elements.langOptions.forEach(option => {
+        elements.langOptions.forEach((option) => {
             option.addEventListener('click', handleLanguageSelect);
         });
 
@@ -1865,8 +1897,8 @@ const XUnfollowRadarPopup = (function () {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         currentTab = tabs[0];
 
-        const onTwitter = currentTab?.url &&
-            (currentTab.url.includes('twitter.com') || currentTab.url.includes('x.com'));
+        const onTwitter =
+            currentTab?.url && (currentTab.url.includes('twitter.com') || currentTab.url.includes('x.com'));
         const onFollowing = onTwitter && currentTab.url.includes('/following');
 
         if (!onTwitter) {

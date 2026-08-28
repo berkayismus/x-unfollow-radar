@@ -93,9 +93,6 @@ const XUnfollowRadarContent = (function () {
     /** @type {number|null} Timestamp when current operation started */
     let operationStartTime = null;
 
-    /** @type {number[]} Array of operation speeds for analytics */
-    let operationSpeeds = [];
-
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - Utilities
     // ═══════════════════════════════════════════════════════════════
@@ -113,10 +110,13 @@ const XUnfollowRadarContent = (function () {
                 return;
             }
 
-            const timeout = setTimeout(() => {
-                signal?.removeEventListener('abort', handleAbort);
-                resolve();
-            }, Math.floor(Math.random() * (max - min + 1)) + min);
+            const timeout = setTimeout(
+                () => {
+                    signal?.removeEventListener('abort', handleAbort);
+                    resolve();
+                },
+                Math.floor(Math.random() * (max - min + 1)) + min
+            );
 
             function handleAbort() {
                 clearTimeout(timeout);
@@ -156,13 +156,12 @@ const XUnfollowRadarContent = (function () {
         const storedTimestamps = data[Constants.STORAGE_KEYS.ACTION_TIMESTAMPS];
         const source = Array.isArray(storedTimestamps) ? storedTimestamps : actionTimestamps;
         const pruned = SafetyWindow.prune(source, now, Constants.TIMING.SESSION_DURATION);
-        const changed = pruned.length !== source.length ||
-            pruned.some((timestamp, index) => timestamp !== source[index]);
+        const changed =
+            pruned.length !== source.length || pruned.some((timestamp, index) => timestamp !== source[index]);
         actionTimestamps = pruned;
         sessionCount = actionTimestamps.length;
 
-        if (testComplete && testCompletedAt &&
-            (now - testCompletedAt) >= Constants.TIMING.SESSION_DURATION) {
+        if (testComplete && testCompletedAt && now - testCompletedAt >= Constants.TIMING.SESSION_DURATION) {
             testComplete = false;
             testCompletedAt = null;
             await chrome.storage.local.set({
@@ -181,12 +180,14 @@ const XUnfollowRadarContent = (function () {
     }
 
     function findRateLimitSignal() {
-        return Array.from(document.querySelectorAll(Constants.SELECTORS.RATE_LIMIT_SIGNAL)).find(element =>
-            DomUtils.containsAnyPattern(
-                element.innerText || element.textContent,
-                Constants.TEXT_PATTERNS.RATE_LIMIT
-            )
-        ) || null;
+        return (
+            Array.from(document.querySelectorAll(Constants.SELECTORS.RATE_LIMIT_SIGNAL)).find((element) =>
+                DomUtils.containsAnyPattern(
+                    element.innerText || element.textContent,
+                    Constants.TEXT_PATTERNS.RATE_LIMIT
+                )
+            ) || null
+        );
     }
 
     async function pauseIfRateLimited() {
@@ -196,10 +197,13 @@ const XUnfollowRadarContent = (function () {
     }
 
     function findConfirmationDialog(username) {
-        return Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find(dialog =>
-            dialog.querySelector(Constants.SELECTORS.CONFIRM_BUTTON) &&
-            DomUtils.dialogMatchesUsername(dialog, username)
-        ) || null;
+        return (
+            Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find(
+                (dialog) =>
+                    dialog.querySelector(Constants.SELECTORS.CONFIRM_BUTTON) &&
+                    DomUtils.dialogMatchesUsername(dialog, username)
+            ) || null
+        );
     }
 
     /**
@@ -263,8 +267,7 @@ const XUnfollowRadarContent = (function () {
      * @returns {boolean} True if user follows back
      */
     function hasFollowsYouBadge(userCell) {
-        const text = userCell.innerText || userCell.textContent;
-        return Constants.TEXT_PATTERNS.FOLLOWS_YOU.some(pattern => text.includes(pattern));
+        return UserDetection.hasFollowsYouBadge(userCell, Constants.TEXT_PATTERNS);
     }
 
     /**
@@ -274,23 +277,7 @@ const XUnfollowRadarContent = (function () {
      * @returns {{skip: boolean, reason: string|null}} Skip decision and reason
      */
     function shouldSkipUser(userCell, username) {
-        // Check whitelist
-        const normalizedUsername = username.toLowerCase().replace('@', '');
-        if (whitelist[normalizedUsername]) {
-            console.log(`Skipping whitelisted user: ${username}`);
-            return { skip: true, reason: 'whitelist' };
-        }
-
-        // Check keywords
-        const text = (userCell.innerText || userCell.textContent).toLowerCase();
-        for (const keyword of keywords) {
-            if (text.includes(keyword.toLowerCase())) {
-                console.log(`Skipping user ${username} due to keyword: ${keyword}`);
-                return { skip: true, reason: `keyword:${keyword}` };
-            }
-        }
-
-        return { skip: false, reason: null };
+        return UserDetection.shouldSkipUser(userCell, username, whitelist, keywords);
     }
 
     /**
@@ -299,14 +286,7 @@ const XUnfollowRadarContent = (function () {
      * @returns {HTMLElement|null} The Following button or null if not found
      */
     function findFollowingButton(userCell) {
-        const buttons = userCell.querySelectorAll(Constants.SELECTORS.ROLE_BUTTON);
-        for (const button of buttons) {
-            const text = button.innerText || button.textContent;
-            if (Constants.TEXT_PATTERNS.FOLLOWING_BUTTON.some(pattern => text.includes(pattern))) {
-                return button;
-            }
-        }
-        return null;
+        return UserDetection.findFollowingButton(userCell, Constants.SELECTORS, Constants.TEXT_PATTERNS);
     }
 
     /**
@@ -315,12 +295,7 @@ const XUnfollowRadarContent = (function () {
      * @returns {string} The extracted username or 'Unknown'
      */
     function getUsernameFromCell(userCell) {
-        const link = userCell.querySelector(Constants.SELECTORS.ROLE_LINK);
-        if (link) {
-            const href = link.getAttribute('href');
-            return href.split('/')[1];
-        }
-        return 'Unknown';
+        return UserDetection.getUsernameFromCell(userCell, Constants.SELECTORS);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -376,7 +351,7 @@ const XUnfollowRadarContent = (function () {
         // Cleanup old history
         const retentionMs = Constants.LIMITS.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
         const cutoffTime = Date.now() - retentionMs;
-        const filtered = history.filter(item => new Date(item.date).getTime() > cutoffTime);
+        const filtered = history.filter((item) => new Date(item.date).getTime() > cutoffTime);
 
         await chrome.storage.local.set({ [Constants.STORAGE_KEYS.UNFOLLOW_HISTORY]: filtered });
     }
@@ -587,7 +562,7 @@ const XUnfollowRadarContent = (function () {
         let runChanged = false;
         let candidatesChanged = false;
 
-        userCells.forEach(cell => {
+        userCells.forEach((cell) => {
             const username = getUsernameFromCell(cell);
             if (!username || username === 'Unknown') return;
             if (processedUsers.has(username)) return;
@@ -605,12 +580,20 @@ const XUnfollowRadarContent = (function () {
 
                 const text = (cell.innerText || cell.textContent || '').trim();
                 const wasTruncated = candidateScan.truncated;
-                if (CandidateUtils.add(candidateScan, {
-                    username,
-                    displayName: text.split('\n').find(line => line.trim() && !line.trim().startsWith('@')) || username,
-                    preview: text.slice(0, 280),
-                    discoveredAt: Date.now()
-                }, Constants.LIMITS.MAX_CANDIDATES)) {
+                if (
+                    CandidateUtils.add(
+                        candidateScan,
+                        {
+                            username,
+                            displayName:
+                                text.split('\n').find((line) => line.trim() && !line.trim().startsWith('@')) ||
+                                username,
+                            preview: text.slice(0, 280),
+                            discoveredAt: Date.now()
+                        },
+                        Constants.LIMITS.MAX_CANDIDATES
+                    )
+                ) {
                     newUsersFound++;
                     candidatesChanged = true;
                 } else if (!wasTruncated && candidateScan.truncated) {
@@ -671,7 +654,7 @@ const XUnfollowRadarContent = (function () {
             const timeout = setTimeout(() => finish(false), Constants.TIMING.USER_LIST_MUTATION_TIMEOUT);
 
             function hasNewUsername() {
-                return Array.from(document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN)).some(cell => {
+                return Array.from(document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN)).some((cell) => {
                     const username = getUsernameFromCell(cell);
                     return username !== 'Unknown' && !usernamesBeforeScroll.has(username);
                 });
@@ -713,19 +696,22 @@ const XUnfollowRadarContent = (function () {
         const usernamesBeforeScroll = new Set(
             Array.from(document.querySelectorAll(Constants.SELECTORS.USER_CELL_MAIN))
                 .map(getUsernameFromCell)
-                .filter(username => username !== 'Unknown')
+                .filter((username) => username !== 'Unknown')
         );
         if (operationMode === 'execute') {
             const step = Math.max(Constants.UI.SCROLL_AMOUNT, Math.floor(window.innerHeight * 0.8));
-            window.scrollTo(0, Math.min(
-                document.documentElement.scrollTop + step,
-                document.documentElement.scrollHeight
-            ));
+            window.scrollTo(
+                0,
+                Math.min(document.documentElement.scrollTop + step, document.documentElement.scrollHeight)
+            );
         } else {
             window.scrollTo(0, document.documentElement.scrollHeight);
         }
         await Promise.all([
-            randomDelay(Constants.TIMING.SCROLL_DELAY, Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA),
+            randomDelay(
+                Constants.TIMING.SCROLL_DELAY,
+                Constants.TIMING.SCROLL_DELAY + Constants.TIMING.SCROLL_DELAY_EXTRA
+            ),
             waitForNewUserCards(usernamesBeforeScroll, operationController?.signal)
         ]);
 
@@ -741,7 +727,7 @@ const XUnfollowRadarContent = (function () {
     function isScrollAtBottom() {
         const el = document.documentElement;
         const threshold = 150;
-        return (el.scrollTop + el.clientHeight) >= (el.scrollHeight - threshold);
+        return el.scrollTop + el.clientHeight >= el.scrollHeight - threshold;
     }
 
     /**
@@ -759,8 +745,7 @@ const XUnfollowRadarContent = (function () {
                 return false;
             }
 
-            if (!dryRunMode && testMode && !testComplete &&
-                sessionCount >= Constants.LIMITS.BATCH_SIZE) {
+            if (!dryRunMode && testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
                 isPaused = true;
                 await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
@@ -790,8 +775,7 @@ const XUnfollowRadarContent = (function () {
                     await persistRunState(succeededRecord);
                     consecutiveFailures = 0;
                 } else {
-                    const failureReason = isPaused ? 'rate_limited' :
-                        (!isRunning ? 'stopped' : 'verification_failed');
+                    const failureReason = isPaused ? 'rate_limited' : !isRunning ? 'stopped' : 'verification_failed';
                     const failedRecord = RunStateUtils.transition(
                         runState,
                         username,
@@ -806,8 +790,7 @@ const XUnfollowRadarContent = (function () {
                         consecutiveFailures++;
                         console.log('Unfollow could not be completed or verified');
                     }
-                    if (isRunning && !isPaused &&
-                        consecutiveFailures >= Constants.LIMITS.MAX_CONSECUTIVE_FAILURES) {
+                    if (isRunning && !isPaused && consecutiveFailures >= Constants.LIMITS.MAX_CONSECUTIVE_FAILURES) {
                         isRunning = false;
                         await updateRunStatus('error', true);
                         sendStatus(Constants.STATUS.ERROR, { reason: 'circuit_breaker' });
@@ -853,7 +836,7 @@ const XUnfollowRadarContent = (function () {
                 startedAt,
                 dryRun: dryRunMode
             });
-            selectedUsernames.forEach(username => {
+            selectedUsernames.forEach((username) => {
                 RunStateUtils.queue(
                     runState,
                     username,
@@ -877,10 +860,7 @@ const XUnfollowRadarContent = (function () {
         while (isRunning) {
             if (isPaused) {
                 checkRateLimitExpiry();
-                await randomDelay(
-                    Constants.TIMING.PAUSE_CHECK_INTERVAL,
-                    Constants.TIMING.PAUSE_CHECK_INTERVAL
-                );
+                await randomDelay(Constants.TIMING.PAUSE_CHECK_INTERVAL, Constants.TIMING.PAUSE_CHECK_INTERVAL);
                 continue;
             }
 
@@ -894,8 +874,13 @@ const XUnfollowRadarContent = (function () {
             }
 
             // Check if we reached a batch milestone
-            if (operationMode === 'execute' && !dryRunMode && testMode && !testComplete &&
-                sessionCount >= Constants.LIMITS.BATCH_SIZE) {
+            if (
+                operationMode === 'execute' &&
+                !dryRunMode &&
+                testMode &&
+                !testComplete &&
+                sessionCount >= Constants.LIMITS.BATCH_SIZE
+            ) {
                 isPaused = true;
                 await updateRunStatus('paused');
                 chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
@@ -908,7 +893,7 @@ const XUnfollowRadarContent = (function () {
             // Scan and process the current viewport before scrolling so X's
             // virtualized list cannot remove queued DOM nodes first.
             await scanUsers();
-            if (operationMode === 'execute' && !await processQueue()) {
+            if (operationMode === 'execute' && !(await processQueue())) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
             }
@@ -923,7 +908,7 @@ const XUnfollowRadarContent = (function () {
             // Scroll to load more users
             await autoScroll();
             await scanUsers();
-            if (operationMode === 'execute' && !await processQueue()) {
+            if (operationMode === 'execute' && !(await processQueue())) {
                 if (isPaused && !rateLimitUntil) return;
                 continue;
             }
@@ -931,7 +916,8 @@ const XUnfollowRadarContent = (function () {
             const newUniqueUsers = processedUsers.size - seenBeforeCycle;
             noNewUserStreak = newUniqueUsers === 0 ? noNewUserStreak + 1 : 0;
 
-            const exhausted = noNewUserStreak >= Constants.LIMITS.MAX_EMPTY_SCANS ||
+            const exhausted =
+                noNewUserStreak >= Constants.LIMITS.MAX_EMPTY_SCANS ||
                 (isScrollAtBottom() && noNewUserStreak >= Constants.LIMITS.MAX_SAME_COUNT_STREAK);
 
             if (exhausted && unfollowQueue.length === 0) {
@@ -1028,10 +1014,9 @@ const XUnfollowRadarContent = (function () {
         testMode = data[Constants.STORAGE_KEYS.TEST_MODE] !== undefined ? data[Constants.STORAGE_KEYS.TEST_MODE] : true;
         const storedTestComplete = data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false;
         testCompletedAt = storedTestComplete
-            ? (data[Constants.STORAGE_KEYS.TEST_COMPLETED_AT] || data[Constants.STORAGE_KEYS.SESSION_START] || now)
+            ? data[Constants.STORAGE_KEYS.TEST_COMPLETED_AT] || data[Constants.STORAGE_KEYS.SESSION_START] || now
             : null;
-        testComplete = storedTestComplete &&
-            (now - testCompletedAt) < Constants.TIMING.SESSION_DURATION;
+        testComplete = storedTestComplete && now - testCompletedAt < Constants.TIMING.SESSION_DURATION;
         if (!testComplete) testCompletedAt = null;
         keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
         whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
@@ -1110,10 +1095,9 @@ const XUnfollowRadarContent = (function () {
                         unfollowQueue = [];
                         processedUsers = new Set();
                         operationStartTime = Date.now();
-                        operationSpeeds = [];
                         window.scrollTo(0, 0);
                         persistCandidateScan();
-                        mainLoop().catch(err => {
+                        mainLoop().catch((err) => {
                             if (err.name === 'AbortError') return;
                             console.error('mainLoop error:', err);
                             isRunning = false;
@@ -1129,10 +1113,11 @@ const XUnfollowRadarContent = (function () {
 
                 case Constants.ACTIONS.EXECUTE_SELECTED: {
                     const candidateUsernames = new Set(
-                        (candidateScan?.candidates || []).map(candidate => candidate.username)
+                        (candidateScan?.candidates || []).map((candidate) => candidate.username)
                     );
-                    const usernames = Array.from(new Set(message.usernames || []))
-                        .filter(username => candidateUsernames.has(username));
+                    const usernames = Array.from(new Set(message.usernames || [])).filter((username) =>
+                        candidateUsernames.has(username)
+                    );
                     if (isRunning || candidateScan?.status !== 'ready' || usernames.length === 0) {
                         sendResponse({ success: false, error: isRunning ? 'operation_active' : 'empty_selection' });
                         break;
@@ -1150,14 +1135,13 @@ const XUnfollowRadarContent = (function () {
                     unfollowQueue = [];
                     processedUsers = new Set();
                     operationStartTime = Date.now();
-                    operationSpeeds = [];
                     if (candidateScan) {
                         CandidateUtils.setSelection(candidateScan, usernames);
                         candidateScan.status = 'executing';
                         persistCandidateScan();
                     }
                     window.scrollTo(0, 0);
-                    mainLoop().catch(err => {
+                    mainLoop().catch((err) => {
                         if (err.name === 'AbortError') return;
                         console.error('mainLoop error:', err);
                         isRunning = false;
@@ -1204,7 +1188,7 @@ const XUnfollowRadarContent = (function () {
                         [Constants.STORAGE_KEYS.TEST_COMPLETE]: true,
                         [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: testCompletedAt
                     });
-                    mainLoop().catch(err => {
+                    mainLoop().catch((err) => {
                         if (err.name !== 'AbortError') {
                             console.error('mainLoop error:', err);
                             isRunning = false;

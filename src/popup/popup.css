@@ -43,7 +43,10 @@
     box-sizing: border-box;
 }
 
-p, span, div, label {
+p,
+span,
+div,
+label {
     color: inherit;
 }
 
@@ -332,8 +335,13 @@ h1 {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* =====================================================
@@ -348,7 +356,9 @@ h1 {
     color: var(--text-primary);
 }
 
-.alert * { color: var(--text-primary); }
+.alert * {
+    color: var(--text-primary);
+}
 
 .alert-warning {
     background: rgba(255, 193, 7, 0.12);
@@ -356,7 +366,7 @@ h1 {
 }
 
 .alert-info {
-    background: rgba(29, 161, 242, 0.10);
+    background: rgba(29, 161, 242, 0.1);
     border-left: 4px solid var(--primary-color);
 }
 
@@ -460,7 +470,7 @@ button:disabled {
     cursor: pointer;
 }
 
-.checkbox-container input[type="checkbox"] {
+.checkbox-container input[type='checkbox'] {
     width: 15px;
     height: 15px;
     cursor: pointer;
@@ -480,7 +490,9 @@ button:disabled {
     background: var(--container-bg);
 }
 
-.candidate-panel[hidden] { display: none; }
+.candidate-panel[hidden] {
+    display: none;
+}
 
 .candidate-header,
 .candidate-actions {
@@ -532,11 +544,17 @@ button:disabled {
     border-bottom: 1px solid var(--surface-bg);
 }
 
-.candidate-list input { margin-top: 3px; }
+.candidate-list input {
+    margin-top: 3px;
+}
 
-.candidate-details { min-width: 0; }
+.candidate-details {
+    min-width: 0;
+}
 .candidate-details strong,
-.candidate-details small { display: block; }
+.candidate-details small {
+    display: block;
+}
 .candidate-details strong {
     font-size: 12px;
     color: var(--text-primary);
@@ -549,7 +567,9 @@ button:disabled {
     color: var(--text-secondary-accessible);
 }
 
-.candidate-execute { width: 100%; }
+.candidate-execute {
+    width: 100%;
+}
 
 /* Undo row — full-width, only visible when count > 0 */
 .controls-undo {
@@ -661,15 +681,31 @@ button:disabled {
     border-bottom: none;
 }
 
-#userList li.unfollowed { background: transparent; }
-#userList li.dry-run    { background: transparent; }
-#userList li.skipped    { background: transparent; }
-#userList li.undone     { background: transparent; }
-#userList li.queued     { opacity: 0.75; }
-#userList li.attempting { background: var(--surface-bg); }
-#userList li.failed     { color: var(--danger-color); }
+#userList li.unfollowed {
+    background: transparent;
+}
+#userList li.dry-run {
+    background: transparent;
+}
+#userList li.skipped {
+    background: transparent;
+}
+#userList li.undone {
+    background: transparent;
+}
+#userList li.queued {
+    opacity: 0.75;
+}
+#userList li.attempting {
+    background: var(--surface-bg);
+}
+#userList li.failed {
+    color: var(--danger-color);
+}
 
-.user-icon { font-size: 13px; }
+.user-icon {
+    font-size: 13px;
+}
 
 .user-name {
     flex: 1;
@@ -705,7 +741,9 @@ button:disabled {
     transition: all 0.2s ease;
 }
 
-.action-btn:hover { background: var(--border-color); }
+.action-btn:hover {
+    background: var(--border-color);
+}
 
 .action-btn.undo-btn:hover {
     background: var(--warning-color);
@@ -726,7 +764,9 @@ button:disabled {
     cursor: default;
 }
 
-.action-btn.added:hover { transform: none; }
+.action-btn.added:hover {
+    transform: none;
+}
 
 /* =====================================================
    INFO ROW (last run)
@@ -747,7 +787,11 @@ button:disabled {
     margin-bottom: 18px;
 }
 
-h2, h3, h4, h5, h6 {
+h2,
+h3,
+h4,
+h5,
+h6 {
     color: var(--text-primary);
 }
 
@@ -1155,7 +1199,7 @@ h2, h3, h4, h5, h6 {
     gap: 10px;
     padding: 10px 14px;
     border-radius: var(--radius);
-    background: rgba(225, 68, 74, 0.10);
+    background: rgba(225, 68, 74, 0.1);
     border: 1px solid rgba(225, 68, 74, 0.35);
     margin-bottom: 12px;
 }
@@ -1183,7 +1227,7 @@ h2, h3, h4, h5, h6 {
     gap: 10px;
     padding: 8px 14px;
     border-radius: var(--radius);
-    background: rgba(255, 193, 7, 0.10);
+    background: rgba(255, 193, 7, 0.1);
     border: 1px solid rgba(255, 193, 7, 0.35);
     margin-bottom: 12px;
     font-size: 12px;
@@ -1282,7 +1326,9 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

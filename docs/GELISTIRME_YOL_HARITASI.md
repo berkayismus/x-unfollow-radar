@@ -65,10 +65,10 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 - [x] Bağımlılıksız sözdizimi ve smoke test komutlarını ekle.
 - [x] Free/Pro limit ve locale anahtar eşitliği regresyon testlerini ekle.
 - [x] Gumroad aktivasyon, önbellek ve entitlement iptali regresyon testlerini ekle.
-- [ ] ESLint ve Prettier yapılandırması ekle.
-- [ ] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
+- [x] ESLint ve Prettier yapılandırması ekle.
+- [x] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
 - [ ] Playwright unpacked-extension smoke testleri ekle.
-- [ ] GitHub Actions üzerinde test ve paket doğrulama akışı kur.
+- [x] GitHub Actions üzerinde test ve paket doğrulama akışı kur.
 - [ ] Storage `schemaVersion` ve idempotent migration altyapısı ekle.
 - [ ] Tek kaynaktan manifest/dosya sürümü üreten release komutu ekle.
 - [ ] Kullanılmayan sabit ve state alanlarını temizle.

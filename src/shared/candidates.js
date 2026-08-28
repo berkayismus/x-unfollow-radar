@@ -16,7 +16,7 @@ const CandidateUtils = (function () {
     }
 
     function add(scan, candidate, maxCandidates) {
-        if (!scan || scan.candidates.some(item => item.username === candidate.username)) return false;
+        if (!scan || scan.candidates.some((item) => item.username === candidate.username)) return false;
         if (scan.candidates.length >= maxCandidates) {
             scan.truncated = true;
             return false;
@@ -33,15 +33,15 @@ const CandidateUtils = (function () {
 
     function setSelection(scan, usernames) {
         const selected = new Set(usernames || []);
-        scan.candidates.forEach(candidate => {
+        scan.candidates.forEach((candidate) => {
             candidate.selected = selected.has(candidate.username);
         });
     }
 
     function selectedUsernames(scan) {
         return (scan?.candidates || [])
-            .filter(candidate => candidate.selected)
-            .map(candidate => candidate.username);
+            .filter((candidate) => candidate.selected)
+            .map((candidate) => candidate.username);
     }
 
     function complete(scan, timestamp) {

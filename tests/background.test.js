@@ -29,17 +29,19 @@ function createHarness(fetchImpl, initialStorage = {}) {
         },
         chrome: {
             runtime: {
-                getURL: value => value,
+                getURL: (value) => value,
                 sendMessage() {},
                 onMessage: {
-                    addListener(value) { listener = value; }
+                    addListener(value) {
+                        listener = value;
+                    }
                 }
             },
             storage: {
                 local: {
                     async get(keys) {
                         const output = {};
-                        keys.forEach(key => {
+                        keys.forEach((key) => {
                             if (key in storage) output[key] = storage[key];
                         });
                         return output;
@@ -56,7 +58,7 @@ function createHarness(fetchImpl, initialStorage = {}) {
     vm.runInContext(backgroundSource, context);
 
     async function send(message) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const keepChannelOpen = listener(message, {}, resolve);
             assert.equal(keepChannelOpen, true);
         });
@@ -126,15 +128,12 @@ async function testRefundedPurchaseIsRejected() {
 
 async function testPeriodicRevalidationRevokesChargeback() {
     const now = Date.now();
-    const harness = createHarness(
-        async () => gumroadResponse({ chargebacked: true }),
-        {
-            plan: 'pro',
-            licenseKey: 'CHARGEBACK-KEY',
-            licenseActivatedAt: now - (10 * 24 * 60 * 60 * 1000),
-            licenseLastVerifiedAt: now - (2 * 24 * 60 * 60 * 1000)
-        }
-    );
+    const harness = createHarness(async () => gumroadResponse({ chargebacked: true }), {
+        plan: 'pro',
+        licenseKey: 'CHARGEBACK-KEY',
+        licenseActivatedAt: now - 10 * 24 * 60 * 60 * 1000,
+        licenseLastVerifiedAt: now - 2 * 24 * 60 * 60 * 1000
+    });
 
     const plan = await harness.send({ action: 'GET_PLAN' });
     assert.equal(plan.plan, 'expired');
@@ -145,16 +144,13 @@ async function testPeriodicRevalidationRevokesChargeback() {
 
 async function testPeriodicRevalidationRefreshesPurchaseDate() {
     const now = Date.now();
-    const purchaseDate = new Date(now - (20 * 24 * 60 * 60 * 1000)).toISOString();
-    const harness = createHarness(
-        async () => gumroadResponse({ sale_timestamp: purchaseDate }),
-        {
-            plan: 'pro',
-            licenseKey: 'ACTIVE-KEY',
-            licenseActivatedAt: now - (10 * 24 * 60 * 60 * 1000),
-            licenseLastVerifiedAt: now - (2 * 24 * 60 * 60 * 1000)
-        }
-    );
+    const purchaseDate = new Date(now - 20 * 24 * 60 * 60 * 1000).toISOString();
+    const harness = createHarness(async () => gumroadResponse({ sale_timestamp: purchaseDate }), {
+        plan: 'pro',
+        licenseKey: 'ACTIVE-KEY',
+        licenseActivatedAt: now - 10 * 24 * 60 * 60 * 1000,
+        licenseLastVerifiedAt: now - 2 * 24 * 60 * 60 * 1000
+    });
 
     const plan = await harness.send({ action: 'GET_PLAN' });
     assert.equal(plan.plan, 'pro');
@@ -169,7 +165,7 @@ async function testPeriodicRevalidationRefreshesPurchaseDate() {
     await testPeriodicRevalidationRevokesChargeback();
     await testPeriodicRevalidationRefreshesPurchaseDate();
     console.log('Background tests passed.');
-})().catch(error => {
+})().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });

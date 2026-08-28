@@ -6,7 +6,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
-const read = relativePath => fs.readFileSync(path.join(root, relativePath), 'utf8');
+const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
 
 function flattenKeys(value, prefix = '', output = []) {
     Object.entries(value).forEach(([key, child]) => {
@@ -35,7 +35,7 @@ function testSessionLimits() {
 }
 
 function testLocaleParity() {
-    const locales = ['tr', 'en', 'de'].map(locale => ({
+    const locales = ['tr', 'en', 'de'].map((locale) => ({
         locale,
         data: JSON.parse(read(`locales/${locale}.json`))
     }));
@@ -58,9 +58,14 @@ function testCsvSafety() {
 
     assert.equal(csv.escapeField('plain'), '"plain"');
     assert.equal(csv.escapeField('a,"b"'), '"a,""b"""');
-    assert.equal(csv.escapeField('=IMPORTXML("https://example.com")'),
-        '"\'=IMPORTXML(""https://example.com"")"');
-    assert.equal(csv.serialize([['A', 'B'], ['one', 'two']]), '"A","B"\r\n"one","two"');
+    assert.equal(csv.escapeField('=IMPORTXML("https://example.com")'), '"\'=IMPORTXML(""https://example.com"")"');
+    assert.equal(
+        csv.serialize([
+            ['A', 'B'],
+            ['one', 'two']
+        ]),
+        '"A","B"\r\n"one","two"'
+    );
 }
 
 function testDomInterpretation() {
@@ -92,26 +97,27 @@ function testRollingSafetyWindow() {
     const hour = 60 * 60 * 1000;
     const now = 100 * hour;
 
-    assert.deepEqual(
-        Array.from(safetyWindow.prune([now - (25 * hour), now - hour, now, now + hour], now, 24 * hour)),
-        [now - hour, now, now + hour]
-    );
-    assert.equal(safetyWindow.nextSlotAt([now - hour], 24 * hour), now + (23 * hour));
+    assert.deepEqual(Array.from(safetyWindow.prune([now - 25 * hour, now - hour, now, now + hour], now, 24 * hour)), [
+        now - hour,
+        now,
+        now + hour
+    ]);
+    assert.equal(safetyWindow.nextSlotAt([now - hour], 24 * hour), now + 23 * hour);
 
     const migrated = safetyWindow.fromStorage({
         timestamps: undefined,
         legacyCount: 3,
-        legacyStart: now - (2 * hour),
+        legacyStart: now - 2 * hour,
         now,
         durationMs: 24 * hour,
         maxLegacyCount: 500
     });
-    assert.deepEqual(Array.from(migrated), Array(3).fill(now - (2 * hour)));
+    assert.deepEqual(Array.from(migrated), Array(3).fill(now - 2 * hour));
 
     const expiredLegacy = safetyWindow.fromStorage({
         timestamps: undefined,
         legacyCount: 3,
-        legacyStart: now - (25 * hour),
+        legacyStart: now - 25 * hour,
         now,
         durationMs: 24 * hour,
         maxLegacyCount: 500
@@ -127,8 +133,11 @@ function testRunStateMachine() {
 
     assert.ok(runs.queue(run, 'alice', 110, 'unfollowed'));
     assert.equal(run.summary.queued, 1);
-    assert.equal(runs.transition(run, 'alice', runs.ITEM_STATUS.SUCCEEDED, 120), null,
-        'queued items must not skip the attempting state');
+    assert.equal(
+        runs.transition(run, 'alice', runs.ITEM_STATUS.SUCCEEDED, 120),
+        null,
+        'queued items must not skip the attempting state'
+    );
     assert.ok(runs.transition(run, 'alice', runs.ITEM_STATUS.ATTEMPTING, 120));
     assert.equal(run.summary.queued, 0);
     assert.equal(run.summary.attempting, 1);
@@ -162,19 +171,57 @@ function testCandidateSelectionWorkflow() {
     const candidates = context.window.CandidateUtils;
     const scan = candidates.create(100);
 
-    assert.equal(candidates.add(scan, {
-        username: 'alice', displayName: 'Alice', preview: '@alice', discoveredAt: 110
-    }, 2), true);
+    assert.equal(
+        candidates.add(
+            scan,
+            {
+                username: 'alice',
+                displayName: 'Alice',
+                preview: '@alice',
+                discoveredAt: 110
+            },
+            2
+        ),
+        true
+    );
     assert.equal(scan.candidates[0].selected, false, 'candidates must require explicit selection');
-    assert.equal(candidates.add(scan, {
-        username: 'alice', displayName: 'Alice', preview: '@alice', discoveredAt: 120
-    }, 2), false, 'candidate usernames must be unique');
-    candidates.add(scan, {
-        username: 'bob', displayName: 'Bob', preview: '@bob', discoveredAt: 130
-    }, 2);
-    assert.equal(candidates.add(scan, {
-        username: 'carol', displayName: 'Carol', preview: '@carol', discoveredAt: 140
-    }, 2), false);
+    assert.equal(
+        candidates.add(
+            scan,
+            {
+                username: 'alice',
+                displayName: 'Alice',
+                preview: '@alice',
+                discoveredAt: 120
+            },
+            2
+        ),
+        false,
+        'candidate usernames must be unique'
+    );
+    candidates.add(
+        scan,
+        {
+            username: 'bob',
+            displayName: 'Bob',
+            preview: '@bob',
+            discoveredAt: 130
+        },
+        2
+    );
+    assert.equal(
+        candidates.add(
+            scan,
+            {
+                username: 'carol',
+                displayName: 'Carol',
+                preview: '@carol',
+                discoveredAt: 140
+            },
+            2
+        ),
+        false
+    );
     assert.equal(scan.truncated, true);
     candidates.exclude(scan, 'whitelist');
     candidates.setSelection(scan, ['bob']);
@@ -188,6 +235,7 @@ function testManifestScope() {
     assert.equal(manifest.web_accessible_resources, undefined);
     assert.deepEqual(manifest.permissions, ['storage', 'activeTab']);
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/dom.js'));
+    assert.ok(manifest.content_scripts[0].js.includes('src/shared/user-detection.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/safety-window.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/run-state.js'));
     assert.ok(manifest.content_scripts[0].js.includes('src/shared/candidates.js'));
@@ -225,6 +273,7 @@ function testCriticalRegressionGuards() {
     assert.match(popupSource, /confirm\(I18n\.t\('candidates\.confirmExecution'/);
     assert.match(contentSource, /operationMode === 'scan'/);
     assert.match(contentSource, /operationMode === 'execute'/);
+    assert.match(contentSource, /UserDetection\.shouldSkipUser/);
 }
 
 testSessionLimits();

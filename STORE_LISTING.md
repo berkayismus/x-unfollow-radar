@@ -3,16 +3,20 @@
 ## Store Information
 
 ### Extension Name
+
 X Unfollow Radar
 
 ### Tagline (Short Description - max 132 characters)
+
 Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem temposuyla following listeni yönet.
 
 ### Category
+
 - Primary: **Productivity**
 - Secondary: **Social & Communication**
 
 ### Language
+
 - Turkish (Primary)
 - English (Secondary - optional)
 
@@ -75,6 +79,7 @@ Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you"
 ### 🆘 DESTEK
 
 Sorun yaşarsanız veya öneriniz varsa:
+
 - GitHub üzerinden issue açabilirsiniz
 - Email ile iletişime geçebilirsiniz
 
@@ -121,19 +126,23 @@ A Chrome extension that detects accounts that do not follow you back and helps m
 You need to provide at least 1 screenshot (1280x800px or 640x400px):
 
 ### Screenshot 1: Main Popup Interface
+
 - Show the popup with statistics
 - Display "Session: 15/50" and "Total: 234"
 - Status: "Çalışıyor..." (Running)
 
 ### Screenshot 2: Candidate Preview
+
 - Show the candidate checklist and selected count
 - "Seçilenleri işle" button visible
 
 ### Screenshot 3: Approved Operation
+
 - Show the extension processing explicitly selected accounts
 - Extension popup visible with active status and run summary
 
 ### Screenshot 4: Statistics View
+
 - Show completed statistics
 - Last run date visible
 - Reset button highlighted
@@ -141,15 +150,18 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 ## Promotional Images (Optional but Recommended)
 
 ### Small Tile (440x280px)
+
 - Extension icon + "Scan, Select, Approve" text
 - Gradient background (purple to blue)
 
 ### Large Tile (920x680px)
+
 - Feature highlights with icons
 - Clean, modern design
 - Call to action: "Takipçi Yönetimini Kolaylaştırın!"
 
 ### Marquee (1400x560px)
+
 - Hero image with main features
 - Screenshots montage
 - Professional and trustworthy look
@@ -159,6 +171,7 @@ You need to provide at least 1 screenshot (1280x800px or 640x400px):
 ## Additional Store Assets
 
 ### Video (Optional)
+
 - Short demo video (30-60 seconds)
 - Show installation and usage
 - Highlight key features
@@ -191,10 +204,11 @@ Before submitting to Chrome Web Store:
 ## Publishing Steps
 
 1. **Prepare ZIP file**:
-   ```bash
-   cd /tmp/x_unfollow_radar
-   zip -r x_unfollow_radar.zip . -x "*.git*" "*.DS_Store" "README.md" "STORE_LISTING.md"
-   ```
+
+    ```bash
+    cd /tmp/x_unfollow_radar
+    zip -r x_unfollow_radar.zip . -x "*.git*" "*.DS_Store" "README.md" "STORE_LISTING.md"
+    ```
 
 2. **Go to Chrome Developer Dashboard**:
    https://chrome.google.com/webstore/devconsole
@@ -204,10 +218,10 @@ Before submitting to Chrome Web Store:
 4. **Upload ZIP file**
 
 5. **Fill store listing**:
-   - Copy descriptions from above
-   - Upload screenshots
-   - Add privacy policy URL
-   - Set category to Productivity
+    - Copy descriptions from above
+    - Upload screenshots
+    - Add privacy policy URL
+    - Set category to Productivity
 
 6. **Submit for review**
 
@@ -218,6 +232,7 @@ Before submitting to Chrome Web Store:
 ## Post-Launch
 
 After approval:
+
 - Monitor user reviews
 - Respond to feedback quickly
 - Update regularly if Twitter/X changes structure

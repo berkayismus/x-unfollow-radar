@@ -5,12 +5,15 @@ const DomUtils = (function () {
     'use strict';
 
     function normalizeText(value) {
-        return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        return String(value || '')
+            .toLowerCase()
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function containsAnyPattern(value, patterns) {
         const normalized = normalizeText(value);
-        return patterns.some(pattern => normalized.includes(normalizeText(pattern)));
+        return patterns.some((pattern) => normalized.includes(normalizeText(pattern)));
     }
 
     function dialogMatchesUsername(dialog, username) {
@@ -21,7 +24,7 @@ const DomUtils = (function () {
         if (dialogText.includes(`@${normalizedUsername}`)) return true;
 
         const links = dialog.querySelectorAll ? dialog.querySelectorAll('a[href]') : [];
-        return Array.from(links).some(link => {
+        return Array.from(links).some((link) => {
             const href = link.getAttribute('href') || '';
             const pathUsername = href.split('/').filter(Boolean)[0] || '';
             return pathUsername.toLowerCase() === normalizedUsername;

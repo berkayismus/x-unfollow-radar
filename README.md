@@ -5,6 +5,7 @@ Seni takip etmeyen adayları tarayan ve yalnızca seçip açıkça onayladığı
 ## 🎯 Özellikler
 
 ### Temel Özellikler
+
 - ✅ Otomatik scroll ve kullanıcı taraması
 - ✅ Aday önizleme, çoklu seçim ve işlem öncesi açık onay
 - ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
@@ -18,15 +19,16 @@ Seni takip etmeyen adayları tarayan ve yalnızca seçip açıkça onayladığı
 - ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
 
 ### Gelişmiş Özellikler
+
 - 🔍 **Keywords Filter**: Bio'da belirli kelimeleri içeren kullanıcıları atla
 - 🛡️ **Whitelist**: Belirli kullanıcıları koruma altına al
 - 📊 **30 Günlük Chart**: Chartist.js ile görsel istatistikler
 - 📥 **CSV Export (Pro)**: İşlem geçmişini güvenli CSV formatında indir
 - 🌙 **Dark Mode**: Karanlık tema desteği
 - 🌐 **Çoklu Dil Desteği**: Türkçe, İngilizce ve Almanca arayüz (TR/EN/DE)
--  **User List**: İşlenen kullanıcıların canlı listesi
-  - ↗ Profili açıp manuel yeniden takip etme
-  - ⭐ Tek tıkla whitelist'e ekle butonu
+- **User List**: İşlenen kullanıcıların canlı listesi
+- ↗ Profili açıp manuel yeniden takip etme
+- ⭐ Tek tıkla whitelist'e ekle butonu
 - 🧪 **Dry-Run Mode**: Gerçekte takipten çıkmadan test et
 - ↗ **Recent Profiles**: Son 10 işlemin profilini manuel takip için aç
 - ⏱️ **Smart Rate Limit**: 15 dakika sonra otomatik devam
@@ -50,8 +52,8 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 
 1. Twitter/X hesabınıza giriş yapın
 2. "Following" (Takip Edilenler) sayfasına gidin:
-   - `https://twitter.com/[kullanıcı-adınız]/following`
-   - veya `https://x.com/[kullanıcı-adınız]/following`
+    - `https://twitter.com/[kullanıcı-adınız]/following`
+    - veya `https://x.com/[kullanıcı-adınız]/following`
 3. Eklenti simgesine tıklayın
 4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
 5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
@@ -84,12 +86,25 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 ## 🛠️ Teknik Detaylar
 
 ### Teknolojiler
+
 - Chrome Extension Manifest V3
 - Vanilla JavaScript (No frameworks)
 - Chrome Storage API
 - Chrome Messaging API
 
+### Geliştirici Doğrulamaları
+
+```bash
+npm ci
+npm run lint
+npm test
+npm run package:check
+```
+
+GitHub Actions her push ve pull request'te lint, regresyon testleri ve eklenti paket bütünlüğü doğrulamasını çalıştırır.
+
 ### Dosya Yapısı
+
 ```
 x_unfollow_radar/
 ├── manifest.json              # Extension configuration (Manifest V3)
@@ -127,6 +142,7 @@ x_unfollow_radar/
 ```
 
 ### Güvenlik Önlemleri
+
 - Rastgele gecikmeler (2-5 saniye)
 - Ücretsiz 50 / Pro 500 işlem limiti
 - Organik duraklamalar (%10 rastgele)
@@ -156,4 +172,4 @@ Sorun yaşarsanız veya öneriniz varsa lütfen issue açın.
 
 **⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
 
-*Son güncelleme: Ağustos 2026*
+_Son güncelleme: Ağustos 2026_

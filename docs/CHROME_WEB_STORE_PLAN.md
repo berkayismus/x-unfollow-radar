@@ -81,10 +81,10 @@ ZIP’i açıp `manifest.json`’ın kökte olduğunu ve tüm gerekli dosyaları
 1. [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) → **New Item**.
 2. **ZIP dosyasını yükle**; hata varsa (manifest, icon vb.) düzeltip tekrar yükle.
 3. **Store listing** sekmesi:
-   - Short description: STORE_LISTING’deki tagline (132 karakter sınırı).
-   - Detailed description: STORE_LISTING’deki TR (ve/veya EN) detaylı açıklama.
-   - Category: **Productivity** (önerilen birincil).
-   - En az 1 screenshot yükle (1280x800 veya 640x400).
+    - Short description: STORE_LISTING’deki tagline (132 karakter sınırı).
+    - Detailed description: STORE_LISTING’deki TR (ve/veya EN) detaylı açıklama.
+    - Category: **Productivity** (önerilen birincil).
+    - En az 1 screenshot yükle (1280x800 veya 640x400).
 4. **Privacy** sekmesi: **Privacy Policy** alanına yukarıda hazırladığın **public URL**’i yaz (GitHub veya GitHub Pages).
 5. **Distribution** sekmesi: Görünürlük (Public/Unlisted), bölge kısıtı vb. ayarla.
 6. **Support** alanına destek e‑postasını (ve isteğe bağlı web/ GitHub linkini) ekle.

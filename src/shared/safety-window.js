@@ -7,17 +7,14 @@ const SafetyWindow = (function () {
     function prune(timestamps, now, durationMs) {
         const cutoff = now - durationMs;
         return (Array.isArray(timestamps) ? timestamps : [])
-            .filter(timestamp => Number.isFinite(timestamp) && timestamp > cutoff)
+            .filter((timestamp) => Number.isFinite(timestamp) && timestamp > cutoff)
             .sort((a, b) => a - b);
     }
 
     function fromStorage({ timestamps, legacyCount, legacyStart, now, durationMs, maxLegacyCount }) {
         if (Array.isArray(timestamps)) return prune(timestamps, now, durationMs);
 
-        const count = Math.min(
-            Math.max(0, Math.floor(Number(legacyCount) || 0)),
-            maxLegacyCount
-        );
+        const count = Math.min(Math.max(0, Math.floor(Number(legacyCount) || 0)), maxLegacyCount);
         if (count === 0) return [];
 
         const parsedStart = Number(legacyStart);
