@@ -98,6 +98,7 @@ Extension Chrome Web Store'da yayınlandıktan sonra direkt oradan kurulabilecek
 npm ci
 npm run lint
 npm test
+npm run test:e2e
 npm run package:check
 ```
 

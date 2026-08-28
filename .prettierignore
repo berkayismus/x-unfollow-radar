@@ -2,4 +2,6 @@ node_modules/
 dist/
 vendor/
 assets/
-
+playwright-report/
+test-results/
+blob-report/

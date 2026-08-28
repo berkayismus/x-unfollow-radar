@@ -72,5 +72,11 @@ module.exports = [
             'no-unreachable': 'error',
             'no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
         }
+    },
+    {
+        files: ['tests/e2e/**/*.js'],
+        languageOptions: {
+            globals: { chrome: 'readonly' }
+        }
     }
 ];

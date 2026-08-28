@@ -67,7 +67,7 @@ Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde ya
 - [x] Gumroad aktivasyon, önbellek ve entitlement iptali regresyon testlerini ekle.
 - [x] ESLint ve Prettier yapılandırması ekle.
 - [x] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
-- [ ] Playwright unpacked-extension smoke testleri ekle.
+- [x] Playwright unpacked-extension smoke testleri ekle.
 - [x] GitHub Actions üzerinde test ve paket doğrulama akışı kur.
 - [ ] Storage `schemaVersion` ve idempotent migration altyapısı ekle.
 - [ ] Tek kaynaktan manifest/dosya sürümü üreten release komutu ekle.

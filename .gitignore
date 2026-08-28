@@ -2,4 +2,6 @@ node_modules/
 .eslintcache
 .DS_Store
 dist/
-
+playwright-report/
+test-results/
+blob-report/
