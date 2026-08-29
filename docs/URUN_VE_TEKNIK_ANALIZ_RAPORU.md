@@ -1,6 +1,6 @@
 # Ürün ve Teknik Durum
 
-**Sürüm:** `2.0.4` · **Güncelleme:** 29 Ağustos 2026
+**Sürüm:** `2.0.5` · **Güncelleme:** 29 Ağustos 2026
 
 ## Ürün davranışı
 
@@ -29,6 +29,7 @@
 - Free/Pro limiti otomasyon motoruyla eşitlendi.
 - Yanıltıcı Undo akışı, manuel profil açma davranışı olarak adlandırıldı.
 - Scroll, stop, rate-limit, hedef dialog ve başarı doğrulaması dayanıklı hale getirildi.
+- X'in dialog/sheet onay varyantları ve görünmez kullanıcı adı karakterleri destekleniyor.
 - Önizleme, gerçek sayaç ve güvenlik kotasından ayrıldı.
 - Aynı kullanıcının popup listesinde yinelenmesi engellendi.
 - Son çalışma durumu popup yeniden açıldığında geri yükleniyor.
