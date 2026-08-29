@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "X Unfollow Radar",
-    "version": "2.0.3",
-    "description": "Seni takip etmeyenleri bulur ve filtrelere g\u00f6re kontroll\u00fc bi\u00e7imde takipten \u00e7\u0131kar\u0131r",
+    "version": "2.0.4",
+    "description": "Seni takip etmeyenleri bulur ve filtrelere göre kontrollü biçimde takipten çıkarır",
     "permissions": ["storage", "activeTab"],
     "host_permissions": ["https://twitter.com/*", "https://x.com/*", "*://api.gumroad.com/*"],
     "icons": {

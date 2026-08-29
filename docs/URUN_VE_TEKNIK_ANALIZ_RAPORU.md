@@ -1,6 +1,6 @@
 # Ürün ve Teknik Durum
 
-**Sürüm:** `2.0.3` · **Güncelleme:** 29 Ağustos 2026
+**Sürüm:** `2.0.4` · **Güncelleme:** 29 Ağustos 2026
 
 ## Ürün davranışı
 

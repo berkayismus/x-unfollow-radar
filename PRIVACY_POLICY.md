@@ -1,6 +1,6 @@
 # Privacy Policy — X Unfollow Radar
 
-**Last updated:** August 29, 2026 · **Documented version:** 2.0.3
+**Last updated:** August 29, 2026 · **Documented version:** 2.0.4
 
 X Unfollow Radar analyzes the visible X/Twitter Following page and performs actions requested by the user.
 
