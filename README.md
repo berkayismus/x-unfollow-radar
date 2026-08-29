@@ -1,99 +1,61 @@
-# X Unfollow Radar - Chrome Extension
+# X Unfollow Radar
 
-Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine göre kontrollü biçimde takipten çıkaran Chrome eklentisi.
+X/Twitter **Following** sayfasında seni takip etmiyor görünen hesapları bulan ve filtrelere göre kontrollü biçimde takipten çıkaran Chrome eklentisi.
 
-## 🎯 Özellikler
+## Özellikler
 
-### Temel Özellikler
+- Otomatik tarama ve kaydırma
+- Tek başlatma adımıyla otomatik takipten çıkarma
+- Whitelist ve keyword filtreleri
+- **Önizleme modu:** Hesapları listeler, takipten çıkarmaz
+- İşlemler arasında 2–5 saniye rastgele gecikme
+- Kayan 24 saatlik limit: Free 50, Pro 500 gerçek işlem
+- Gerçek, önizlenen, atlanan ve başarısız sonuçları gösteren son çalışma özeti
+- Gerçek işlemler için 30 günlük grafik; Pro planda CSV dışa aktarma
+- Son 10 gerçek işlem profilini manuel yeniden takip için açma
+- Saklanan rate-limit beklemesi ve otomatik devam
+- Açık/koyu tema; Türkçe, İngilizce ve Almanca popup
+- Gumroad lisans anahtarıyla Pro aktivasyonu
 
-- ✅ Otomatik scroll ve kullanıcı taraması
-- ✅ Tek başlatma adımıyla tarama ve kontrollü takipten çıkarma
-- ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
-- ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
-- ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
-- ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
-- ✅ Toplam istatistik saklama
-- ✅ Kalıcı çalışma özeti: gerçek, önizleme, atlanan ve başarısız sonuçlar
-- ✅ Önizleme açıkken gerçek kotadan ayrı 24 saatlik ve toplam sayaçlar
-- ✅ Popup yeniden açıldığında son çalışma listesini geri yükleme
-- ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
+> Tespit, X'in kullanıcı kartında gösterdiği **Follows you / Seni takip ediyor** bilgisine dayanır. Önizleme modu sonucunu kontrol etmek için kullanılabilir.
 
-### Gelişmiş Özellikler
+## Kurulum
 
-- 🔍 **Keywords Filter**: Bio'da belirli kelimeleri içeren kullanıcıları atla
-- 🛡️ **Whitelist**: Belirli kullanıcıları koruma altına al
-- 📊 **30 Günlük Chart**: Chartist.js ile görsel istatistikler
-- 📥 **CSV Export (Pro)**: İşlem geçmişini güvenli CSV formatında indir
-- 🌙 **Dark Mode**: Karanlık tema desteği
-- 🌐 **Çoklu Dil Desteği**: Türkçe, İngilizce ve Almanca arayüz (TR/EN/DE)
-- **User List**: İşlenen kullanıcıların canlı listesi
-- ↗ Profili açıp manuel yeniden takip etme
-- ⭐ Tek tıkla whitelist'e ekle butonu
-- 👁️ **Önizleme modu**: Hesapları bulup listele; kimseyi takipten çıkarma
-- ↗ **Recent Profiles**: Son 10 işlemin profilini manuel takip için aç
-- ⏱️ **Smart Rate Limit**: 15 dakika sonra otomatik devam
+1. Repoyu indir veya klonla.
+2. Chrome'da `chrome://extensions` adresini aç.
+3. **Geliştirici modu**nu etkinleştir.
+4. **Paketlenmemiş öğe yükle** ile proje klasörünü seç.
+5. Eklentiyi veya kaynak kodunu güncellediğinde eklentiyi ve açık X sekmesini yenile.
 
-## 📦 Kurulum
+## Kullanım
 
-### Lokal Kurulum (Geliştirici Modu)
+1. X hesabında `https://x.com/KULLANICI_ADI/following` sayfasını aç.
+2. İstersen whitelist, keyword filtreleri veya Önizleme modunu ayarla.
+3. **Takipten çıkarmayı başlat** düğmesine bas.
+4. İstediğin zaman **Durdur** düğmesini kullan.
 
-1. Bu klasörü bilgisayarınıza indirin
-2. Chrome'da `chrome://extensions` sayfasını açın
-3. Sağ üstten "Developer mode" (Geliştirici modu) aktif edin
-4. "Load unpacked" (Paketlenmemiş yükle) butonuna tıklayın
-5. Bu klasörü seçin
-6. Eklenti yüklendi! 🎉
+Eklenti uygun hesaplarda X'in takipten çıkarma onayını otomatik tamamlar. Yeniden takip otomatik değildir; ilgili profil manuel olarak açılır.
 
-### Chrome Web Store'dan Kurulum
+## Limitler ve veri
 
-Bu repoda henüz doğrulanmış bir Chrome Web Store bağlantısı belgelenmemiştir. Yayın tamamlandığında mağaza bağlantısı bu bölüme eklenmelidir.
+| Konu          | Davranış                                                        |
+| ------------- | --------------------------------------------------------------- |
+| Free limit    | Son 24 saatte 50 gerçek işlem                                   |
+| Pro limit     | Son 24 saatte 500 gerçek işlem                                  |
+| Önizleme      | Gerçek kotayı tüketmez; ayrı sayaçlarda tutulur                 |
+| Geçmiş        | Gerçek işlemler en fazla 30 gün saklanır                        |
+| Son profiller | En fazla 10 kullanıcı                                           |
+| Rate limit    | Görünür X uyarısı algılanırsa 15 dakika bekler                  |
+| Veriler       | X hesap yönetimi verileri `chrome.storage.local` içinde tutulur |
+| Harici istek  | Yalnızca Pro lisans doğrulaması için Gumroad                    |
 
-## 🚀 Kullanım
+Tam veri açıklaması için [PRIVACY_POLICY.md](PRIVACY_POLICY.md) dosyasına bak.
 
-1. Twitter/X hesabınıza giriş yapın
-2. "Following" (Takip Edilenler) sayfasına gidin:
-    - `https://twitter.com/[kullanıcı-adınız]/following`
-    - veya `https://x.com/[kullanıcı-adınız]/following`
-3. Eklenti simgesine tıklayın
-4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
-5. **Opsiyonel:** Önizleme modunu etkinleştirin (hesapları takipten çıkarmadan görmek için)
-6. "Takipten çıkarmayı başlat" butonuna tıklayın
-7. Eklenti görünür hesapları tarar; filtrelenmeyen ve sizi takip etmeyen hesapları kontrollü biçimde işler
-8. Eklenti Free/Pro 24 saatlik işlem limitine ulaşınca otomatik durur
-9. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
-10. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
-
-## ⚙️ Ayarlar ve Limitler
-
-- **24 Saatlik Limit**: Ücretsiz 50 / Pro 500 gerçek unfollow
-- **Toplam Limit**: Sınırsız (istatistik olarak tutuluyor)
-- **Gecikme**: 2-5 saniye (rastgele)
-- **Güvenlik penceresi**: Her gerçek işlem, yapıldığı andan 24 saat sonra sayaçtan çıkar
-- **Rate Limit**: 15 dakika otomatik bekleme ve devam
-- **Recent Profiles**: Son 10 işlemin profili manuel yeniden takip için açılabilir
-- **History**: 30 günlük geçmiş saklanır
-- **Lisans Doğrulama**: Pro anahtarı Gumroad ile aktive edilir ve periyodik olarak yeniden doğrulanır
-
-## ⚠️ Önemli Uyarılar
-
-1. **Rate Limit**: Twitter/X günlük işlem limitleri vardır. Eğer çok fazla işlem yaparsanız geçici olarak kısıtlanabilirsiniz.
-2. **Ban Riski**: Bu eklenti dikkatli kullanılmalıdır. Aşırı kullanım hesap kısıtlamalarına yol açabilir.
-3. **Geri Alma**: Takipten çıkarılan kişileri otomatik geri takip etmez, manuel eklemeniz gerekir.
-4. **Doğruluk**: Twitter/X ara sıra sayfa yapısını değiştirir, bu durumda eklenti çalışmayabilir.
-
-## 🛠️ Teknik Detaylar
-
-### Teknolojiler
-
-- Chrome Extension Manifest V3
-- Vanilla JavaScript (No frameworks)
-- Chrome Storage API
-- Chrome Messaging API
-
-### Geliştirici Doğrulamaları
+## Geliştirme
 
 ```bash
 npm ci
+npm run format:check
 npm run lint
 npm test
 npm run test:e2e
@@ -101,9 +63,7 @@ npm run package:check
 npm run release:check
 ```
 
-GitHub Actions her push ve pull request'te lint, format, regresyon, Playwright unpacked-extension, paket bütünlüğü ve sürüm senkronizasyonu kontrollerini çalıştırır.
-
-Yeni sürüm hazırlarken `package.json`, `package-lock.json` ve `manifest.json` sürümlerini tek komutla eşitleyin:
+Yeni sürüm:
 
 ```bash
 npm run release -- patch
@@ -111,82 +71,28 @@ npm run release -- patch
 npm run release -- 2.1.0
 ```
 
-### Dosya Yapısı
+Bu komut `package.json`, `package-lock.json` ve `manifest.json` sürümlerini eşitler.
 
-```
-x_unfollow_radar/
-├── manifest.json              # Extension configuration (Manifest V3)
-├── README.md                  # This file
-├── PRIVACY_POLICY.md          # Privacy policy
-├── STORE_LISTING.md           # Chrome Web Store listing
-│
-├── src/                       # Source code
-│   ├── background/
-│   │   └── index.js           # Service worker for license and storage setup
-│   ├── content/
-│   │   └── index.js           # Main automation logic
-│   ├── popup/
-│   │   ├── popup.html         # 3-tab UI (Ana/Filtreler/İstatistikler)
-│   │   ├── popup.js           # UI controller and handlers
-│   │   └── popup.css          # CSS with dark mode support
-│   └── shared/
-│       ├── constants.js            # Merkezi yapılandırma
-│       ├── storage-migrations.js   # İdempotent storage migration'ları
-│       ├── user-detection.js       # Test edilebilir UserCell yorumlama
-│       ├── safety-window.js        # Kayan 24 saat güvenlik sayacı
-│       ├── run-state.js            # Çalışma durum makinesi
-│       └── i18n.js                 # Uluslararasılaştırma
-│
-├── assets/                    # İkon, mağaza görseli ve promo dosyaları
-│   ├── icons/
-│       ├── icon16.png
-│       ├── icon48.png
-│       └── icon128.png
-│   ├── store-screenshots/
-│   └── promo/
-├── tests/                     # Unit, fixture, background ve Playwright testleri
-├── scripts/                   # Paket ve release doğrulama komutları
-│
-├── vendor/                    # Third-party libraries
-│   ├── chartist.min.js        # Chart library
-│   └── chartist.min.css       # Chart styles
-│
-└── locales/                   # Language files
-    ├── tr.json                # Turkish translations
-    ├── en.json                # English translations
-    └── de.json                # German translations
+## Proje yapısı
+
+```text
+src/background/   Gumroad lisansı ve storage migration
+src/content/      X sayfasındaki tarama ve işlem motoru
+src/popup/        Popup arayüzü
+src/shared/       Sabitler, migration ve test edilebilir yardımcılar
+locales/          TR/EN/DE çevirileri
+tests/            Unit, fixture, smoke ve Playwright testleri
+assets/           İkonlar ve mağaza varlıkları
+docs/             Mimari, durum ve yayın belgeleri
 ```
 
-### Güvenlik Önlemleri
+## Sınırlar
 
-- Rastgele gecikmeler (2-5 saniye)
-- Ücretsiz 50 / Pro 500 işlem limiti
-- Organik duraklamalar (%15 olasılıkla)
-- Algılanan rate-limit bekleme durumunu saklama ve otomatik devam
-- Her gerçek işlemi kendi zamanından 24 saat sonra düşüren kayan güvenlik penceresi
-- Önizleme işlemlerini gerçek güvenlik kotasını tüketmeden ayrı 24 saatlik ve toplam sayaçlarda gösterme
+- Yalnızca Chrome Manifest V3 hedeflenir.
+- X DOM'u veya metinleri değişirse tespit güncellemesi gerekebilir.
+- Kontrollü tempo hesap kısıtlaması yaşanmayacağını garanti etmez.
+- Almanca popup desteği, Almanca X DOM metinlerinin tamamının algılandığı anlamına gelmez.
 
-## 🤝 Katkıda Bulunma
+Sorunlar için [GitHub Issues](https://github.com/berkayismus/x-unfollow-radar/issues) kullanılabilir.
 
-Bu proje MVP (Minimum Viable Product) olarak geliştirilmiştir. Katkılarınızı bekliyoruz!
-
-## 📄 Lisans
-
-Bu proje kişisel kullanım içindir. Ticari kullanım için iletişime geçin.
-
-## 🐛 Bilinen Sorunlar
-
-- Twitter/X sayfa yapısı değişirse selektörler güncellenmelidir
-- Rate limit durumunda 15 dakika otomatik bekleme yapılır
-
-## 📞 Destek
-
-Sorun yaşarsanız veya öneriniz varsa [GitHub üzerinden issue açın](https://github.com/berkayismus/x-unfollow-radar/issues).
-
----
-
----
-
-**⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
-
-_Son güncelleme: 29 Ağustos 2026_
+**Uyarı:** Eklentiyi kendi sorumluluğunda kullan. Aşırı işlem X tarafından hesap kısıtlamasına yol açabilir.

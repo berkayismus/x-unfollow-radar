@@ -1,76 +1,36 @@
-# X Unfollow Radar - Geliştirme Yol Haritası
+# Tamamlanan Geliştirme Yol Haritası
 
-**Başlangıç:** 26 Ağustos 2026
+Planlanan ürün geliştirmeleri Faz 1–3 kapsamında tamamlandı. Mobil uygulama, Firefox/macOS Safari desteği ve Faz 4 kapsamdan çıkarıldı.
 
-Bu belge, `URUN_VE_TEKNIK_ANALIZ_RAPORU.md` içindeki bulguları uygulanabilir fazlara ayırır. İşaretli maddeler geliştirilmiş, boş maddeler sıradaki işlerdir.
+## Faz 1 — Doğruluk ve dayanıklılık
 
-## Faz 1 - Stabilizasyon ve davranış doğruluğu
+- [x] Free/Pro limitlerini ortak kaynaktan uygula.
+- [x] Gerçek işlemleri kayan 24 saatlik pencereyle say.
+- [x] Önizlemeyi gerçek işlem ve kotadan ayır.
+- [x] Reset işleminin güvenlik penceresini aşmasını engelle.
+- [x] X onay penceresini hedef kullanıcıya göre doğrula ve otomatik tamamla.
+- [x] Stop, scroll, rate-limit ve ardışık hata davranışlarını dayanıklı hale getir.
+- [x] Son çalışma durumunu ve kullanıcı sonuçlarını kalıcı tut.
+- [x] Popup'ta aynı kullanıcıyı tek satırda göster.
 
-Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yanıltıcı arayüz risklerini gidermek.
+## Faz 2 — Gizlilik, lisans ve yayın hazırlığı
 
-### Paket 1A - Kritik doğruluk
+- [x] Yerel ve harici veri işleme envanterini belgele.
+- [x] İstatistik sıfırlama ile tüm verileri silmeyi ayır.
+- [x] CSV kaçışı ve formül enjeksiyonu koruması ekle.
+- [x] Gumroad `product_id` ile aktivasyon ve 24 saatlik yeniden doğrulama ekle.
+- [x] İade, chargeback, dispute, abonelik sonu, süre dolumu ve çevrimdışı grace durumlarını işle.
+- [x] Manifest izinlerini gerekli kapsamla sınırla.
 
-- [x] Filtreler ve İstatistikler sekmelerindeki `hidden` yönetimini düzelt.
-- [x] Free/Pro limitini tek bir `getSessionLimit()` kaynağından uygula.
-- [x] Pro limitini content script otomasyon motoruna bağla.
-- [x] “Undo” özelliğini gerçek davranışına uygun olarak “Profili aç ve manuel takip et” şeklinde değiştir.
-- [x] Dry-run işlemlerini gerçek unfollow ve günlük limit sayacından ayır.
-- [x] Dry-run istatistiğini ayrı `dryRun` alanında tut.
-- [x] Yanıltıcı “rate-limit safe” iddiasını kontrollü tempo ifadesiyle değiştir.
+## Faz 3 — Test ve bakım
 
-### Paket 1B - Otomasyon dayanıklılığı
+- [x] Syntax, smoke, unit ve UserCell fixture testleri ekle.
+- [x] ESLint ve Prettier kontrolleri ekle.
+- [x] Playwright ile unpacked-extension testi ekle.
+- [x] GitHub Actions doğrulama akışı kur.
+- [x] `schemaVersion` tabanlı idempotent migration altyapısı ekle.
+- [x] Manifest/package sürüm senkronizasyonu ekle.
 
-- [x] Kayıtlı rate-limit süresini sayfa yenilemesinden sonra yeniden uygula.
-- [x] Rate-limit beklemesini timestamp tabanlı ve yeniden zamanlanabilir yap.
-- [x] Scroll bitiş kararını DOM kart sayısı yerine benzersiz kullanıcı büyümesine bağla.
-- [x] Confirm sonrası buton durumunu kontrol ederek başarıyı doğrula.
-- [x] X hata/toast/dialog içeriklerinden gerçek rate-limit algılama ekle.
-- [x] `MutationObserver` ile yeni kart yüklenmesini bekleyen scroll adaptörü ekle.
-- [x] Dialog'un hedef kullanıcıya ait olduğunu doğrula.
-- [x] Stop işlemini `AbortController` ile gecikme ve tıklama zincirine uygula.
-- [x] Ardışık başarısızlıklarda circuit breaker ve anlaşılır hata durumu ekle.
+## Güncel durum
 
-### Paket 1C - Sayaç ve çalışma durumu
-
-- [x] Güvenlik limitini kayan son-24-saat aksiyon kayıtlarından hesapla.
-- [x] Kullanıcı resetinin güvenlik limitini aşmasına izin verme.
-- [x] Çalışma durumunu `queued/attempting/succeeded/failed` durum makinesine taşı.
-- [x] Popup yeniden açıldığında son çalışma listesini geri yükle.
-- [x] Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı çalışma özetinde göster.
-
-**Faz 1 çıkış kriteri:** Free/Pro limit, stop, dry-run, scroll sonu, başarısız aksiyon ve sayfa yenileme senaryoları otomatik testlerden geçer.
-
-## Faz 2 - Gizlilik, lisans ve yayın hazırlığı
-
-Amaç: Kod, ürün beyanı ve mağaza açıklamalarını aynı gerçeğe bağlamak.
-
-- [x] Yerel ve harici veri işleme envanterini tamamla.
-- [x] Gizlilik politikasında Gumroad aktarımını, kullanıcı adı geçmişini, whitelist'i ve saklama sürelerini açıkla.
-- [x] “İstatistikleri sıfırla” ve gerçek “Tüm verileri sil” işlemlerini ayır.
-- [x] README, Store Listing, popup ve manifest limit/özellik metinlerini eşitle.
-- [x] Gereksiz `web_accessible_resources` kapsamını kaldır.
-- [x] CSV escaping ve formül enjeksiyonu koruması ekle.
-- [x] Lisans doğrulamasını 24 saatlik periyodik entitlement kontrolüyle güçlendir.
-- [x] Refund, chargeback, dispute, subscription-ended, expired ve çevrimdışı lisans durumlarını tanımla.
-- [x] Gumroad ürün kimliği doğrulandıktan sonra yeni ürünler için `product_permalink` yerine `product_id` kullan.
-
-**Faz 2 çıkış kriteri:** Kod, manifest, mağaza metni ve gizlilik politikası birbiriyle tutarlıdır.
-
-## Faz 3 - Test, CI ve bakım altyapısı
-
-Amaç: X DOM değişikliklerini ve ürün regresyonlarını yayın öncesinde yakalamak.
-
-- [x] Bağımlılıksız sözdizimi ve smoke test komutlarını ekle.
-- [x] Free/Pro limit ve locale anahtar eşitliği regresyon testlerini ekle.
-- [x] Gumroad aktivasyon, önbellek ve entitlement iptali regresyon testlerini ekle.
-- [x] ESLint ve Prettier yapılandırması ekle.
-- [x] UserCell fixture'larıyla filtre ve aday tespit testleri ekle.
-- [x] Playwright unpacked-extension smoke testleri ekle.
-- [x] GitHub Actions üzerinde test ve paket doğrulama akışı kur.
-- [x] Storage `schemaVersion` ve idempotent migration altyapısı ekle.
-- [x] Tek kaynaktan manifest/dosya sürümü üreten release komutu ekle.
-- [x] Kullanılmayan sabit ve state alanlarını temizle.
-
-**Faz 3 çıkış kriteri:** Her değişiklikte syntax, lint, unit, DOM fixture ve temel extension akışı otomatik doğrulanır.
-
-Planlanan geliştirme kapsamı Faz 1-3 ile tamamlanmıştır.
+Yeni bir ürün fazı planlanmıyor. Kalan işler Chrome Web Store hesabı, güncel mağaza görselleri, ZIP yükleme ve inceleme gibi yayın adımlarıdır. Ayrıntılar için [CHROME_WEB_STORE_PLAN.md](CHROME_WEB_STORE_PLAN.md) dosyasına bak.

@@ -1,130 +1,74 @@
-# X Unfollow Radar - Mimari Doküman (TR)
+# Mimari (TR)
 
-Bu dokümanda X Unfollow Radar Chrome eklentisinin yüksek seviye mimarisi, ana bileşenleri ve aralarındaki veri akışı anlatılmaktadır.
+X Unfollow Radar, Chrome Manifest V3 kullanan framework'süz bir eklentidir.
 
-## 1. Genel Bakış
+## Bileşenler
 
-- **Amaç**: Twitter/X üzerinde seni takip etmeyen hesapları taramak ve kullanıcı tarafından başlatılan çalışmada kontrollü biçimde takipten çıkarmak.
-- **Teknolojiler**:
-    - Chrome Extension Manifest V3
-    - Vanilla JavaScript (framework yok)
-    - Chrome Storage API
-    - Chrome Messaging API
-    - Chartist.js (istatistik grafikleri)
+| Bileşen                   | Sorumluluk                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `src/content/index.js`    | X Following sayfasını tarar, filtreler ve işlemleri yürütür                         |
+| `src/popup/`              | Başlat/durdur, Önizleme modu, filtreler, sayaçlar ve grafik                         |
+| `src/background/index.js` | Gumroad lisans doğrulaması ve storage migration başlangıcı                          |
+| `src/shared/`             | Sabitler, migration, DOM, tespit, güvenlik penceresi ve çalışma durumu yardımcıları |
+| `locales/`                | Türkçe, İngilizce ve Almanca popup metinleri                                        |
 
-Eklenti üç ana parçaya ayrılır:
+Background worker durum mesajlarını yeniden iletmez. Content script popup'a doğrudan mesaj gönderir; bu, yinelenen kullanıcı kayıtlarını önlemeye yardımcı olur.
 
-1. `content script` → Twitter/X sayfasında çalışan otomasyon motoru
-2. `popup` → Kullanıcı arayüzü (başlat/durdur, filtreler, istatistikler)
-3. `background service worker` → Lisans doğrulama ve storage migration başlatma
+## İşlem akışı
 
-## 2. Dosya Yapısı (Özet)
+1. Popup aktif sekmeye `START` gönderir.
+2. Content script storage migration'ını çalıştırır ve kayıtlı ayarları yükler.
+3. Ana sütundaki `UserCell` kartlarını tarar.
+4. “Follows you / Seni takip ediyor” bilgisi olan, whitelist'teki veya keyword filtresine takılan hesapları atlar.
+5. Kalan hesapları `queued → attempting → succeeded/failed` durumlarıyla işler.
+6. Gerçek modda hedef X onay penceresini doğrular ve onay düğmesini otomatik tıklar.
+7. Kuyruk bittiğinde yeni kartlar için sayfayı kaydırır; yeni kullanıcı kalmayınca tamamlanır.
 
-- `manifest.json`  
-  Eklentinin manifest dosyası; izinler, content script, background ve popup tanımları burada.
+`STOP`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS` ve `UPDATE_WHITELIST` mesajları popup'tan content script'e gider. `STATUS_UPDATE`, `USER_PROCESSED` ve `RUN_STATE_UPDATED` mesajları ters yönde gider.
 
-- `src/content/index.js`  
-  Asıl iş yükü burada:
-    - Sayfadaki kullanıcı kartlarını (`USER_CELL_MAIN`) tarar.
-    - \"Follows you\" badge'i olmayanları filtrelerden geçirip işlem kuyruğuna ekler.
-    - Whitelist ve keyword filtrelerini uygular.
-    - Kuyruktaki hesaplar için \"Following\" ve hedef kullanıcıya ait X onay butonunu kullanır.
-    - X'in görünür toast, alert ve dialog metinlerinden rate-limit sinyallerini algılar; bekleme/devam durumunu saklar.
+## Güvenlik davranışı
 
-- `src/popup/popup.html / popup.js / popup.css`  
-  3 sekmeli (Main / Filters / Statistics) popup arayüzü:
-    - Ana sekme: başlat/durdur, dry-run, yakın tarihli profili açma, anlık kullanıcı listesi.
-    - Filtreler sekmesi: keyword filter ve whitelist yönetimi.
-    - İstatistikler sekmesi: Son 30 gün grafiği ve CSV export.
+- Gerçek işlemler arasında 2–5 saniye rastgele gecikme vardır.
+- Free limit 50, Pro limit 500 gerçek işlem/24 saattir.
+- Her gerçek işlem kendi zamanından 24 saat sonra güvenlik sayacından çıkar.
+- Reset istatistikleri temizler fakat aktif gerçek işlem güvenlik penceresini korur.
+- Stop, aktif bekleme ve tıklama zincirini `AbortController` ile keser.
+- Üç ardışık doğrulanamayan işlem circuit breaker'ı tetikler.
+- Görünür rate-limit sinyali 15 dakikalık kayıtlı bekleme başlatır.
 
-- `src/background/index.js`  
-  Gumroad lisans doğrulamasını yürütür ve storage migration'ını başlatır.
+Bu önlemler hesap kısıtlaması yaşanmayacağını garanti etmez.
 
-- `src/shared/constants.js`  
-  Zamanlama, limitler, selector'lar, metin pattern'leri, storage key'leri ve mesaj tipleri gibi merkezi sabit değerleri içerir.
+## Önizleme modu
 
-- `src/shared/i18n.js` + `locales/*.json`  
-  Çoklu dil desteği (TR/EN/DE).
-  `i18n.js` tarayıcı diline ve kayıtlı kullanıcı tercihine göre locale belirler, ilgili JSON'dan metinleri yükler ve `data-i18n` attribute'larına uygular.
+Arayüzde **Önizleme modu**, kod ve storage içinde `dryRun` olarak adlandırılır.
 
-## 3. Bileşenler Arası Veri Akışı
+- Hesaplar aynı filtre ve tarama akışından geçer.
+- X üzerinde takipten çıkarma yapılmaz.
+- Son 24 saat ve toplam önizleme sayaçları ayrı tutulur.
+- Gerçek güvenlik kotası tüketilmez.
 
-### 3.1. Popup → Content Script
+## Yerel veri
 
-- Kullanıcı **Takipten çıkarmayı başlat**'a bastığında popup `START` gönderir.
-- Content script görünür hesapları tarar ve uygun olanları aynı çalışma içinde işlem kuyruğuna alır.
+`chrome.storage.local` içinde başlıca şu veriler saklanır:
 
-- **Durdur**, **Devam Et (50 kişi daha)**, **Dry-run toggle** ve filtre güncellemeleri de benzer şekilde `chrome.tabs.sendMessage` ile content script'e iletilir.
+- Gerçek ve önizleme zaman damgaları ile toplamlar
+- Son çalışma durumu ve sınırlı kullanıcı kayıtları
+- 30 günlük gerçek işlem geçmişi ve son 10 profil
+- Whitelist, keyword, tema, dil ve Önizleme tercihi
+- Rate-limit zamanı, plan ve Gumroad lisans bilgileri
+- `schemaVersion: 4`
 
-### 3.2. Content Script → Popup
+İstatistik sıfırlama ile tüm yerel verileri silme ayrı işlemlerdir. Ayrıntılar [../PRIVACY_POLICY.md](../PRIVACY_POLICY.md) dosyasındadır.
 
-Content script, çalışma sırasında popup'a iki kanal üzerinden bilgi gönderir:
+## Lisans
 
-1. **Durum güncellemeleri** (`STATUS_UPDATE`):
-    - `sendStatus(status, data)` fonksiyonu ile `chrome.runtime.sendMessage` kullanılır.
-    - Örnek: `STATUS.SCANNING`, `STATUS.UNFOLLOWED`, `STATUS.LIMIT_REACHED` gibi.
+Popup `VERIFY_LICENSE` ve `GET_PLAN` mesajlarını background worker'a gönderir. Worker lisans anahtarını Gumroad'a `product_id` ile doğrular. Son doğrulamanın üzerinden 24 saat geçmişse bir sonraki plan sorgusunda yeniden doğrulama yapılır; ağ hatalarında en fazla 7 günlük çevrimdışı grace uygulanır.
 
-2. **Kullanıcı ve çalışma güncellemeleri** (`USER_PROCESSED`, `RUN_STATE_UPDATED`):
-    - Gerçek/dry-run işlemleri kullanıcı güncellemesi olarak; atlanan ve başarısız kayıtlar kalıcı çalışma durumu üzerinden gönderilir.
-    - Popup, bu bilgiyi kullanarak \"Processed Users\" listesini günceller.
+## Testler
 
-Content script mesajları popup'a doğrudan ulaşır. Background worker bu durum mesajlarını yeniden göndermez; böylece aynı kullanıcı güncellemesinin iki kez işlenmesi önlenir. Popup kullanıcı adı bazında tek satır tutar ve `queued → attempting → succeeded/failed` geçişlerinde aynı satırı günceller.
+- Syntax, smoke ve unit testleri
+- UserCell DOM fixture testleri
+- Playwright unpacked-extension testi
+- ESLint, Prettier, paket ve sürüm kontrolleri
 
-## 4. İş Akışı (Main Loop)
-
-`mainLoop()` fonksiyonu içeride şu sırayla çalışır:
-
-1. `initStorage()`
-    - Son 24 saatteki gerçek ve dry-run işlem zamanlarını, son çalışma durumunu, gerçek/dry-run toplamlarını, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
-    - `schemaVersion` tabanlı idempotent migration katmanı eski sayaç verilerini yeni aksiyon zamanı şemasına güvenle taşır.
-    - Her uygun hesap için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
-    - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
-
-2. Tarama ve kuyruk oluşturma:
-    - `scanUsers()` ile ekrandaki kullanıcı kartlarını tarar.
-    - \"Follows you\" badge'i olmayanları whitelist/keyword kontrolünden geçirip `unfollowQueue`'ya ekler.
-
-3. Aynı çalışma içindeki yürütme aşamasında:
-    - Kuyruktaki her kullanıcı için `unfollowUser()` çağrılır:
-        - Dry-run ise sadece simüle eder ve istatistikleri günceller.
-        - Normal modda \"Following\" butonu + X onay butonu otomatik tıklanır. Hedef dialogun kapanması, buton/cell değişimi ve görünür hata sinyalleri birlikte değerlendirilerek sayaçlar, geçmiş ve son profiller kuyruğu güncellenir.
-    - Sayfanın sonuna gelindiğinde çalışma tamamlanır.
-    - Rate limit veya 24 saatlik limit dolduğunda uygun STATUS değerleri gönderilir ve döngü sonlandırılır / duraklatılır.
-
-## 5. Rate Limit ve Güvenlik
-
-- **Rate Limit**: X arayüzündeki bilinen toast, alert veya dialog sinyalleri algılandığında:
-    - `handleRateLimit()` fonksiyonu `RATE_LIMIT_HIT` mesajı yollar, bekleme süresini (`RATE_LIMIT_WAIT`) hesaplar ve `isPaused = true` yapar.
-    - Popup, kalan süreyi bir geri sayım olarak gösterir.
-
-- **Önizleme modu** (kod içinde `dry-run`):
-    - Gerçekte takipten çıkarma yapmadan bütün akışı simüle eder (istatistikler ve kullanıcı listesi dahil).
-    - Ana kartlar önizleme açıkken ayrı 24 saatlik ve toplam önizleme sayaçlarını gösterir; gerçek güvenlik kotası tüketilmez.
-
-- **Yakın Tarihli Profiller**:
-    - Her gerçek unfollow için son 10 kullanıcı bilgisi yerel kuyruğa eklenir.
-    - Popup profili yeni sekmede açar; yeniden takip işlemi kullanıcı tarafından manuel yapılır.
-
-## 6. Temalar ve Erişilebilirlik
-
-- **Tema Yönetimi**:
-    - `Constants.THEMES` (`light`, `dark`) ve `STORAGE_KEYS.THEME` kullanılarak kullanıcı seçimi kaydedilir.
-    - Popup açıldığında kayıtlı tema yüklenir ve `document.documentElement.classList` üzerinden uygulanır.
-
-- **Erişilebilirlik (A11y)**:
-    - Tüm kritik buton ve kontrollerde `aria-label`, `role`, `aria-live` gibi attribute'lar kullanılır.
-    - Klavye gezinmesi için tab yapısı ve `handleTabKeyboard` fonksiyonu ile ok tuşları desteği sağlanır.
-
-## 7. Uluslararasılaştırma (i18n)
-
-- Desteklenen diller: `tr`, `en`, `de`.
-- Açılışta:
-    1. Daha önce kaydedilmiş dil tercihi varsa (`chrome.storage.local['language']`), o kullanılır.
-    2. Yoksa `navigator.language`'e bakılır:
-        - `tr-*` ise Türkçe
-        - `de-*` ise Almanca
-        - Diğer tüm durumlarda İngilizce
-    3. Seçilen dil storage'a yazılır ve popup boyunca sabit kalır.
-- Dil değişimi:
-    - Popup header'daki dropdown ile TR/EN/DE arasında geçiş yapılır.
-    - `I18n.setLocale(locale)` çağrısı `locales/{locale}.json` dosyasını yükler ve `data-i18n` alanlarını yeniden uygular.
+GitHub Actions aynı kontrolleri push ve pull request'lerde çalıştırır.
