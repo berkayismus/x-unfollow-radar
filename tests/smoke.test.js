@@ -218,7 +218,7 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /document\.scrollingElement \|\| document\.documentElement/);
     assert.match(contentSource, /Constants\.TIMING\.PLAN_LOOKUP_TIMEOUT/);
     assert.doesNotMatch(startHandler, /window\.scrollTo\(0, 0\)/);
-    assert.match(contentSource, /findConfirmationDialog\(username\)/);
+    assert.match(contentSource, /findConfirmationAction\(username\)/);
     assert.match(contentSource, /Accepted closed confirmation dialog/);
     assert.match(contentSource, /findActionFailureSignal\(\)/);
     assert.match(contentSource, /MAX_CONSECUTIVE_FAILURES/);

@@ -114,8 +114,8 @@ const Constants = (function () {
         CONFIRM_BUTTON: '[data-testid="confirmationSheetConfirm"]',
         /** Cancel button for unfollow dialog */
         CANCEL_BUTTON: '[data-testid="confirmationSheetCancel"]',
-        /** Modal dialog containing the unfollow confirmation */
-        DIALOG: '[role="dialog"]',
+        /** Modal/sheet containers used by X for unfollow confirmation */
+        DIALOG: '[role="dialog"], [data-testid="confirmationSheetDialog"], [data-testid="sheetDialog"], [data-testid="BottomSheet"]',
         /** X surfaces commonly used for errors and rate-limit notices */
         RATE_LIMIT_SIGNAL: '[data-testid="toast"], [role="alert"], [role="dialog"]',
         /** X surfaces used for action failure notices after a dialog closes */
