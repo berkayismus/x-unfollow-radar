@@ -66,8 +66,6 @@ const Constants = (function () {
         FREE_MAX_SESSION: 50,
         /** Pro plan daily unfollow limit */
         PRO_MAX_SESSION: 500,
-        /** Batch size for test mode confirmation */
-        BATCH_SIZE: 50,
         /** Maximum items in undo queue */
         MAX_UNDO_QUEUE: 10,
         /** History retention in days */
@@ -172,9 +170,6 @@ const Constants = (function () {
         ACTION_TIMESTAMPS: 'actionTimestamps',
         TOTAL_UNFOLLOWED: 'totalUnfollowed',
         LAST_RUN: 'lastRun',
-        TEST_MODE: 'testMode',
-        TEST_COMPLETE: 'testComplete',
-        TEST_COMPLETED_AT: 'testCompletedAt',
         KEYWORDS: 'keywords',
         WHITELIST: 'whitelist',
         DRY_RUN_MODE: 'dryRunMode',
@@ -201,7 +196,6 @@ const Constants = (function () {
      */
     const MESSAGE_TYPES = Object.freeze({
         STATUS_UPDATE: 'STATUS_UPDATE',
-        TEST_COMPLETE: 'TEST_COMPLETE',
         RATE_LIMIT_HIT: 'RATE_LIMIT_HIT',
         USER_PROCESSED: 'USER_PROCESSED',
         RUN_STATE_UPDATED: 'RUN_STATE_UPDATED'
@@ -214,7 +208,6 @@ const Constants = (function () {
     const ACTIONS = Object.freeze({
         START: 'START',
         STOP: 'STOP',
-        CONTINUE_TEST: 'CONTINUE_TEST',
         GET_STATUS: 'GET_STATUS',
         UPDATE_KEYWORDS: 'UPDATE_KEYWORDS',
         UPDATE_WHITELIST: 'UPDATE_WHITELIST',
@@ -242,7 +235,6 @@ const Constants = (function () {
         STOPPED: 'stopped',
         COMPLETED: 'completed',
         LIMIT_REACHED: 'limit_reached',
-        TEST_COMPLETE: 'test_complete',
         RATE_LIMIT: 'rate_limit',
         RESUMED: 'resumed',
         ERROR: 'error'

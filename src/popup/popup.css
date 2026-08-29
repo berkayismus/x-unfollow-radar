@@ -360,11 +360,6 @@ h1 {
     color: var(--text-primary);
 }
 
-.alert-warning {
-    background: rgba(255, 193, 7, 0.12);
-    border-left: 4px solid var(--warning-color);
-}
-
 .alert-info {
     background: rgba(29, 161, 242, 0.1);
     border-left: 4px solid var(--primary-color);
@@ -410,11 +405,6 @@ button {
 
 .btn-danger:hover {
     filter: brightness(0.92);
-}
-
-.btn-success {
-    background: var(--success-color);
-    color: #ffffff;
 }
 
 .btn-secondary {

@@ -17,17 +17,8 @@ const XUnfollowRadarContent = (function () {
     /** @type {boolean} Whether the unfollow operation is currently running */
     let isRunning = false;
 
-    /** @type {boolean} Whether the operation is paused (rate limit, batch confirmation) */
+    /** @type {boolean} Whether the operation is paused by a detected rate limit */
     let isPaused = false;
-
-    /** @type {boolean} Whether test mode is enabled (asks confirmation after first batch) */
-    let testMode = true;
-
-    /** @type {boolean} Whether the first batch test is complete */
-    let testComplete = false;
-
-    /** @type {number|null} Timestamp of the latest explicit batch confirmation */
-    let testCompletedAt = null;
 
     /** @type {HTMLElement[]} Queue of user cells to process */
     let unfollowQueue = [];
@@ -151,15 +142,6 @@ const XUnfollowRadarContent = (function () {
         actionTimestamps = pruned;
         sessionCount = actionTimestamps.length;
 
-        if (testComplete && testCompletedAt && now - testCompletedAt >= Constants.TIMING.SESSION_DURATION) {
-            testComplete = false;
-            testCompletedAt = null;
-            await chrome.storage.local.set({
-                [Constants.STORAGE_KEYS.TEST_COMPLETE]: false,
-                [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: null
-            });
-        }
-
         if (changed && !suppressPersistence) {
             await chrome.storage.local.set({
                 [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
@@ -238,8 +220,6 @@ const XUnfollowRadarContent = (function () {
             status,
             sessionCount,
             totalUnfollowed,
-            testMode,
-            testComplete,
             ...data
         });
     }
@@ -731,14 +711,6 @@ const XUnfollowRadarContent = (function () {
                 return false;
             }
 
-            if (!dryRunMode && testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
-                isPaused = true;
-                await updateRunStatus('paused');
-                chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
-                sendStatus(Constants.STATUS.TEST_COMPLETE);
-                return false;
-            }
-
             const userCell = unfollowQueue.shift();
             const username = userCell ? getUsernameFromCell(userCell) : null;
             if (userCell && document.contains(userCell)) {
@@ -848,15 +820,6 @@ const XUnfollowRadarContent = (function () {
                 break;
             }
 
-            // Check if we reached a batch milestone
-            if (!dryRunMode && testMode && !testComplete && sessionCount >= Constants.LIMITS.BATCH_SIZE) {
-                isPaused = true;
-                await updateRunStatus('paused');
-                chrome.runtime.sendMessage({ type: Constants.MESSAGE_TYPES.TEST_COMPLETE });
-                sendStatus(Constants.STATUS.TEST_COMPLETE);
-                return;
-            }
-
             const seenBeforeCycle = processedUsers.size;
 
             // Scan and process the current viewport before scrolling so X's
@@ -920,9 +883,6 @@ const XUnfollowRadarContent = (function () {
             Constants.STORAGE_KEYS.ACTION_TIMESTAMPS,
             Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED,
             Constants.STORAGE_KEYS.LAST_RUN,
-            Constants.STORAGE_KEYS.TEST_MODE,
-            Constants.STORAGE_KEYS.TEST_COMPLETE,
-            Constants.STORAGE_KEYS.TEST_COMPLETED_AT,
             Constants.STORAGE_KEYS.KEYWORDS,
             Constants.STORAGE_KEYS.WHITELIST,
             Constants.STORAGE_KEYS.DRY_RUN_MODE,
@@ -961,13 +921,6 @@ const XUnfollowRadarContent = (function () {
         sessionCount = actionTimestamps.length;
 
         totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
-        testMode = data[Constants.STORAGE_KEYS.TEST_MODE] !== undefined ? data[Constants.STORAGE_KEYS.TEST_MODE] : true;
-        const storedTestComplete = data[Constants.STORAGE_KEYS.TEST_COMPLETE] || false;
-        testCompletedAt = storedTestComplete
-            ? data[Constants.STORAGE_KEYS.TEST_COMPLETED_AT] || data[Constants.STORAGE_KEYS.SESSION_START] || now
-            : null;
-        testComplete = storedTestComplete && now - testCompletedAt < Constants.TIMING.SESSION_DURATION;
-        if (!testComplete) testCompletedAt = null;
         keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
         whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
         dryRunMode = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
@@ -983,9 +936,7 @@ const XUnfollowRadarContent = (function () {
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
             [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
-            [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null,
-            [Constants.STORAGE_KEYS.TEST_COMPLETE]: testComplete,
-            [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: testCompletedAt
+            [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
         });
 
         // Initialize stats if not exists
@@ -1055,30 +1006,6 @@ const XUnfollowRadarContent = (function () {
                     sendResponse({ success: true });
                     break;
 
-                case Constants.ACTIONS.CONTINUE_TEST:
-                    testComplete = true;
-                    testCompletedAt = Date.now();
-                    isPaused = false;
-                    isRunning = true;
-                    updateRunStatus('running');
-                    if (!operationController || operationController.signal.aborted) {
-                        operationController = new AbortController();
-                    }
-                    chrome.storage.local.set({
-                        [Constants.STORAGE_KEYS.TEST_COMPLETE]: true,
-                        [Constants.STORAGE_KEYS.TEST_COMPLETED_AT]: testCompletedAt
-                    });
-                    mainLoop().catch((err) => {
-                        if (err.name !== 'AbortError') {
-                            console.error('mainLoop error:', err);
-                            isRunning = false;
-                            updateRunStatus('error', true);
-                            sendStatus(Constants.STATUS.ERROR);
-                        }
-                    });
-                    sendResponse({ success: true });
-                    break;
-
                 case Constants.ACTIONS.GET_STATUS:
                     sendResponse({
                         success: true,
@@ -1119,8 +1046,6 @@ const XUnfollowRadarContent = (function () {
                     suppressPersistence = true;
                     sessionCount = 0;
                     actionTimestamps = [];
-                    testComplete = false;
-                    testCompletedAt = null;
                     totalUnfollowed = 0;
                     undoQueue = [];
                     keywords = [];

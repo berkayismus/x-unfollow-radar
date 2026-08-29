@@ -52,7 +52,6 @@ const XUnfollowRadarPopup = (function () {
             // Main tab
             startBtn: document.getElementById('startBtn'),
             stopBtn: document.getElementById('stopBtn'),
-            continueBtn: document.getElementById('continueBtn'),
             resetBtn: document.getElementById('resetBtn'),
             deleteAllDataBtn: document.getElementById('deleteAllDataBtn'),
             undoBtn: document.getElementById('undoBtn'),
@@ -72,7 +71,6 @@ const XUnfollowRadarPopup = (function () {
 
             userList: document.getElementById('userList'),
 
-            testModeAlert: document.getElementById('testModeAlert'),
             rateLimitAlert: document.getElementById('rateLimitAlert'),
             rateLimitCountdown: document.getElementById('rateLimitCountdown'),
             limitReachedAlert: document.getElementById('limitReachedAlert'),
@@ -706,23 +704,6 @@ const XUnfollowRadarPopup = (function () {
             updateStatus('stopped', `⏸ ${I18n.t('status.stopped')}`);
         } catch (error) {
             console.error('Failed to stop:', error);
-        }
-    }
-
-    /**
-     * Handles the continue button click after batch confirmation
-     * @async
-     * @returns {Promise<void>}
-     */
-    async function handleContinue() {
-        if (!currentTab) return;
-
-        try {
-            await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.CONTINUE_TEST });
-            elements.testModeAlert.style.display = 'none';
-            updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
-        } catch (error) {
-            console.error('Failed to continue:', error);
         }
     }
 
@@ -1405,9 +1386,6 @@ const XUnfollowRadarPopup = (function () {
             case Constants.MESSAGE_TYPES.STATUS_UPDATE:
                 handleStatusUpdate(message);
                 break;
-            case Constants.MESSAGE_TYPES.TEST_COMPLETE:
-                handleTestComplete();
-                break;
             case Constants.MESSAGE_TYPES.RATE_LIMIT_HIT:
                 handleRateLimitMessage(message.data);
                 break;
@@ -1517,15 +1495,6 @@ const XUnfollowRadarPopup = (function () {
     }
 
     /**
-     * Handles test completion
-     * @returns {void}
-     */
-    function handleTestComplete() {
-        elements.testModeAlert.style.display = 'block';
-        updateStatus('stopped', `⏸ ${I18n.t('alerts.batchComplete')}`);
-    }
-
-    /**
      * Handles rate limit notification
      * @param {Object} data - Rate limit data
      * @returns {void}
@@ -1576,11 +1545,6 @@ const XUnfollowRadarPopup = (function () {
         // Stop button
         if (elements.stopBtn) {
             elements.stopBtn.setAttribute('aria-label', I18n.t('aria.stopButton'));
-        }
-
-        // Continue button
-        if (elements.continueBtn) {
-            elements.continueBtn.setAttribute('aria-label', I18n.t('aria.continueButton'));
         }
 
         // Reset button
@@ -1651,7 +1615,6 @@ const XUnfollowRadarPopup = (function () {
         // Main controls
         elements.startBtn.addEventListener('click', handleStart);
         elements.stopBtn.addEventListener('click', handleStop);
-        elements.continueBtn.addEventListener('click', handleContinue);
         elements.resetBtn.addEventListener('click', handleReset);
         elements.deleteAllDataBtn.addEventListener('click', handleDeleteAllData);
         elements.undoBtn.addEventListener('click', handleUndo);

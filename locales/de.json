@@ -27,8 +27,6 @@
         "completed": "Abgeschlossen"
     },
     "alerts": {
-        "batchComplete": "Batch abgeschlossen",
-        "batchCompleteDesc": "50 Benutzer wurden entfolgt. Möchtest du fortfahren?",
         "rateLimit": "Rate-Limit!",
         "rateLimitDesc": "Du hast das Twitter-Rate-Limit erreicht.",
         "dailyLimitReached": "24‑Stunden‑Limit erreicht",
@@ -37,7 +35,6 @@
     "buttons": {
         "start": "Entfolgen starten",
         "stop": "Stopp",
-        "continue": "Weiter (50 mehr)",
         "undo": "Profil öffnen",
         "reset": "Statistiken zurücksetzen",
         "deleteAllData": "Alle lokalen Daten löschen",
@@ -99,17 +96,15 @@
         "title": "Hinweis:",
         "item1": "Funktioniert nur auf der \"Following\"‑Seite",
         "item2": "Arbeitet mit 2–5 Sekunden Verzögerung",
-        "item3": "Pro fragt nach den ersten 50 echten Aktionen nach einer Bestätigung",
-        "item4": "Kostenlos: 50 / Pro: 500 Benutzer pro 24 Stunden",
-        "item5": "Jede echte Aktion fällt nach 24 Stunden aus dem Sicherheitszähler"
+        "item3": "Kostenlos: 50 / Pro: 500 Benutzer pro 24 Stunden",
+        "item4": "Jede echte Aktion fällt nach 24 Stunden aus dem Sicherheitszähler"
     },
     "footer": {
         "requirementsTitle": "Voraussetzungen",
         "requirement1": "Öffne X → Following‑Seite",
         "safetyTitle": "Sicherheit",
         "safety1": "2–5s Verzögerung zwischen Aktionen",
-        "safety2": "Pro: Bestätigung nach den ersten 50 echten Aktionen",
-        "safety3": "Kostenlos: 50 / Pro: 500 Benutzer pro 24h"
+        "safety2": "Kostenlos: 50 / Pro: 500 Benutzer pro 24h"
     },
     "messages": {
         "confirmReset": "Zähler, Diagramme und Aktionsverlauf werden zurückgesetzt. Das aktive 24-Stunden-Sicherheitsfenster, Filter und die Lizenz bleiben erhalten. Fortfahren?",
@@ -171,7 +166,6 @@
     "aria": {
         "startButton": "Automatisches Entfolgen starten",
         "stopButton": "Aktiven Entfolgungsvorgang stoppen",
-        "continueButton": "Weiter 50 weitere Benutzer entfolgen",
         "resetButton": "Statistiken zurücksetzen und aktives Sicherheitsfenster beibehalten",
         "deleteAllDataButton": "Alle lokalen Daten einschließlich Filter und Lizenz löschen",
         "undoButton": "Profil aus den letzten {count} Aktionen öffnen",

@@ -21,7 +21,7 @@ test('loads the unpacked extension and renders the popup navigation', async () =
         expect(serviceWorkerUrl.pathname).toBe('/src/background/index.js');
         await expect
             .poll(() => serviceWorker.evaluate(() => chrome.storage.local.get('schemaVersion')))
-            .toEqual({ schemaVersion: 2 });
+            .toEqual({ schemaVersion: 3 });
 
         const page = await context.newPage();
         const pageErrors = [];

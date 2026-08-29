@@ -4,7 +4,7 @@
 const StorageMigrations = (function () {
     'use strict';
 
-    const CURRENT_SCHEMA_VERSION = 2;
+    const CURRENT_SCHEMA_VERSION = 3;
     const SCHEMA_VERSION_KEY = Constants.STORAGE_KEYS.SCHEMA_VERSION;
 
     function isPlainObject(value) {
@@ -47,9 +47,18 @@ const StorageMigrations = (function () {
         return next;
     }
 
+    function migrateVersionTwo(snapshot) {
+        const next = { ...snapshot, [SCHEMA_VERSION_KEY]: 3 };
+        delete next.testMode;
+        delete next.testComplete;
+        delete next.testCompletedAt;
+        return next;
+    }
+
     const migrations = Object.freeze({
         0: migrateVersionZero,
-        1: migrateVersionOne
+        1: migrateVersionOne,
+        2: migrateVersionTwo
     });
 
     function plan(snapshot = {}, options = {}) {

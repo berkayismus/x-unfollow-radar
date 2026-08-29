@@ -36,7 +36,6 @@ Görünür \"Follows you\" bilgisine göre hesapları tespit edip following list
 ✅ **Tek Adımlı Akış**: Kullanıcı başlattığında tarama ve kontrollü işlem aynı çalışmada ilerler
 ✅ **Kontrollü Tempo**: İşlemler arasında 2-5 saniye rastgele gecikme
 ✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
-✅ **Batch Onayı**: Pro planda ilk 50 gerçek işlemden sonra devam onayı
 ✅ **İstatistik Takibi**: Toplam ve oturum bazlı istatistikler
 ✅ **Çalışma Özeti**: Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı gösterir
 ✅ **Kayan Güvenlik Penceresi**: Her gerçek işlem 24 saat sonra sayaçtan çıkar
@@ -64,7 +63,7 @@ Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you"
 ### ⚠️ ÖNEMLİ NOTLAR
 
 - Tespit, X'in görünür "Follows you" bilgisine dayanır; önce dry-run ile sonucu kontrol edin
-- Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
+- Ücretsiz plan 50, Pro plan 500 gerçek işlem/24 saat limitinde otomatik durur
 - Günlük Twitter/X limitlerine dikkat edin
 - Aşırı kullanım hesap kısıtlamalarına yol açabilir
 
@@ -96,7 +95,6 @@ A Chrome extension that identifies non-followers from the visible "Follows you" 
 ✅ **Single-step Flow**: Scanning and controlled processing proceed in the run started by the user
 ✅ **Controlled Pacing**: Random 2-5 second delays between actions
 ✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
-✅ **Batch Confirmation**: Pro asks for confirmation after the first 50 real actions
 ✅ **Statistics Tracking**: Total and session-based statistics
 ✅ **Run Summary**: Separates real, dry-run, skipped, and failed results
 ✅ **Rolling Safety Window**: Each real action leaves the count after 24 hours

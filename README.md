@@ -12,7 +12,6 @@ Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine g�
 - ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
 - ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
 - ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
-- ✅ Batch modu: Pro planda ilk 50 gerçek işlemden sonra devam onayı ister
 - ✅ Toplam istatistik saklama
 - ✅ Kalıcı çalışma özeti: gerçek, dry-run, atlanan ve başarısız sonuçlar
 - ✅ Popup yeniden açıldığında son çalışma listesini geri yükleme
@@ -59,14 +58,13 @@ Bu repoda henüz doğrulanmış bir Chrome Web Store bağlantısı belgelenmemi�
 5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
 6. "Takipten çıkarmayı başlat" butonuna tıklayın
 7. Eklenti görünür hesapları tarar; filtrelenmeyen ve sizi takip etmeyen hesapları kontrollü biçimde işler
-8. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
+8. Eklenti Free/Pro 24 saatlik işlem limitine ulaşınca otomatik durur
 9. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
 10. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
 
 ## ⚙️ Ayarlar ve Limitler
 
 - **24 Saatlik Limit**: Ücretsiz 50 / Pro 500 gerçek unfollow
-- **Batch Sistemi**: Pro planda ilk 50 işlem → açık devam onayı
 - **Toplam Limit**: Sınırsız (istatistik olarak tutuluyor)
 - **Gecikme**: 2-5 saniye (rastgele)
 - **Güvenlik penceresi**: Her gerçek işlem, yapıldığı andan 24 saat sonra sayaçtan çıkar

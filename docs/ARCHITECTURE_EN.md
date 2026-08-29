@@ -43,7 +43,7 @@ The extension is split into three main parts:
 - `src/shared/constants.js`  
   Central configuration:
     - Timing (delays, scroll intervals, human-like pauses)
-    - Limits (session size, batch size, history retention, etc.)
+    - Limits (rolling 24-hour action limits, history retention, etc.)
     - DOM selectors and text patterns (e.g. \"Follows you\" / \"Takip ediyor\")
     - Storage keys, message types, actions, themes, locales
 
@@ -62,8 +62,8 @@ The popup talks to the content script via `chrome.tabs.sendMessage`:
 - **Start**:
     - `popup.js` sends `START`; scanning and controlled processing run in the same user-started operation.
 
-- **Stop / Continue test / Dry-run toggle / Filters**:
-    - Implemented as `ACTION` messages (`STOP`, `CONTINUE_TEST`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
+- **Stop / Dry-run toggle / Filters**:
+    - Implemented as `ACTION` messages (`STOP`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
     - The content script updates its in-memory state and mirrors changes into `chrome.storage.local`.
 
 ### 3.2 Content Script → Popup
@@ -89,7 +89,6 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
     - Reads all relevant keys from `chrome.storage.local`:
         - Successful real-action timestamps for the rolling 24-hour safety window
         - Total unfollowed count
-        - Test mode / batch completion flags
         - Filters (keywords, whitelist)
         - Dry-run mode
         - Recent-profile queue
@@ -110,7 +109,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
             - Otherwise, push the account into `unfollowQueue` and persist its queued run state.
 3. **Execution in the same run**:
     - Process the `unfollowQueue`:
-        - Respect session and batch limits.
+        - Respect the rolling 24-hour plan limit.
         - For each user, call `unfollowUser(cell)`:
             - Dry-run: simulate delay, send status and `USER_PROCESSED` (DRY_RUN), and update a separate dry-run statistic without consuming the real-operation limit.
             - Real mode: click \"Following\" and confirmation button, update counters, store recent-profile info, write stats/history, send status + `USER_PROCESSED` (UNFOLLOWED).
@@ -118,7 +117,6 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
     - Stop when:
         - 24h session limit is reached (`STATUS.LIMIT_REACHED`), or
         - No more users are found even after multiple scrolls (`STATUS.COMPLETED`), or
-        - Test batch hits 50 users and requires confirmation (`STATUS.TEST_COMPLETE`), or
         - Rate limit is reached (`STATUS.RATE_LIMIT`).
 
 ## 5. Rate Limiting & Safety

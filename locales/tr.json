@@ -27,8 +27,6 @@
         "completed": "Tamamlandı"
     },
     "alerts": {
-        "batchComplete": "Batch Tamamlandı",
-        "batchCompleteDesc": "50 kişi takipten çıkarıldı. Devam etmek istiyor musunuz?",
         "rateLimit": "Rate Limit!",
         "rateLimitDesc": "Twitter tarafından hız sınırına takıldınız.",
         "dailyLimitReached": "24 Saatlik Limit Doldu",
@@ -37,7 +35,6 @@
     "buttons": {
         "start": "Takipten çıkarmayı başlat",
         "stop": "Durdur",
-        "continue": "Devam Et (50 kişi daha)",
         "undo": "Profili aç",
         "reset": "İstatistikleri sıfırla",
         "deleteAllData": "Tüm yerel verileri sil",
@@ -99,17 +96,15 @@
         "title": "Uyarı:",
         "item1": "Sadece \"Following\" sayfasında çalışır",
         "item2": "2-5 saniye gecikme ile çalışır",
-        "item3": "Pro planda ilk 50 gerçek işlemden sonra onay ister",
-        "item4": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat",
-        "item5": "Her gerçek işlem 24 saat sonra güvenlik sayacından çıkar"
+        "item3": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat",
+        "item4": "Her gerçek işlem 24 saat sonra güvenlik sayacından çıkar"
     },
     "footer": {
         "requirementsTitle": "Gereksinimler",
         "requirement1": "X → Following sayfasını açın",
         "safetyTitle": "Güvenlik",
         "safety1": "İşlemler arası 2–5sn gecikme",
-        "safety2": "Pro: ilk 50 gerçek işlemden sonra onay",
-        "safety3": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat"
+        "safety2": "Ücretsiz: 50 / Pro: 500 kullanıcı/24 saat"
     },
     "messages": {
         "confirmReset": "Sayaç, grafik ve işlem geçmişi sıfırlanacak. Aktif 24 saatlik güvenlik limiti, filtreler ve lisans korunacak. Emin misiniz?",
@@ -171,7 +166,6 @@
     "aria": {
         "startButton": "Otomatik takipten çıkarma işlemini başlat",
         "stopButton": "Aktif takipten çıkarma işlemini durdur",
-        "continueButton": "50 kişi daha takipten çık",
         "resetButton": "İstatistikleri sıfırla; aktif güvenlik limitini koru",
         "deleteAllDataButton": "Filtreler ve lisans dahil tüm yerel verileri sil",
         "undoButton": "Son {count} işlemden birinin profilini aç",

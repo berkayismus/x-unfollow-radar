@@ -17,7 +17,6 @@ Planlanan geliştirme kapsamı Faz 1-3 ile tamamlanmıştır. Bu rapor güncel u
 - Görünür “Follows you” metni bulunmayan ve filtrelere takılmayan hesapları işlem kuyruğuna ekler.
 - İşlem öncesinde hedef kullanıcıya ait dialog'u doğrular ve buton durumundan sonucu kontrol eder.
 - Free plan için 50, Pro plan için 500 gerçek işlemden oluşan kayan 24 saat güvenlik penceresi uygular.
-- Pro planda ilk 50 gerçek işlemden sonra ek devam onayı ister.
 - Dry-run sonuçlarını gerçek işlemlerden ve güvenlik sayacından ayırır.
 - Gerçek, dry-run, atlanan ve başarısız kayıtları kalıcı son çalışma özetinde ayrı tutar.
 - Whitelist, keyword filtresi, 30 günlük geçmiş, CSV export, tema ve TR/EN/DE popup arayüzü sağlar.
@@ -25,24 +24,24 @@ Planlanan geliştirme kapsamı Faz 1-3 ile tamamlanmıştır. Bu rapor güncel u
 
 ## 3. Tamamlanan ilk inceleme bulguları
 
-| İlk bulgu                                         | Güncel durum                                                                                     |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Pro limitinin motor tarafından uygulanmaması      | Popup ve content script ortak `getSessionLimit()` kaynağını kullanıyor.                          |
-| “Undo” davranışının yanıltıcı olması              | Özellik profil açma ve manuel takip davranışı olarak açıkça adlandırıldı.                        |
-| Gizlilik politikasının kodla çelişmesi            | Yerel X verileri, saklama süreleri ve Gumroad lisans aktarımı açıklandı.                         |
-| Rate-limit durumunun yenilemeden sonra kaybolması | Timestamp tabanlı bekleme saklanıyor, yenilemede yeniden uygulanıyor ve zamanlanıyor.            |
-| Scroll bitişinin DOM kart sayısına bağlı olması   | Benzersiz kullanıcı büyümesi ve `MutationObserver` beklemesi kullanılıyor.                       |
-| Popup sekmelerinin `hidden` kalması               | Class ve `hidden` durumu birlikte yönetiliyor; Playwright ile doğrulanıyor.                      |
-| Kontrolsüz toplu işlem riski                      | Kullanıcı başlatması, dry-run, filtreler, kayan limit ve batch devam onayı birlikte uygulanıyor. |
-| Stop işleminin gecikmeleri iptal edememesi        | Aktif zincir `AbortController` ile iptal ediliyor.                                               |
-| Başarının yalnızca tıklama üzerinden varsayılması | Dialog hedefi ve işlem sonrası buton durumu doğrulanıyor.                                        |
-| Dry-run'ın gerçek sayaçları kirletmesi            | Dry-run ayrı istatistik ve çalışma sonucu olarak tutuluyor.                                      |
-| Son çalışmanın popup kapanınca kaybolması         | Sınırlı ve kalıcı run-state modeli popup açılışında geri yükleniyor.                             |
-| CSV escaping ve formül enjeksiyonu riski          | Alan kaçışları ve spreadsheet formül koruması eklendi.                                           |
-| Lisansın yalnızca aktivasyonda doğrulanması       | Gumroad entitlement periyodik doğrulaması ve çevrimdışı grace durumu eklendi.                    |
-| Storage şemasının sürümsüz olması                 | `schemaVersion: 2` ve idempotent migration altyapısı eklendi.                                    |
-| Test, lint ve CI eksikliği                        | ESLint, Prettier, unit/smoke, DOM fixture, Playwright ve GitHub Actions kontrolleri eklendi.     |
-| Dosya sürümlerinin ayrışması                      | `npm run release` ve `release:check` ile manifest/package/lock senkronizasyonu sağlandı.         |
+| İlk bulgu                                         | Güncel durum                                                                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Pro limitinin motor tarafından uygulanmaması      | Popup ve content script ortak `getSessionLimit()` kaynağını kullanıyor.                      |
+| “Undo” davranışının yanıltıcı olması              | Özellik profil açma ve manuel takip davranışı olarak açıkça adlandırıldı.                    |
+| Gizlilik politikasının kodla çelişmesi            | Yerel X verileri, saklama süreleri ve Gumroad lisans aktarımı açıklandı.                     |
+| Rate-limit durumunun yenilemeden sonra kaybolması | Timestamp tabanlı bekleme saklanıyor, yenilemede yeniden uygulanıyor ve zamanlanıyor.        |
+| Scroll bitişinin DOM kart sayısına bağlı olması   | Benzersiz kullanıcı büyümesi ve `MutationObserver` beklemesi kullanılıyor.                   |
+| Popup sekmelerinin `hidden` kalması               | Class ve `hidden` durumu birlikte yönetiliyor; Playwright ile doğrulanıyor.                  |
+| Kontrolsüz toplu işlem riski                      | Kullanıcı başlatması, dry-run, filtreler ve kayan 24 saat limiti birlikte uygulanıyor.       |
+| Stop işleminin gecikmeleri iptal edememesi        | Aktif zincir `AbortController` ile iptal ediliyor.                                           |
+| Başarının yalnızca tıklama üzerinden varsayılması | Dialog hedefi ve işlem sonrası buton durumu doğrulanıyor.                                    |
+| Dry-run'ın gerçek sayaçları kirletmesi            | Dry-run ayrı istatistik ve çalışma sonucu olarak tutuluyor.                                  |
+| Son çalışmanın popup kapanınca kaybolması         | Sınırlı ve kalıcı run-state modeli popup açılışında geri yükleniyor.                         |
+| CSV escaping ve formül enjeksiyonu riski          | Alan kaçışları ve spreadsheet formül koruması eklendi.                                       |
+| Lisansın yalnızca aktivasyonda doğrulanması       | Gumroad entitlement periyodik doğrulaması ve çevrimdışı grace durumu eklendi.                |
+| Storage şemasının sürümsüz olması                 | `schemaVersion: 3` ve idempotent migration altyapısı eklendi.                                |
+| Test, lint ve CI eksikliği                        | ESLint, Prettier, unit/smoke, DOM fixture, Playwright ve GitHub Actions kontrolleri eklendi. |
+| Dosya sürümlerinin ayrışması                      | `npm run release` ve `release:check` ile manifest/package/lock senkronizasyonu sağlandı.     |
 
 ## 4. Veri ve gizlilik modeli
 
@@ -97,4 +96,4 @@ Güncel kontrol listesi `docs/CHROME_WEB_STORE_PLAN.md`, uygulama adımları ise
 
 ## 8. Sonuç
 
-X Unfollow Radar güncel durumda kullanıcı tarafından başlatılan tek-adımlı tarama ve kontrollü takipten çıkarma akışına sahip bir Chrome eklentisidir. Dry-run, filtreler, kayan 24 saat limiti ve Pro batch devam onayı korunur. Faz 1-3 kapsamındaki doğruluk ve bakım işleri tamamlanmıştır.
+X Unfollow Radar güncel durumda kullanıcı tarafından başlatılan tek-adımlı tarama ve otomatik takipten çıkarma akışına sahip bir Chrome eklentisidir. Dry-run, whitelist, keyword filtreleri ve kayan 24 saat limiti korunur. Faz 1-3 kapsamındaki doğruluk ve bakım işleri tamamlanmıştır.

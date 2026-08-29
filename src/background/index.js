@@ -232,10 +232,6 @@ const XUnfollowRadarBackground = (function () {
         if (message.relayedByBackground) return false;
 
         switch (message.type) {
-            case 'TEST_COMPLETE':
-                relayMessage(message);
-                break;
-
             case 'STATUS_UPDATE':
                 relayMessage(message);
                 break;

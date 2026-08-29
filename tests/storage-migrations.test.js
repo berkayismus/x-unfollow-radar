@@ -43,14 +43,20 @@ async function testLegacyMigration() {
         sessionStart: 500_000,
         keywords: 'invalid',
         whitelist: null,
-        candidateScan: { status: 'ready' }
+        candidateScan: { status: 'ready' },
+        testMode: true,
+        testComplete: true,
+        testCompletedAt: 750_000
     });
 
     const result = await migrations.migrate(storage.area, { now, maxLegacyCount: 500 });
     assert.equal(result.fromVersion, 0);
     assert.equal(result.toVersion, migrations.CURRENT_SCHEMA_VERSION);
-    assert.equal(storage.data.schemaVersion, 2);
+    assert.equal(storage.data.schemaVersion, 3);
     assert.equal(storage.data.candidateScan, undefined);
+    assert.equal(storage.data.testMode, undefined);
+    assert.equal(storage.data.testComplete, undefined);
+    assert.equal(storage.data.testCompletedAt, undefined);
     assert.deepEqual(storage.data.actionTimestamps, [500_000, 500_000, 500_000]);
     assert.deepEqual(storage.data.keywords, []);
     assert.deepEqual(storage.data.whitelist, {});

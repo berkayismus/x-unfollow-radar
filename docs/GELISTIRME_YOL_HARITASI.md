@@ -16,7 +16,6 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 - [x] “Undo” özelliğini gerçek davranışına uygun olarak “Profili aç ve manuel takip et” şeklinde değiştir.
 - [x] Dry-run işlemlerini gerçek unfollow ve günlük limit sayacından ayır.
 - [x] Dry-run istatistiğini ayrı `dryRun` alanında tut.
-- [x] Yeni oturumda batch onay durumunu sıfırla.
 - [x] Yanıltıcı “rate-limit safe” iddiasını kontrollü tempo ifadesiyle değiştir.
 
 ### Paket 1B - Otomasyon dayanıklılığı
@@ -39,7 +38,7 @@ Amaç: Yanlış kullanıcı işlemi, yanlış sayaç, yarım kalan akış ve yan
 - [x] Popup yeniden açıldığında son çalışma listesini geri yükle.
 - [x] Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı çalışma özetinde göster.
 
-**Faz 1 çıkış kriteri:** Free/Pro limit, stop, dry-run, batch, scroll sonu, başarısız aksiyon ve sayfa yenileme senaryoları otomatik testlerden geçer.
+**Faz 1 çıkış kriteri:** Free/Pro limit, stop, dry-run, scroll sonu, başarısız aksiyon ve sayfa yenileme senaryoları otomatik testlerden geçer.
 
 ## Faz 2 - Gizlilik, lisans ve yayın hazırlığı
 
