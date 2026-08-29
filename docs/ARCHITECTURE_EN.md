@@ -135,9 +135,9 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
     - A timeout is scheduled to re-check `rateLimitUntil`.
     - Once expired, `isPaused` is cleared and a `STATUS.RESUMED` update is sent if the extension is still running.
 
-- **Dry-run mode**:
+- **Preview mode** (internally `dry-run`):
     - No real unfollow operations are executed when enabled.
-    - The popup clearly indicates Dry Run mode in status messages.
+    - The popup clearly indicates Preview mode in status messages.
 
 - **Recent profiles**:
     - For each real unfollow, one of the last 10 usernames is retained locally.

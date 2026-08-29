@@ -6,7 +6,7 @@
     "trust": {
         "worksOnFollowing": "Works on Following",
         "rateLimitSafe": "Controlled pacing",
-        "dryRun": "Dry run"
+        "dryRun": "Preview mode"
     },
     "tabs": {
         "main": "Main",
@@ -16,8 +16,8 @@
     "stats": {
         "dailyLimit": "24 Hour Limit",
         "totalUnfollowed": "Total Unfollowed",
-        "dryRun24Hour": "24 Hour Simulated",
-        "totalDryRun": "Total Simulated"
+        "dryRun24Hour": "24 Hour Preview",
+        "totalDryRun": "Total Previewed"
     },
     "status": {
         "ready": "Ready",
@@ -46,8 +46,8 @@
         "exportCsv": "Export CSV"
     },
     "controls": {
-        "dryRunMode": "Dry run (no unfollow)",
-        "dryRunDesc": "When enabled, simulates unfollowing without making changes"
+        "dryRunMode": "Preview mode (no unfollow)",
+        "dryRunDesc": "Finds and lists accounts without unfollowing anyone"
     },
     "filters": {
         "keywordsTitle": "Keywords",
@@ -71,14 +71,14 @@
         "queued": "Queued",
         "attempting": "Attempting",
         "succeeded": "Succeeded",
-        "dryRunSucceeded": "Dry run succeeded",
+        "dryRunSucceeded": "Previewed",
         "skipped": "Skipped",
         "failed": "Failed"
     },
     "runSummary": {
         "title": "Latest Run Summary",
         "real": "Real",
-        "dryRun": "Dry run",
+        "dryRun": "Preview",
         "skipped": "Skipped",
         "failed": "Failed",
         "status": {
@@ -121,7 +121,8 @@
         "undone": "Undone",
         "profileOpened": "Profile opened for manual follow",
         "addedToWhitelist": "Added to Whitelist",
-        "dryRunActive": "Dry Run Mode active",
+        "dryRunActive": "Preview mode active",
+        "previewLabel": "PREVIEW",
         "normalMode": "Normal mode",
         "notOnTwitter": "You are not on Twitter/X",
         "goToFollowing": "Go to Following page",

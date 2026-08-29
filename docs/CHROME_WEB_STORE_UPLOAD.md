@@ -55,7 +55,7 @@ Güncel hesap adımları için [resmî kayıt rehberini](https://developer.chrom
 3. **Store listing** alanlarını `STORE_LISTING.md` içeriğiyle doldurun.
 4. Kısa açıklama olarak şu güncel metni kullanın:
 
-    `Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem temposuyla following listeni yönet.`
+    `Seni takip etmeyen hesapları tespit et; önizleme, filtreler ve kontrollü işlem temposuyla following listeni yönet.`
 
 5. `assets/store-screenshots/` altındaki ekran görüntülerini ve küçük tanıtım görselini yükleyin.
 6. Kategoriyi **Productivity** olarak değerlendirin.

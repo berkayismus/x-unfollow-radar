@@ -38,9 +38,9 @@ test('loads the unpacked extension and renders the popup navigation', async () =
         await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
         await expect(page).toHaveTitle('X Unfollow Radar');
         await expect(page.locator('#startBtn')).toBeDisabled();
-        await expect(page.locator('#sessionCountLabel')).toHaveText('24 Hour Simulated');
+        await expect(page.locator('#sessionCountLabel')).toHaveText('24 Hour Preview');
         await expect(page.locator('#sessionCount')).toHaveText('2');
-        await expect(page.locator('#totalCountLabel')).toHaveText('Total Simulated');
+        await expect(page.locator('#totalCountLabel')).toHaveText('Total Previewed');
         await expect(page.locator('#totalCount')).toHaveText('7');
 
         await serviceWorker.evaluate(async () => {

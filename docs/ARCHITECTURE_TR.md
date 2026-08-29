@@ -97,9 +97,9 @@ Content script mesajları popup'a doğrudan ulaşır. Background worker bu durum
     - `handleRateLimit()` fonksiyonu `RATE_LIMIT_HIT` mesajı yollar, bekleme süresini (`RATE_LIMIT_WAIT`) hesaplar ve `isPaused = true` yapar.
     - Popup, kalan süreyi bir geri sayım olarak gösterir.
 
-- **Dry-Run Mode**:
+- **Önizleme modu** (kod içinde `dry-run`):
     - Gerçekte takipten çıkarma yapmadan bütün akışı simüle eder (istatistikler ve kullanıcı listesi dahil).
-    - Ana kartlar dry-run açıkken ayrı 24 saatlik ve toplam simülasyon sayaçlarını gösterir; gerçek güvenlik kotası tüketilmez.
+    - Ana kartlar önizleme açıkken ayrı 24 saatlik ve toplam önizleme sayaçlarını gösterir; gerçek güvenlik kotası tüketilmez.
 
 - **Yakın Tarihli Profiller**:
     - Her gerçek unfollow için son 10 kullanıcı bilgisi yerel kuyruğa eklenir.

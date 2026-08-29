@@ -13,8 +13,8 @@ Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine g�
 - ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
 - ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
 - ✅ Toplam istatistik saklama
-- ✅ Kalıcı çalışma özeti: gerçek, dry-run, atlanan ve başarısız sonuçlar
-- ✅ Dry-run açıkken gerçek kotadan ayrı 24 saatlik ve toplam simülasyon sayaçları
+- ✅ Kalıcı çalışma özeti: gerçek, önizleme, atlanan ve başarısız sonuçlar
+- ✅ Önizleme açıkken gerçek kotadan ayrı 24 saatlik ve toplam sayaçlar
 - ✅ Popup yeniden açıldığında son çalışma listesini geri yükleme
 - ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
 
@@ -29,7 +29,7 @@ Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine g�
 - **User List**: İşlenen kullanıcıların canlı listesi
 - ↗ Profili açıp manuel yeniden takip etme
 - ⭐ Tek tıkla whitelist'e ekle butonu
-- 🧪 **Dry-Run Mode**: Gerçekte takipten çıkmadan test et
+- 👁️ **Önizleme modu**: Hesapları bulup listele; kimseyi takipten çıkarma
 - ↗ **Recent Profiles**: Son 10 işlemin profilini manuel takip için aç
 - ⏱️ **Smart Rate Limit**: 15 dakika sonra otomatik devam
 
@@ -56,7 +56,7 @@ Bu repoda henüz doğrulanmış bir Chrome Web Store bağlantısı belgelenmemi�
     - veya `https://x.com/[kullanıcı-adınız]/following`
 3. Eklenti simgesine tıklayın
 4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
-5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
+5. **Opsiyonel:** Önizleme modunu etkinleştirin (hesapları takipten çıkarmadan görmek için)
 6. "Takipten çıkarmayı başlat" butonuna tıklayın
 7. Eklenti görünür hesapları tarar; filtrelenmeyen ve sizi takip etmeyen hesapları kontrollü biçimde işler
 8. Eklenti Free/Pro 24 saatlik işlem limitine ulaşınca otomatik durur
@@ -164,7 +164,7 @@ x_unfollow_radar/
 - Organik duraklamalar (%15 olasılıkla)
 - Algılanan rate-limit bekleme durumunu saklama ve otomatik devam
 - Her gerçek işlemi kendi zamanından 24 saat sonra düşüren kayan güvenlik penceresi
-- Dry-run işlemlerini gerçek güvenlik kotasını tüketmeden ayrı 24 saatlik ve toplam sayaçlarda gösterme
+- Önizleme işlemlerini gerçek güvenlik kotasını tüketmeden ayrı 24 saatlik ve toplam sayaçlarda gösterme
 
 ## 🤝 Katkıda Bulunma
 

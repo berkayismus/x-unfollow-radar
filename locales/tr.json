@@ -6,7 +6,7 @@
     "trust": {
         "worksOnFollowing": "Following sayfasında çalışır",
         "rateLimitSafe": "Kontrollü işlem temposu",
-        "dryRun": "Dry run"
+        "dryRun": "Önizleme"
     },
     "tabs": {
         "main": "Ana",
@@ -16,8 +16,8 @@
     "stats": {
         "dailyLimit": "24 Saatlik Limit",
         "totalUnfollowed": "Toplam Çıkarılan",
-        "dryRun24Hour": "24 Saatlik Simülasyon",
-        "totalDryRun": "Toplam Simülasyon"
+        "dryRun24Hour": "24 Saatlik Önizleme",
+        "totalDryRun": "Toplam Önizlenen"
     },
     "status": {
         "ready": "Hazır",
@@ -46,8 +46,8 @@
         "exportCsv": "CSV İndir"
     },
     "controls": {
-        "dryRunMode": "Dry run (takipten çıkarma yok)",
-        "dryRunDesc": "Açıkken takipten çıkarmayı simüle eder, gerçek değişiklik yapmaz"
+        "dryRunMode": "Önizleme modu (takipten çıkarmaz)",
+        "dryRunDesc": "Hesapları bulur ve listeler; hiçbir hesabı takipten çıkarmaz"
     },
     "filters": {
         "keywordsTitle": "Anahtar Kelimeler",
@@ -71,14 +71,14 @@
         "queued": "Sırada",
         "attempting": "İşleniyor",
         "succeeded": "Başarılı",
-        "dryRunSucceeded": "Dry run tamamlandı",
+        "dryRunSucceeded": "Önizlendi",
         "skipped": "Atlandı",
         "failed": "Başarısız"
     },
     "runSummary": {
         "title": "Son Çalışma Özeti",
         "real": "Gerçek",
-        "dryRun": "Dry run",
+        "dryRun": "Önizleme",
         "skipped": "Atlanan",
         "failed": "Başarısız",
         "status": {
@@ -121,7 +121,8 @@
         "undone": "Geri alındı",
         "profileOpened": "Profil manuel takip için açıldı",
         "addedToWhitelist": "Whitelist'e eklendi",
-        "dryRunActive": "Dry Run Mode aktif",
+        "dryRunActive": "Önizleme modu aktif",
+        "previewLabel": "ÖNİZLEME",
         "normalMode": "Normal mode",
         "notOnTwitter": "Twitter/X sayfasında değilsiniz",
         "goToFollowing": "Following sayfasına gidin",

@@ -869,7 +869,7 @@ const XUnfollowRadarPopup = (function () {
         }
 
         if (enabled) {
-            updateStatus('ready', `🧪 ${I18n.t('messages.dryRunActive')}`);
+            updateStatus('ready', `👁️ ${I18n.t('messages.dryRunActive')}`);
         } else {
             updateStatus('ready', `✓ ${I18n.t('messages.normalMode')}`);
         }
@@ -1284,7 +1284,7 @@ const XUnfollowRadarPopup = (function () {
             className = 'unfollowed';
             statusLabel = I18n.t('userList.succeeded');
         } else if (action === Constants.USER_ACTIONS.DRY_RUN) {
-            icon = '🧪';
+            icon = '👁️';
             className = 'dry-run';
             statusLabel = I18n.t('userList.dryRunSucceeded');
         } else if (action.startsWith('skipped:')) {
@@ -1499,7 +1499,7 @@ const XUnfollowRadarPopup = (function () {
                 );
                 break;
             case Constants.STATUS.UNFOLLOWED:
-                const prefix = data.dryRun ? '[DRY RUN] ' : '';
+                const prefix = data.dryRun ? `[${I18n.t('messages.previewLabel')}] ` : '';
                 updateStatus('active', `${prefix}✓ ${I18n.t('messages.unfollowed')}: @${data.username || 'user'}`);
                 break;
             case Constants.STATUS.STOPPED:

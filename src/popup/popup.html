@@ -59,7 +59,7 @@
                 <div class="trust-row" role="note" aria-label="Product highlights">
                     <span class="trust-pill" data-i18n="trust.worksOnFollowing">Works on Following</span>
                     <span class="trust-pill" data-i18n="trust.rateLimitSafe">Controlled pacing</span>
-                    <span class="trust-pill" data-i18n="trust.dryRun">Dry run</span>
+                    <span class="trust-pill" data-i18n="trust.dryRun">Preview mode</span>
                 </div>
             </header>
 
@@ -198,14 +198,14 @@
                     </p>
                 </div>
 
-                <!-- Controls: Dry run + Reset on same row -->
+                <!-- Controls: Preview mode + Reset on same row -->
                 <div class="control-row">
                     <label class="checkbox-container">
                         <input type="checkbox" id="dryRunMode" aria-describedby="dryrun-desc" />
-                        <span data-i18n="controls.dryRunMode">Dry Run Mode (Test)</span>
+                        <span data-i18n="controls.dryRunMode">Preview mode (no unfollow)</span>
                     </label>
                     <span id="dryrun-desc" class="sr-only" data-i18n="controls.dryRunDesc"
-                        >When enabled, simulates unfollowing without making changes</span
+                        >Finds and lists accounts without unfollowing anyone</span
                     >
                     <button id="resetBtn" class="btn btn-ghost" type="button" data-i18n-aria="aria.resetButton">
                         <span data-i18n="buttons.reset">İstatistikleri sıfırla</span>
@@ -247,7 +247,7 @@
                     <h3 id="runSummaryTitle" data-i18n="runSummary.title">Son Çalışma Özeti</h3>
                     <div class="run-summary-grid">
                         <div><span id="runRealCount">0</span><small data-i18n="runSummary.real">Gerçek</small></div>
-                        <div><span id="runDryCount">0</span><small data-i18n="runSummary.dryRun">Dry run</small></div>
+                        <div><span id="runDryCount">0</span><small data-i18n="runSummary.dryRun">Preview</small></div>
                         <div>
                             <span id="runSkippedCount">0</span><small data-i18n="runSummary.skipped">Atlanan</small>
                         </div>

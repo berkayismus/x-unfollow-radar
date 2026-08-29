@@ -6,7 +6,7 @@
     "trust": {
         "worksOnFollowing": "Funktioniert auf „Following“",
         "rateLimitSafe": "Kontrolliertes Tempo",
-        "dryRun": "Dry‑Run"
+        "dryRun": "Vorschaumodus"
     },
     "tabs": {
         "main": "Übersicht",
@@ -16,8 +16,8 @@
     "stats": {
         "dailyLimit": "24‑Stunden‑Limit",
         "totalUnfollowed": "Insgesamt entfolgt",
-        "dryRun24Hour": "24‑Std.-Simulation",
-        "totalDryRun": "Simulationen gesamt"
+        "dryRun24Hour": "24‑Stunden‑Vorschau",
+        "totalDryRun": "Vorschau gesamt"
     },
     "status": {
         "ready": "Bereit",
@@ -46,8 +46,8 @@
         "exportCsv": "CSV exportieren"
     },
     "controls": {
-        "dryRunMode": "Dry‑Run (ohne Entfolgen)",
-        "dryRunDesc": "Simuliert das Entfolgen, ohne Änderungen vorzunehmen"
+        "dryRunMode": "Vorschaumodus (kein Entfolgen)",
+        "dryRunDesc": "Findet und listet Konten auf, ohne jemandem zu entfolgen"
     },
     "filters": {
         "keywordsTitle": "Schlüsselwörter",
@@ -71,14 +71,14 @@
         "queued": "In Warteschlange",
         "attempting": "Wird verarbeitet",
         "succeeded": "Erfolgreich",
-        "dryRunSucceeded": "Testlauf erfolgreich",
+        "dryRunSucceeded": "Vorschau abgeschlossen",
         "skipped": "Übersprungen",
         "failed": "Fehlgeschlagen"
     },
     "runSummary": {
         "title": "Letzte Laufübersicht",
         "real": "Echt",
-        "dryRun": "Testlauf",
+        "dryRun": "Vorschau",
         "skipped": "Übersprungen",
         "failed": "Fehlgeschlagen",
         "status": {
@@ -121,7 +121,8 @@
         "undone": "Rückgängig gemacht",
         "profileOpened": "Profil zum manuellen Folgen geöffnet",
         "addedToWhitelist": "Zur Whitelist hinzugefügt",
-        "dryRunActive": "Dry‑Run‑Modus aktiv",
+        "dryRunActive": "Vorschaumodus aktiv",
+        "previewLabel": "VORSCHAU",
         "normalMode": "Normaler Modus",
         "notOnTwitter": "Du befindest dich nicht auf Twitter/X",
         "goToFollowing": "Zur Following‑Seite wechseln",
