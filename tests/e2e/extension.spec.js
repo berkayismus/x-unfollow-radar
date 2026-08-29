@@ -43,6 +43,23 @@ test('loads the unpacked extension and renders the popup navigation', async () =
         await expect(page.locator('#totalCountLabel')).toHaveText('Total Simulated');
         await expect(page.locator('#totalCount')).toHaveText('7');
 
+        await serviceWorker.evaluate(async () => {
+            const today = new Date().toISOString().split('T')[0];
+            await chrome.storage.local.set({
+                dryRunTimestamps: [],
+                totalDryRun: 0,
+                unfollowStats: { daily: { [today]: { dryRun: 3, unfollowed: 0, timestamp: Date.now() } } }
+            });
+            await chrome.runtime.sendMessage({
+                type: 'STATUS_UPDATE',
+                status: 'unfollowed',
+                dryRun: true,
+                username: 'legacy-content-script'
+            });
+        });
+        await expect(page.locator('#sessionCount')).toHaveText('3');
+        await expect(page.locator('#totalCount')).toHaveText('3');
+
         await page.locator('#tab-filters').click();
         await expect(page.locator('#filters-tab')).toBeVisible();
         await expect(page.locator('#main-tab')).toBeHidden();

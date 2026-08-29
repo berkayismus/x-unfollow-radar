@@ -334,7 +334,8 @@ const XUnfollowRadarPopup = (function () {
             Constants.STORAGE_KEYS.ACTION_TIMESTAMPS,
             Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS,
             Constants.STORAGE_KEYS.TOTAL_DRY_RUN,
-            Constants.STORAGE_KEYS.DRY_RUN_MODE
+            Constants.STORAGE_KEYS.DRY_RUN_MODE,
+            Constants.STORAGE_KEYS.UNFOLLOW_STATS
         ]);
 
         const now = Date.now();
@@ -348,18 +349,37 @@ const XUnfollowRadarPopup = (function () {
         });
         const sessionCount = actionTimestamps.length;
         const totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
-        const dryRunTimestamps = SafetyWindow.prune(
+        let dryRunTimestamps = SafetyWindow.prune(
             data[Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS] || [],
             now,
             Constants.TIMING.SESSION_DURATION
         );
-        const totalDryRun = data[Constants.STORAGE_KEYS.TOTAL_DRY_RUN] || 0;
+        const dailyStats = data[Constants.STORAGE_KEYS.UNFOLLOW_STATS]?.daily || {};
+        const derivedTotalDryRun = Object.values(dailyStats).reduce(
+            (total, entry) => total + Math.max(0, Number(entry?.dryRun) || 0),
+            0
+        );
+        const totalDryRun = Math.max(data[Constants.STORAGE_KEYS.TOTAL_DRY_RUN] || 0, derivedTotalDryRun);
+        const today = new Date(now).toISOString().split('T')[0];
+        const todayDryRunCount = Math.max(0, Number(dailyStats[today]?.dryRun) || 0);
+        const recordedTodayCount = dryRunTimestamps.filter(
+            (timestamp) => new Date(timestamp).toISOString().split('T')[0] === today
+        ).length;
+        if (recordedTodayCount < todayDryRunCount) {
+            const fallbackTimestamp = Number.isFinite(dailyStats[today]?.timestamp) ? dailyStats[today].timestamp : now;
+            dryRunTimestamps = SafetyWindow.prune(
+                [...dryRunTimestamps, ...Array(todayDryRunCount - recordedTodayCount).fill(fallbackTimestamp)],
+                now,
+                Constants.TIMING.SESSION_DURATION
+            );
+        }
         const dryRunEnabled = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
         const lastRun = data[Constants.STORAGE_KEYS.LAST_RUN] || '-';
 
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
             [Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]: dryRunTimestamps,
+            [Constants.STORAGE_KEYS.TOTAL_DRY_RUN]: totalDryRun,
             [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
             [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
         });
@@ -1460,6 +1480,12 @@ const XUnfollowRadarPopup = (function () {
             const maxSession = Constants.getSessionLimit(currentPlan);
             elements.sessionCount.textContent = `${data.sessionCount}/${maxSession}`;
             if (data.totalUnfollowed !== undefined) elements.totalCount.textContent = data.totalUnfollowed;
+        }
+
+        if (elements.dryRunMode.checked && data.dryRun && data.dryRunSessionCount === undefined) {
+            setTimeout(() => {
+                loadStats().catch((error) => console.error('Failed to reconcile legacy dry-run stats:', error));
+            }, 150);
         }
 
         switch (data.status) {
