@@ -13,9 +13,9 @@ Create a consistent five-file Chrome Web Store asset set from the user's latest 
 - Identify its destination from the active popup tab: `Main`, `Filters`, or `Statistics`.
 - If the tab is unambiguous, proceed without asking. Ask only when a screenshot cannot be mapped safely.
 - Replace only the supplied canonical sources:
-  - `assets/store-source/popup-main-en.png`
-  - `assets/store-source/popup-filters-en.png`
-  - `assets/store-source/popup-stats-en.png`
+    - `assets/store-source/popup-main-en.png`
+    - `assets/store-source/popup-filters-en.png`
+    - `assets/store-source/popup-stats-en.png`
 - Keep the latest unsupplied canonical source so partial refreshes remain possible.
 
 Preserve the screenshot content exactly. Do not redraw, retouch, translate, invent state, hide UI, or alter counters. Cropping browser chrome or empty margins is allowed only when it leaves the popup intact.

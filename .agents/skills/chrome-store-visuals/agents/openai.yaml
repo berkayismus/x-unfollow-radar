@@ -1,6 +1,6 @@
 interface:
-  display_name: "Chrome Store Visuals"
-  short_description: "Create consistent Chrome Web Store visuals"
-  default_prompt: "Use $chrome-store-visuals to turn my latest popup screenshots into the complete Chrome Web Store asset set."
+    display_name: 'Chrome Store Visuals'
+    short_description: 'Create consistent Chrome Web Store visuals'
+    default_prompt: 'Use $chrome-store-visuals to turn my latest popup screenshots into the complete Chrome Web Store asset set.'
 policy:
-  allow_implicit_invocation: true
+    allow_implicit_invocation: true
