@@ -32,7 +32,7 @@ ZIP kökünde `manifest.json` bulunduğunu doğrula. `node_modules`, testler, do
 
 1. [Developer Dashboard](https://chrome.google.com/webstore/devconsole) içinde yeni öğe oluştur.
 2. ZIP'i yükle.
-3. Metinleri [../STORE_LISTING.md](../STORE_LISTING.md) dosyasından al.
+3. Genel metinleri [../STORE_LISTING.md](../STORE_LISTING.md), emojili İngilizce açıklamayı [CHROME_WEB_STORE_DESCRIPTION_EN.md](CHROME_WEB_STORE_DESCRIPTION_EN.md) dosyasından al.
 4. Güncel ekran görüntülerini ve küçük promo görselini yükle.
 5. Kategoriyi **Productivity** olarak değerlendir.
 
