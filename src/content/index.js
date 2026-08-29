@@ -188,12 +188,42 @@ const XUnfollowRadarContent = (function () {
 
     function findConfirmationDialog(username) {
         return (
-            Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find(
-                (dialog) =>
-                    dialog.querySelector(Constants.SELECTORS.CONFIRM_BUTTON) &&
-                    DomUtils.dialogMatchesUsername(dialog, username)
+            Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find((dialog) =>
+                DomUtils.dialogMatchesUsername(dialog, username)
             ) || null
         );
+    }
+
+    function findDialogButton(dialog, selector, patterns) {
+        const selectedButton = dialog?.querySelector(selector);
+        if (selectedButton) return selectedButton;
+
+        return DomUtils.findButtonByText(dialog, patterns);
+    }
+
+    function findOpenUnfollowDialog() {
+        return (
+            Array.from(document.querySelectorAll(Constants.SELECTORS.DIALOG)).find((dialog) =>
+                findDialogButton(
+                    dialog,
+                    Constants.SELECTORS.CONFIRM_BUTTON,
+                    Constants.TEXT_PATTERNS.CONFIRM_UNFOLLOW_BUTTON
+                )
+            ) || null
+        );
+    }
+
+    async function dismissUnfollowDialog(dialog) {
+        if (!dialog || !document.contains(dialog)) return;
+        const cancelButton = findDialogButton(
+            dialog,
+            Constants.SELECTORS.CANCEL_BUTTON,
+            Constants.TEXT_PATTERNS.CANCEL_UNFOLLOW_BUTTON
+        );
+        cancelButton?.click();
+        if (cancelButton) {
+            await waitForCondition(() => !document.contains(dialog), Constants.TIMING.DIALOG_APPEAR_TIMEOUT);
+        }
     }
 
     /**
@@ -424,6 +454,10 @@ const XUnfollowRadarContent = (function () {
                 return true;
             }
 
+            // A dialog left open by a previous failed/interrupted action would
+            // make every subsequent username fail the target check.
+            await dismissUnfollowDialog(findOpenUnfollowDialog());
+
             // Find and click Following button
             const followingBtn = findFollowingButton(userCell);
             if (!followingBtn) {
@@ -432,24 +466,32 @@ const XUnfollowRadarContent = (function () {
             }
 
             followingBtn.click();
-            await randomDelay(Constants.TIMING.BUTTON_CLICK_MIN, Constants.TIMING.BUTTON_CLICK_MAX);
+            const dialogAppeared = await waitForCondition(
+                () => !!findConfirmationDialog(username),
+                Constants.TIMING.DIALOG_APPEAR_TIMEOUT
+            );
 
             if (!isRunning || isPaused) {
                 return false;
             }
 
             // Only accept a confirmation dialog that identifies the queued user.
-            const confirmationDialog = findConfirmationDialog(username);
-            const confirmBtn = confirmationDialog?.querySelector(Constants.SELECTORS.CONFIRM_BUTTON);
-            if (confirmBtn) {
+            const confirmationDialog = dialogAppeared ? findConfirmationDialog(username) : null;
+            const confirmBtn = findDialogButton(
+                confirmationDialog,
+                Constants.SELECTORS.CONFIRM_BUTTON,
+                Constants.TEXT_PATTERNS.CONFIRM_UNFOLLOW_BUTTON
+            );
+            if (confirmationDialog && confirmBtn) {
                 confirmBtn.click();
                 const actionSucceeded = await waitForCondition(
-                    () => !findFollowingButton(userCell),
-                    Constants.TIMING.MAX_DELAY
+                    () => !document.contains(confirmationDialog) && !findFollowingButton(userCell),
+                    Constants.TIMING.ACTION_VERIFY_TIMEOUT
                 );
 
                 if (!actionSucceeded) {
                     console.warn(`Unfollow could not be verified for ${username}`);
+                    await dismissUnfollowDialog(confirmationDialog);
                     await pauseIfRateLimited();
                     return false;
                 }
@@ -504,6 +546,7 @@ const XUnfollowRadarContent = (function () {
             }
 
             await pauseIfRateLimited();
+            await dismissUnfollowDialog(findOpenUnfollowDialog());
             console.warn(`Confirmation dialog did not match target user: ${username}`);
 
             return false;

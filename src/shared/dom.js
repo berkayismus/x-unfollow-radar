@@ -16,6 +16,15 @@ const DomUtils = (function () {
         return patterns.some((pattern) => normalized.includes(normalizeText(pattern)));
     }
 
+    function findButtonByText(root, patterns) {
+        return (
+            Array.from(root?.querySelectorAll?.('button, [role="button"]') || []).find((button) => {
+                const buttonText = normalizeText(button.innerText || button.textContent);
+                return patterns.some((pattern) => buttonText === normalizeText(pattern));
+            }) || null
+        );
+    }
+
     function dialogMatchesUsername(dialog, username) {
         if (!dialog || !username) return false;
 
@@ -31,7 +40,7 @@ const DomUtils = (function () {
         });
     }
 
-    return Object.freeze({ normalizeText, containsAnyPattern, dialogMatchesUsername });
+    return Object.freeze({ normalizeText, containsAnyPattern, findButtonByText, dialogMatchesUsername });
 })();
 
 if (typeof window !== 'undefined') window.DomUtils = DomUtils;

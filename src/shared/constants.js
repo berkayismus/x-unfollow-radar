@@ -46,7 +46,11 @@ const Constants = (function () {
         /** Maximum wait for newly rendered user cards after scrolling */
         USER_LIST_MUTATION_TIMEOUT: 3000,
         /** Maximum wait for the background worker to return the active plan */
-        PLAN_LOOKUP_TIMEOUT: 2000
+        PLAN_LOOKUP_TIMEOUT: 2000,
+        /** Maximum wait for X's unfollow confirmation dialog */
+        DIALOG_APPEAR_TIMEOUT: 5000,
+        /** Maximum wait for the Following button to change after confirmation */
+        ACTION_VERIFY_TIMEOUT: 8000
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -110,6 +114,8 @@ const Constants = (function () {
         USER_CELL_MAIN: '[data-testid="primaryColumn"] [data-testid="UserCell"]',
         /** Confirmation button for unfollow dialog */
         CONFIRM_BUTTON: '[data-testid="confirmationSheetConfirm"]',
+        /** Cancel button for unfollow dialog */
+        CANCEL_BUTTON: '[data-testid="confirmationSheetCancel"]',
         /** Modal dialog containing the unfollow confirmation */
         DIALOG: '[role="dialog"]',
         /** X surfaces commonly used for errors and rate-limit notices */
@@ -133,6 +139,10 @@ const Constants = (function () {
         FOLLOWS_YOU: ['Follows you', 'Seni takip ediyor'],
         /** "Following" button patterns */
         FOLLOWING_BUTTON: ['Following', 'Takip ediliyor'],
+        /** Unfollow confirmation button patterns */
+        CONFIRM_UNFOLLOW_BUTTON: ['Unfollow', 'Takibi bırak'],
+        /** Unfollow cancellation button patterns */
+        CANCEL_UNFOLLOW_BUTTON: ['Cancel', 'İptal'],
         /** X rate-limit/error messages in supported UI languages */
         RATE_LIMIT: [
             'rate limit',

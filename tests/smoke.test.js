@@ -84,6 +84,14 @@ function testDomInterpretation() {
     assert.equal(dom.dialogMatchesUsername(textDialog, 'targetuser'), true);
     assert.equal(dom.dialogMatchesUsername(textDialog, 'someoneelse'), false);
 
+    const turkishConfirmButton = { innerText: 'Takibi bırak' };
+    const turkishDialog = {
+        innerText: '@CeyhunKapucu adlı kişinin takibi bırakılsın mı?',
+        querySelectorAll: (selector) => (selector.includes('button') ? [turkishConfirmButton] : [])
+    };
+    assert.equal(dom.dialogMatchesUsername(turkishDialog, 'ceyhunkapucu'), true);
+    assert.equal(dom.findButtonByText(turkishDialog, ['Unfollow', 'Takibi bırak']), turkishConfirmButton);
+
     const linkDialog = {
         innerText: 'Unfollow this account?',
         querySelectorAll: () => [{ getAttribute: () => '/TargetUser' }]
