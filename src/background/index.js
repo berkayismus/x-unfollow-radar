@@ -28,14 +28,12 @@ const XUnfollowRadarBackground = (function () {
      * @returns {void}
      */
     function relayMessage(message) {
-        try {
-            chrome.runtime.sendMessage(message);
-        } catch (error) {
+        Promise.resolve(chrome.runtime.sendMessage({ ...message, relayedByBackground: true })).catch((error) => {
             // Popup might not be open, ignore error
             if (!error.message?.includes('Could not establish connection')) {
                 console.error('Error relaying message:', error);
             }
-        }
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -231,6 +229,8 @@ const XUnfollowRadarBackground = (function () {
     function handleMessage(message, sender, sendResponse) {
         console.log('Background received message:', message.type || message.action);
 
+        if (message.relayedByBackground) return false;
+
         switch (message.type) {
             case 'TEST_COMPLETE':
                 relayMessage(message);
@@ -271,7 +271,7 @@ const XUnfollowRadarBackground = (function () {
                 }
         }
 
-        return true;
+        return false;
     }
 
     // ═══════════════════════════════════════════════════════════════

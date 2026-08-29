@@ -44,7 +44,9 @@ const Constants = (function () {
         /** Rate limit wait time in minutes */
         RATE_LIMIT_MINUTES: 15,
         /** Maximum wait for newly rendered user cards after scrolling */
-        USER_LIST_MUTATION_TIMEOUT: 3000
+        USER_LIST_MUTATION_TIMEOUT: 3000,
+        /** Maximum wait for the background worker to return the active plan */
+        PLAN_LOOKUP_TIMEOUT: 2000
     });
 
     // ═══════════════════════════════════════════════════════════════

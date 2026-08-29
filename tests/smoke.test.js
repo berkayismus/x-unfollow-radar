@@ -181,6 +181,10 @@ function testCriticalRegressionGuards() {
         popupSource.indexOf('async function handleReset()'),
         popupSource.indexOf('async function handleDeleteAllData()')
     );
+    const startHandler = contentSource.slice(
+        contentSource.indexOf('case Constants.ACTIONS.START:'),
+        contentSource.indexOf('case Constants.ACTIONS.STOP:')
+    );
 
     assert.match(popupSource, /content\.hidden = !isActive/);
     assert.doesNotMatch(popupSource, /Constants\.LIMITS\.MAX_SESSION/);
@@ -196,6 +200,9 @@ function testCriticalRegressionGuards() {
     assert.match(popupSource, /chrome\.storage\.local\.clear\(\)/);
     assert.match(contentSource, /new AbortController\(\)/);
     assert.match(contentSource, /new MutationObserver\(/);
+    assert.match(contentSource, /document\.scrollingElement \|\| document\.documentElement/);
+    assert.match(contentSource, /Constants\.TIMING\.PLAN_LOOKUP_TIMEOUT/);
+    assert.doesNotMatch(startHandler, /window\.scrollTo\(0, 0\)/);
     assert.match(contentSource, /findConfirmationDialog\(username\)/);
     assert.match(contentSource, /MAX_CONSECUTIVE_FAILURES/);
     assert.match(contentSource, /pauseIfRateLimited\(\)/);

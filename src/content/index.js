@@ -640,7 +640,16 @@ const XUnfollowRadarContent = (function () {
                 .map(getUsernameFromCell)
                 .filter((username) => username !== 'Unknown')
         );
-        window.scrollTo(0, document.documentElement.scrollHeight);
+        const scrollRoot = document.scrollingElement || document.documentElement;
+        const targetScrollTop = Math.max(
+            scrollRoot.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body?.scrollHeight || 0
+        );
+        window.scrollTo(0, targetScrollTop);
+        if (scrollRoot.scrollTop < targetScrollTop) {
+            scrollRoot.scrollTop = targetScrollTop;
+        }
         await Promise.all([
             randomDelay(
                 Constants.TIMING.SCROLL_DELAY,
@@ -659,7 +668,7 @@ const XUnfollowRadarContent = (function () {
      * @returns {boolean}
      */
     function isScrollAtBottom() {
-        const el = document.documentElement;
+        const el = document.scrollingElement || document.documentElement;
         const threshold = 150;
         return el.scrollTop + el.clientHeight >= el.scrollHeight - threshold;
     }
@@ -886,7 +895,10 @@ const XUnfollowRadarContent = (function () {
         const now = Date.now();
 
         try {
-            const planResult = await chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN });
+            const planResult = await Promise.race([
+                chrome.runtime.sendMessage({ action: Constants.ACTIONS.GET_PLAN }),
+                new Promise((resolve) => setTimeout(() => resolve(null), Constants.TIMING.PLAN_LOOKUP_TIMEOUT))
+            ]);
             currentPlan = planResult?.plan || Constants.PLANS.FREE;
         } catch (error) {
             console.warn('Plan could not be loaded; using free limits:', error);
@@ -980,7 +992,6 @@ const XUnfollowRadarContent = (function () {
                         unfollowQueue = [];
                         processedUsers = new Set();
                         operationStartedAt = Date.now();
-                        window.scrollTo(0, 0);
                         mainLoop().catch((err) => {
                             if (err.name === 'AbortError') return;
                             console.error('mainLoop error:', err);

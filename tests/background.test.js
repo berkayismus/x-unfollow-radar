@@ -74,9 +74,14 @@ function createHarness(fetchImpl, initialStorage = {}) {
         });
     }
 
+    function dispatch(message) {
+        return listener(message, {}, () => {});
+    }
+
     return {
         storage,
         send,
+        dispatch,
         getFetchCount: () => fetchCount
     };
 }
@@ -127,6 +132,11 @@ async function testActivationAndCachedPlan() {
     assert.equal(harness.getFetchCount(), 1, 'fresh verification should be reused for 24 hours');
 }
 
+function testRelayedMessagesDoNotLoop() {
+    const harness = createHarness(async () => gumroadResponse());
+    assert.equal(harness.dispatch({ type: 'STATUS_UPDATE', relayedByBackground: true }), false);
+}
+
 async function testRefundedPurchaseIsRejected() {
     const harness = createHarness(async () => gumroadResponse({ refunded: true }));
     const activation = await harness.send({ action: 'VERIFY_LICENSE', licenseKey: 'REFUNDED-KEY' });
@@ -170,6 +180,7 @@ async function testPeriodicRevalidationRefreshesPurchaseDate() {
 }
 
 (async () => {
+    testRelayedMessagesDoNotLoop();
     await testActivationAndCachedPlan();
     await testRefundedPurchaseIsRejected();
     await testPeriodicRevalidationRevokesChargeback();
