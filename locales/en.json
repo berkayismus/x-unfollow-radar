@@ -15,7 +15,9 @@
     },
     "stats": {
         "dailyLimit": "24 Hour Limit",
-        "totalUnfollowed": "Total Unfollowed"
+        "totalUnfollowed": "Total Unfollowed",
+        "dryRun24Hour": "24 Hour Simulated",
+        "totalDryRun": "Total Simulated"
     },
     "status": {
         "ready": "Ready",

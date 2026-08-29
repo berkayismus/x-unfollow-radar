@@ -15,7 +15,9 @@
     },
     "stats": {
         "dailyLimit": "24 Saatlik Limit",
-        "totalUnfollowed": "Toplam Çıkarılan"
+        "totalUnfollowed": "Toplam Çıkarılan",
+        "dryRun24Hour": "24 Saatlik Simülasyon",
+        "totalDryRun": "Toplam Simülasyon"
     },
     "status": {
         "ready": "Hazır",

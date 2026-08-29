@@ -15,7 +15,9 @@
     },
     "stats": {
         "dailyLimit": "24‑Stunden‑Limit",
-        "totalUnfollowed": "Insgesamt entfolgt"
+        "totalUnfollowed": "Insgesamt entfolgt",
+        "dryRun24Hour": "24‑Std.-Simulation",
+        "totalDryRun": "Simulationen gesamt"
     },
     "status": {
         "ready": "Bereit",

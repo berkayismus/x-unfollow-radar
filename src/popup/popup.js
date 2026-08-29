@@ -57,7 +57,9 @@ const XUnfollowRadarPopup = (function () {
             undoBtn: document.getElementById('undoBtn'),
             undoCount: document.getElementById('undoCount'),
             dryRunMode: document.getElementById('dryRunMode'),
+            sessionCountLabel: document.getElementById('sessionCountLabel'),
             sessionCount: document.getElementById('sessionCount'),
+            totalCountLabel: document.getElementById('totalCountLabel'),
             totalCount: document.getElementById('totalCount'),
             lastRun: document.getElementById('lastRun'),
             runRealCount: document.getElementById('runRealCount'),
@@ -329,7 +331,10 @@ const XUnfollowRadarPopup = (function () {
             Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED,
             Constants.STORAGE_KEYS.LAST_RUN,
             Constants.STORAGE_KEYS.SESSION_START,
-            Constants.STORAGE_KEYS.ACTION_TIMESTAMPS
+            Constants.STORAGE_KEYS.ACTION_TIMESTAMPS,
+            Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS,
+            Constants.STORAGE_KEYS.TOTAL_DRY_RUN,
+            Constants.STORAGE_KEYS.DRY_RUN_MODE
         ]);
 
         const now = Date.now();
@@ -343,17 +348,24 @@ const XUnfollowRadarPopup = (function () {
         });
         const sessionCount = actionTimestamps.length;
         const totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
+        const dryRunTimestamps = SafetyWindow.prune(
+            data[Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS] || [],
+            now,
+            Constants.TIMING.SESSION_DURATION
+        );
+        const totalDryRun = data[Constants.STORAGE_KEYS.TOTAL_DRY_RUN] || 0;
+        const dryRunEnabled = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
         const lastRun = data[Constants.STORAGE_KEYS.LAST_RUN] || '-';
 
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
+            [Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]: dryRunTimestamps,
             [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
             [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
         });
 
         const maxSession = Constants.getSessionLimit(currentPlan);
-        elements.sessionCount.textContent = `${sessionCount}/${maxSession}`;
-        elements.totalCount.textContent = totalUnfollowed;
+        renderPrimaryStats({ sessionCount, totalUnfollowed, dryRunTimestamps, totalDryRun, dryRunEnabled });
 
         if (lastRun !== '-') {
             const date = new Date(lastRun);
@@ -363,7 +375,7 @@ const XUnfollowRadarPopup = (function () {
             elements.lastRun.textContent = '-';
         }
 
-        if (sessionCount >= maxSession) {
+        if (!dryRunEnabled && sessionCount >= maxSession) {
             const nextSlotAt = SafetyWindow.nextSlotAt(actionTimestamps, Constants.TIMING.SESSION_DURATION);
             const timeLeft = (nextSlotAt || now) - now;
 
@@ -379,6 +391,21 @@ const XUnfollowRadarPopup = (function () {
             elements.limitReachedAlert.style.display = 'none';
             elements.startBtn.disabled = false;
         }
+    }
+
+    function renderPrimaryStats({
+        sessionCount = 0,
+        totalUnfollowed = 0,
+        dryRunTimestamps = [],
+        totalDryRun = 0,
+        dryRunEnabled = elements.dryRunMode.checked
+    } = {}) {
+        elements.sessionCountLabel.textContent = I18n.t(dryRunEnabled ? 'stats.dryRun24Hour' : 'stats.dailyLimit');
+        elements.totalCountLabel.textContent = I18n.t(dryRunEnabled ? 'stats.totalDryRun' : 'stats.totalUnfollowed');
+        elements.sessionCount.textContent = dryRunEnabled
+            ? String(dryRunTimestamps.length)
+            : `${sessionCount}/${Constants.getSessionLimit(currentPlan)}`;
+        elements.totalCount.textContent = dryRunEnabled ? totalDryRun : totalUnfollowed;
     }
 
     /**
@@ -727,6 +754,8 @@ const XUnfollowRadarPopup = (function () {
         if (confirm(I18n.t('messages.confirmReset'))) {
             await chrome.storage.local.set({
                 [Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED]: 0,
+                [Constants.STORAGE_KEYS.TOTAL_DRY_RUN]: 0,
+                [Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]: [],
                 [Constants.STORAGE_KEYS.LAST_RUN]: null,
                 [Constants.STORAGE_KEYS.UNDO_QUEUE]: [],
                 [Constants.STORAGE_KEYS.UNFOLLOW_STATS]: { daily: {} },
@@ -742,7 +771,7 @@ const XUnfollowRadarPopup = (function () {
                 /* Content script may not be active. */
             }
 
-            elements.totalCount.textContent = '0';
+            await loadStats();
             elements.lastRun.textContent = '-';
             elements.userList.innerHTML = '';
             userRenderStates.clear();
@@ -824,6 +853,8 @@ const XUnfollowRadarPopup = (function () {
         } else {
             updateStatus('ready', `✓ ${I18n.t('messages.normalMode')}`);
         }
+
+        await loadStats();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1069,6 +1100,7 @@ const XUnfollowRadarPopup = (function () {
 
         await I18n.setLocale(locale);
         applyAriaLabels();
+        await loadStats();
 
         if (elements.langMenu) {
             elements.langMenu.setAttribute('hidden', '');
@@ -1417,13 +1449,17 @@ const XUnfollowRadarPopup = (function () {
      * @returns {void}
      */
     function handleStatusUpdate(data) {
-        if (data.sessionCount !== undefined) {
+        if (elements.dryRunMode.checked && data.dryRunSessionCount !== undefined) {
+            elements.sessionCountLabel.textContent = I18n.t('stats.dryRun24Hour');
+            elements.totalCountLabel.textContent = I18n.t('stats.totalDryRun');
+            elements.sessionCount.textContent = String(data.dryRunSessionCount);
+            elements.totalCount.textContent = data.totalDryRun || 0;
+        } else if (!elements.dryRunMode.checked && data.sessionCount !== undefined) {
+            elements.sessionCountLabel.textContent = I18n.t('stats.dailyLimit');
+            elements.totalCountLabel.textContent = I18n.t('stats.totalUnfollowed');
             const maxSession = Constants.getSessionLimit(currentPlan);
             elements.sessionCount.textContent = `${data.sessionCount}/${maxSession}`;
-        }
-
-        if (data.totalUnfollowed !== undefined) {
-            elements.totalCount.textContent = data.totalUnfollowed;
+            if (data.totalUnfollowed !== undefined) elements.totalCount.textContent = data.totalUnfollowed;
         }
 
         switch (data.status) {
@@ -1690,11 +1726,11 @@ const XUnfollowRadarPopup = (function () {
         await loadPlan();
 
         // Load data — always, regardless of which page is open
+        await loadDryRunMode();
         await loadStats();
         await loadKeywords();
         await loadWhitelist();
         await loadTheme();
-        await loadDryRunMode();
         await loadUndoQueue();
         await loadLastRunState();
 

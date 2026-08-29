@@ -202,6 +202,9 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /sessionLimit = Constants\.getSessionLimit\(currentPlan\)/);
     assert.match(contentSource, /processedUsers\.size - seenBeforeCycle/);
     assert.match(contentSource, /updateDailyStats\(Constants\.USER_ACTIONS\.DRY_RUN\)/);
+    assert.match(contentSource, /STORAGE_KEYS\.DRY_RUN_TIMESTAMPS/);
+    assert.match(contentSource, /STORAGE_KEYS\.TOTAL_DRY_RUN/);
+    assert.match(popupSource, /stats\.dryRun24Hour/);
     assert.doesNotMatch(contentSource, /CONTINUE_TEST|testComplete|BATCH_SIZE/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.SESSION_COUNT/);
     assert.doesNotMatch(resetHandler, /STORAGE_KEYS\.ACTION_TIMESTAMPS/);

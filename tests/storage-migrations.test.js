@@ -52,7 +52,7 @@ async function testLegacyMigration() {
     const result = await migrations.migrate(storage.area, { now, maxLegacyCount: 500 });
     assert.equal(result.fromVersion, 0);
     assert.equal(result.toVersion, migrations.CURRENT_SCHEMA_VERSION);
-    assert.equal(storage.data.schemaVersion, 3);
+    assert.equal(storage.data.schemaVersion, 4);
     assert.equal(storage.data.candidateScan, undefined);
     assert.equal(storage.data.testMode, undefined);
     assert.equal(storage.data.testComplete, undefined);
@@ -62,6 +62,8 @@ async function testLegacyMigration() {
     assert.deepEqual(storage.data.whitelist, {});
     assert.deepEqual(storage.data.unfollowStats, { daily: {} });
     assert.deepEqual(storage.data.unfollowHistory, []);
+    assert.deepEqual(storage.data.dryRunTimestamps, []);
+    assert.equal(storage.data.totalDryRun, 0);
 }
 
 async function testMigrationIsIdempotent() {
@@ -72,6 +74,23 @@ async function testMigrationIsIdempotent() {
 
     assert.equal(storage.getWriteCount(), 1, 'the second migration must not write');
     assert.deepEqual(storage.data, migratedSnapshot, 'the second migration must not change data');
+}
+
+async function testDryRunCountersAreMigrated() {
+    const now = Date.parse('2026-08-29T12:00:00.000Z');
+    const storage = createStorage({
+        schemaVersion: 3,
+        unfollowStats: {
+            daily: {
+                '2026-08-28': { dryRun: 2, unfollowed: 1, timestamp: now - 86_400_000 },
+                '2026-08-29': { dryRun: 3, unfollowed: 0, timestamp: now - 60_000 }
+            }
+        }
+    });
+
+    await migrations.migrate(storage.area, { now });
+    assert.equal(storage.data.totalDryRun, 5);
+    assert.deepEqual(storage.data.dryRunTimestamps, Array(3).fill(now - 60_000));
 }
 
 function testFutureSchemaIsPreserved() {
@@ -85,6 +104,7 @@ function testFutureSchemaIsPreserved() {
 (async () => {
     await testLegacyMigration();
     await testMigrationIsIdempotent();
+    await testDryRunCountersAreMigrated();
     testFutureSchemaIsPreserved();
     console.log('Storage migration tests passed.');
 })().catch((error) => {

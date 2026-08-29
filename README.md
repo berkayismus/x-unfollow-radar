@@ -14,6 +14,7 @@ Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine g�
 - ✅ Gerçek işlemleri ayrı ayrı izleyen kayan son 24 saat güvenlik sayacı
 - ✅ Toplam istatistik saklama
 - ✅ Kalıcı çalışma özeti: gerçek, dry-run, atlanan ve başarısız sonuçlar
+- ✅ Dry-run açıkken gerçek kotadan ayrı 24 saatlik ve toplam simülasyon sayaçları
 - ✅ Popup yeniden açıldığında son çalışma listesini geri yükleme
 - ✅ Rate-limit bekleme durumunu saklama ve zaman dolunca otomatik devam
 
@@ -163,6 +164,7 @@ x_unfollow_radar/
 - Organik duraklamalar (%15 olasılıkla)
 - Algılanan rate-limit bekleme durumunu saklama ve otomatik devam
 - Her gerçek işlemi kendi zamanından 24 saat sonra düşüren kayan güvenlik penceresi
+- Dry-run işlemlerini gerçek güvenlik kotasını tüketmeden ayrı 24 saatlik ve toplam sayaçlarda gösterme
 
 ## 🤝 Katkıda Bulunma
 

@@ -75,7 +75,7 @@ Content script mesajları popup'a doğrudan ulaşır. Background worker bu durum
 `mainLoop()` fonksiyonu içeride şu sırayla çalışır:
 
 1. `initStorage()`
-    - Son 24 saatteki gerçek işlem zamanlarını, son çalışma durumunu, toplam takipten çıkma, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
+    - Son 24 saatteki gerçek ve dry-run işlem zamanlarını, son çalışma durumunu, gerçek/dry-run toplamlarını, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
     - `schemaVersion` tabanlı idempotent migration katmanı eski sayaç verilerini yeni aksiyon zamanı şemasına güvenle taşır.
     - Her uygun hesap için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
     - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
@@ -99,6 +99,7 @@ Content script mesajları popup'a doğrudan ulaşır. Background worker bu durum
 
 - **Dry-Run Mode**:
     - Gerçekte takipten çıkarma yapmadan bütün akışı simüle eder (istatistikler ve kullanıcı listesi dahil).
+    - Ana kartlar dry-run açıkken ayrı 24 saatlik ve toplam simülasyon sayaçlarını gösterir; gerçek güvenlik kotası tüketilmez.
 
 - **Yakın Tarihli Profiller**:
     - Her gerçek unfollow için son 10 kullanıcı bilgisi yerel kuyruğa eklenir.

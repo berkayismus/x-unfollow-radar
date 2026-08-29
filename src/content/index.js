@@ -32,8 +32,14 @@ const XUnfollowRadarContent = (function () {
     /** @type {number[]} Successful real-action timestamps inside the rolling 24-hour window */
     let actionTimestamps = [];
 
+    /** @type {number[]} Simulated-action timestamps inside the rolling 24-hour window */
+    let dryRunTimestamps = [];
+
     /** @type {number} Total number of users unfollowed all-time */
     let totalUnfollowed = 0;
+
+    /** @type {number} Total number of successful dry-run simulations */
+    let totalDryRun = 0;
 
     /** @type {string[]} Keywords to skip when found in user profiles */
     let keywords = [];
@@ -151,6 +157,14 @@ const XUnfollowRadarContent = (function () {
         }
     }
 
+    async function refreshDryRunWindow(now = Date.now()) {
+        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]);
+        if (suppressPersistence) return;
+        const storedTimestamps = data[Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS];
+        const source = Array.isArray(storedTimestamps) ? storedTimestamps : dryRunTimestamps;
+        dryRunTimestamps = SafetyWindow.prune(source, now, Constants.TIMING.SESSION_DURATION);
+    }
+
     function findRateLimitSignal() {
         return (
             Array.from(document.querySelectorAll(Constants.SELECTORS.RATE_LIMIT_SIGNAL)).find((element) =>
@@ -231,6 +245,8 @@ const XUnfollowRadarContent = (function () {
             status,
             sessionCount,
             totalUnfollowed,
+            dryRunSessionCount: dryRunTimestamps.length,
+            totalDryRun,
             ...data
         });
     }
@@ -435,13 +451,27 @@ const XUnfollowRadarContent = (function () {
 
                 if (suppressPersistence) return false;
 
+                const actionTimestamp = Date.now();
+                await refreshDryRunWindow(actionTimestamp);
+                dryRunTimestamps = SafetyWindow.prune(
+                    [...dryRunTimestamps, actionTimestamp],
+                    actionTimestamp,
+                    Constants.TIMING.SESSION_DURATION
+                );
+                totalDryRun++;
+
+                await chrome.storage.local.set({
+                    [Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]: dryRunTimestamps,
+                    [Constants.STORAGE_KEYS.TOTAL_DRY_RUN]: totalDryRun
+                });
+                await updateDailyStats(Constants.USER_ACTIONS.DRY_RUN);
+
                 sendStatus(Constants.STATUS.UNFOLLOWED, { username, dryRun: true });
                 chrome.runtime.sendMessage({
                     type: Constants.MESSAGE_TYPES.USER_PROCESSED,
                     data: { username, action: Constants.USER_ACTIONS.DRY_RUN, timestamp: Date.now() }
                 });
 
-                await updateDailyStats(Constants.USER_ACTIONS.DRY_RUN);
                 return true;
             }
 
@@ -909,7 +939,9 @@ const XUnfollowRadarContent = (function () {
             Constants.STORAGE_KEYS.SESSION_COUNT,
             Constants.STORAGE_KEYS.SESSION_START,
             Constants.STORAGE_KEYS.ACTION_TIMESTAMPS,
+            Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS,
             Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED,
+            Constants.STORAGE_KEYS.TOTAL_DRY_RUN,
             Constants.STORAGE_KEYS.LAST_RUN,
             Constants.STORAGE_KEYS.KEYWORDS,
             Constants.STORAGE_KEYS.WHITELIST,
@@ -948,7 +980,14 @@ const XUnfollowRadarContent = (function () {
         });
         sessionCount = actionTimestamps.length;
 
+        dryRunTimestamps = SafetyWindow.prune(
+            data[Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS] || [],
+            now,
+            Constants.TIMING.SESSION_DURATION
+        );
+
         totalUnfollowed = data[Constants.STORAGE_KEYS.TOTAL_UNFOLLOWED] || 0;
+        totalDryRun = data[Constants.STORAGE_KEYS.TOTAL_DRY_RUN] || 0;
         keywords = data[Constants.STORAGE_KEYS.KEYWORDS] || [];
         whitelist = data[Constants.STORAGE_KEYS.WHITELIST] || {};
         dryRunMode = data[Constants.STORAGE_KEYS.DRY_RUN_MODE] || false;
@@ -963,6 +1002,7 @@ const XUnfollowRadarContent = (function () {
 
         await chrome.storage.local.set({
             [Constants.STORAGE_KEYS.ACTION_TIMESTAMPS]: actionTimestamps,
+            [Constants.STORAGE_KEYS.DRY_RUN_TIMESTAMPS]: dryRunTimestamps,
             [Constants.STORAGE_KEYS.SESSION_COUNT]: sessionCount,
             [Constants.STORAGE_KEYS.SESSION_START]: actionTimestamps[0] || null
         });
@@ -1062,6 +1102,8 @@ const XUnfollowRadarContent = (function () {
 
                 case Constants.ACTIONS.RESET_STATS:
                     totalUnfollowed = 0;
+                    totalDryRun = 0;
+                    dryRunTimestamps = [];
                     undoQueue = [];
                     runState = null;
                     sendResponse({ success: true });
@@ -1074,7 +1116,9 @@ const XUnfollowRadarContent = (function () {
                     suppressPersistence = true;
                     sessionCount = 0;
                     actionTimestamps = [];
+                    dryRunTimestamps = [];
                     totalUnfollowed = 0;
+                    totalDryRun = 0;
                     undoQueue = [];
                     keywords = [];
                     whitelist = {};

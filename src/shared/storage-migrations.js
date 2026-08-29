@@ -4,7 +4,7 @@
 const StorageMigrations = (function () {
     'use strict';
 
-    const CURRENT_SCHEMA_VERSION = 3;
+    const CURRENT_SCHEMA_VERSION = 4;
     const SCHEMA_VERSION_KEY = Constants.STORAGE_KEYS.SCHEMA_VERSION;
 
     function isPlainObject(value) {
@@ -55,10 +55,32 @@ const StorageMigrations = (function () {
         return next;
     }
 
+    function migrateVersionThree(snapshot, options) {
+        const daily = isPlainObject(snapshot.unfollowStats?.daily) ? snapshot.unfollowStats.daily : {};
+        const totalDryRun = Object.values(daily).reduce(
+            (total, entry) => total + Math.max(0, Number(entry?.dryRun) || 0),
+            0
+        );
+        const today = new Date(options.now).toISOString().split('T')[0];
+        const todayEntry = daily[today];
+        const todayCount = Math.max(0, Number(todayEntry?.dryRun) || 0);
+        const fallbackTimestamp = Number.isFinite(todayEntry?.timestamp) ? todayEntry.timestamp : options.now;
+
+        return {
+            ...snapshot,
+            dryRunTimestamps: Array.isArray(snapshot.dryRunTimestamps)
+                ? snapshot.dryRunTimestamps.filter(Number.isFinite).sort((left, right) => left - right)
+                : Array(todayCount).fill(fallbackTimestamp),
+            totalDryRun: Number.isFinite(snapshot.totalDryRun) ? snapshot.totalDryRun : totalDryRun,
+            [SCHEMA_VERSION_KEY]: 4
+        };
+    }
+
     const migrations = Object.freeze({
         0: migrateVersionZero,
         1: migrateVersionOne,
-        2: migrateVersionTwo
+        2: migrateVersionTwo,
+        3: migrateVersionThree
     });
 
     function plan(snapshot = {}, options = {}) {

@@ -21,7 +21,15 @@ test('loads the unpacked extension and renders the popup navigation', async () =
         expect(serviceWorkerUrl.pathname).toBe('/src/background/index.js');
         await expect
             .poll(() => serviceWorker.evaluate(() => chrome.storage.local.get('schemaVersion')))
-            .toEqual({ schemaVersion: 3 });
+            .toEqual({ schemaVersion: 4 });
+        await serviceWorker.evaluate(async () => {
+            const now = Date.now();
+            await chrome.storage.local.set({
+                dryRunMode: true,
+                dryRunTimestamps: [now - 2_000, now - 1_000],
+                totalDryRun: 7
+            });
+        });
 
         const page = await context.newPage();
         const pageErrors = [];
@@ -30,6 +38,10 @@ test('loads the unpacked extension and renders the popup navigation', async () =
         await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
         await expect(page).toHaveTitle('X Unfollow Radar');
         await expect(page.locator('#startBtn')).toBeDisabled();
+        await expect(page.locator('#sessionCountLabel')).toHaveText('24 Hour Simulated');
+        await expect(page.locator('#sessionCount')).toHaveText('2');
+        await expect(page.locator('#totalCountLabel')).toHaveText('Total Simulated');
+        await expect(page.locator('#totalCount')).toHaveText('7');
 
         await page.locator('#tab-filters').click();
         await expect(page.locator('#filters-tab')).toBeVisible();

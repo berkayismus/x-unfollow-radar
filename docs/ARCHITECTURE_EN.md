@@ -88,6 +88,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
     - Runs idempotent `schemaVersion` migrations before reading application state.
     - Reads all relevant keys from `chrome.storage.local`:
         - Successful real-action timestamps for the rolling 24-hour safety window
+        - Separate rolling 24-hour and all-time dry-run counters
         - Total unfollowed count
         - Filters (keywords, whitelist)
         - Dry-run mode
@@ -96,6 +97,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
         - Stats and history
         - Latest run state and per-user `queued/attempting/succeeded/failed` transitions
     - Prunes each successful action timestamp individually after 24 hours and derives the safety count from the remaining records.
+    - Shows dry-run counters in the primary cards while dry-run mode is enabled without consuming the real safety limit.
     - Initializes missing structures (stats, history).
 
 2. **Scan and queue**:
