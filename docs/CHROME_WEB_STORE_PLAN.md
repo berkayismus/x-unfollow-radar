@@ -9,20 +9,19 @@ Kod ve metin hazırlığı tamamlandı. Kalan işler mağaza hesabı ve güncel 
 - [x] Gizlilik politikası
 - [x] Lint, format, unit/smoke, fixture, Playwright ve paket kontrolleri
 - [x] Storage migration ve sürüm senkronizasyonu
+- [x] Güncel üç mağaza ekran görüntüsü, küçük promo ve marquee görseli
 
 ## Kalan işler
 
 - [ ] Chrome Web Store geliştirici hesabını ve destek e-postasını doğrula
 - [ ] Gizlilik politikası URL'sinin herkese açık olduğunu kontrol et
-- [ ] Eski mağaza ekran görüntülerini güncel arayüzle yeniden üret
-- [ ] Promo görsellerini güncel metin ve limitler açısından kontrol et; gerekirse yenile
 - [ ] Temiz ZIP üret ve Dashboard'a yükle
 - [ ] Privacy practices ve single-purpose beyanlarını doldur
 - [ ] Dağıtımı seç ve incelemeye gönder
 
 ## Önemli görsel uyarısı
 
-`assets/store-screenshots/` içindeki mevcut üç görsel yayın için güncel değildir. `100/24h`, “Rate-limit safe”, kullanıcı onayı ve “Dry run” gibi kaldırılmış ifadeler içerir. Yeni görseller Free `50/24h`, Pro `500/24h`, otomatik işlem ve **Preview mode** davranışını göstermelidir.
+Yalnızca `-v2.png` ile biten mağaza varlıkları kullanılmalıdır. Aynı klasörlerdeki eski görseller `100/24h`, “Rate-limit safe”, kullanıcı onayı ve “Dry run” gibi kaldırılmış ifadeler içerir.
 
 ## Doğrulama ve paketleme
 

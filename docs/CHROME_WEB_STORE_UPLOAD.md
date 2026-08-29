@@ -18,7 +18,15 @@ Yeni mağaza sürümünde önce `npm run release -- patch` çalıştır ve testl
 
 ## 2. Güncel görselleri hazırla
 
-Mevcut `assets/store-screenshots/` dosyaları eski arayüzü gösterdiği için kullanılmamalıdır. Main, Filters ve Statistics görsellerini güncel eklentiden yeniden üret. Promo görsellerini de eski limit ve terminoloji açısından kontrol et.
+Şu güncel dosyaları kullan:
+
+- `assets/store-screenshots/store-screenshot-main-en-1280x800-v2.png`
+- `assets/store-screenshots/store-screenshot-filters-en-1280x800-v2.png`
+- `assets/store-screenshots/store-screenshot-stats-en-1280x800-v2.png`
+- `assets/promo/x-unfollow-radar-tile-en-440x280-v2.png`
+- `assets/promo/x-unfollow-radar-hero-en-1400x560-v2.png`
+
+`-v2` içermeyen eski mağaza görsellerini yükleme.
 
 ## 3. ZIP oluştur
 

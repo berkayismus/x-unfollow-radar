@@ -69,14 +69,14 @@ Detection depends on X's visible UI. Use Preview mode to review results. Control
 
 ## Mağaza varlıklarının durumu
 
-Mevcut `assets/store-screenshots/` görselleri eski arayüzü gösteriyor ve **yüklenmemeli**. Görsellerde artık geçerli olmayan `100/24h`, “Rate-limit safe”, kullanıcı onayı ve “Dry run” ifadeleri bulunuyor.
+`-v2.png` ile biten güncel varlıklar mağazaya yüklenmeye hazırdır:
 
-Yayın öncesinde şu varlıklar güncel arayüzden yeniden üretilmeli:
+- [x] `store-screenshot-main-en-1280x800-v2.png`
+- [x] `store-screenshot-filters-en-1280x800-v2.png`
+- [x] `store-screenshot-stats-en-1280x800-v2.png`
+- [x] `x-unfollow-radar-tile-en-440x280-v2.png`
+- [x] `x-unfollow-radar-hero-en-1400x560-v2.png`
 
-- [ ] Main ekran görüntüsü — Önizleme modu ve Free `50/24h`
-- [ ] Filters ekran görüntüsü
-- [ ] Statistics ekran görüntüsü — Pro CSV durumu doğru gösterilmeli
-- [ ] 440×280 küçük promo kontrol edilmeli veya yenilenmeli
-- [ ] 1400×560 marquee kontrol edilmeli veya yenilenmeli
+`-v2` içermeyen eski ekran görüntüleri ve promo görselleri artık geçerli olmayan `100/24h`, “Rate-limit safe”, kullanıcı onayı ve “Dry run” ifadeleri içerdiği için yüklenmemelidir.
 
 İkonlar `assets/icons/` altında mevcuttur. Görsel ve metin gereksinimleri için güncel Chrome Web Store kuralları esas alınmalıdır.
