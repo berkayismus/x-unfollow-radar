@@ -29,8 +29,8 @@ const XUnfollowRadarPopup = (function () {
     /** @type {Object<string, HTMLElement>} Cached DOM elements */
     let elements = {};
 
-    /** @type {Set<string>} Set of displayed users to prevent duplicates */
-    let displayedUsers = new Set();
+    /** @type {Map<string, {priority: number, version: number}>} Latest render request per username */
+    let userRenderStates = new Map();
 
     /** @type {string} Current plan tier ('free' or 'pro') */
     let currentPlan = Constants.PLANS.FREE;
@@ -270,12 +270,17 @@ const XUnfollowRadarPopup = (function () {
     }
 
     function removeDisplayedUser(username) {
+        const normalizedUsername = String(username).replace(/^@/, '').toLowerCase();
         Array.from(elements.userList.querySelectorAll('li')).forEach((item) => {
-            if (item.dataset.username === username) item.remove();
+            const itemUsername = String(item.dataset.username).replace(/^@/, '').toLowerCase();
+            if (itemUsername === normalizedUsername) item.remove();
         });
-        Array.from(displayedUsers).forEach((key) => {
-            if (key.startsWith(`${username}:`)) displayedUsers.delete(key);
-        });
+    }
+
+    function actionPriority(action) {
+        if (action === RunStateUtils.ITEM_STATUS.QUEUED) return 0;
+        if (action === RunStateUtils.ITEM_STATUS.ATTEMPTING) return 1;
+        return 2;
     }
 
     async function loadLastRunState() {
@@ -286,7 +291,7 @@ const XUnfollowRadarPopup = (function () {
         const run = data[Constants.STORAGE_KEYS.RUN_STATE];
         renderRunSummary(run?.summary, run?.status);
         elements.userList.innerHTML = '';
-        displayedUsers.clear();
+        userRenderStates.clear();
         if (!run) return;
 
         const itemRecords = (run.items || []).map((item) => ({
@@ -675,7 +680,7 @@ const XUnfollowRadarPopup = (function () {
             elements.startBtn.style.display = 'none';
             elements.stopBtn.style.display = 'block';
             elements.userList.innerHTML = '';
-            displayedUsers.clear();
+            userRenderStates.clear();
             updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
         } catch (error) {
             console.error('Failed to start:', error);
@@ -740,7 +745,7 @@ const XUnfollowRadarPopup = (function () {
             elements.totalCount.textContent = '0';
             elements.lastRun.textContent = '-';
             elements.userList.innerHTML = '';
-            displayedUsers.clear(); // Clear the tracking Set
+            userRenderStates.clear();
             updateUndoButton(0);
             renderRunSummary();
 
@@ -1195,16 +1200,12 @@ const XUnfollowRadarPopup = (function () {
      * @returns {Promise<void>}
      */
     async function addUserToList(username, action, timestamp, knownWhitelist = null) {
-        // Create unique key for this user+action combination
-        const userKey = `${username}:${action}`;
-
-        // Check for duplicates using Set (more reliable than DOM query)
-        if (displayedUsers.has(userKey)) {
-            return; // Skip duplicate
-        }
-
-        // Add to tracking Set
-        displayedUsers.add(userKey);
+        const normalizedUsername = String(username).replace(/^@/, '').toLowerCase();
+        const priority = actionPriority(action);
+        const previousState = userRenderStates.get(normalizedUsername);
+        if (previousState && previousState.priority > priority) return;
+        const version = (previousState?.version || 0) + 1;
+        userRenderStates.set(normalizedUsername, { priority, version });
 
         const li = createElement('li');
         const time = new Date(timestamp).toLocaleTimeString('tr-TR', {
@@ -1215,6 +1216,9 @@ const XUnfollowRadarPopup = (function () {
         // Check if user is already in whitelist
         const data =
             knownWhitelist === null ? await chrome.storage.local.get([Constants.STORAGE_KEYS.WHITELIST]) : null;
+        if (userRenderStates.get(normalizedUsername)?.version !== version) return;
+
+        removeDisplayedUser(username);
         const whitelist = knownWhitelist || data?.[Constants.STORAGE_KEYS.WHITELIST] || {};
         const cleanUsername = username.replace('@', '').toLowerCase();
         const isInWhitelist = !!whitelist[cleanUsername];
@@ -1397,7 +1401,6 @@ const XUnfollowRadarPopup = (function () {
                 renderRunSummary(message.data.summary, message.data.status);
                 if (message.data.record?.username) {
                     const record = message.data.record;
-                    removeDisplayedUser(record.username);
                     addUserToList(
                         record.username,
                         actionForRunItem(record),

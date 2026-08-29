@@ -14,6 +14,7 @@ function createHarness(fetchImpl, initialStorage = {}) {
     const storage = { ...initialStorage };
     let listener = null;
     let fetchCount = 0;
+    let runtimeMessageCount = 0;
 
     const context = vm.createContext({
         URLSearchParams,
@@ -31,7 +32,9 @@ function createHarness(fetchImpl, initialStorage = {}) {
         chrome: {
             runtime: {
                 getURL: (value) => value,
-                sendMessage() {},
+                sendMessage() {
+                    runtimeMessageCount++;
+                },
                 onMessage: {
                     addListener(value) {
                         listener = value;
@@ -82,7 +85,8 @@ function createHarness(fetchImpl, initialStorage = {}) {
         storage,
         send,
         dispatch,
-        getFetchCount: () => fetchCount
+        getFetchCount: () => fetchCount,
+        getRuntimeMessageCount: () => runtimeMessageCount
     };
 }
 
@@ -132,9 +136,10 @@ async function testActivationAndCachedPlan() {
     assert.equal(harness.getFetchCount(), 1, 'fresh verification should be reused for 24 hours');
 }
 
-function testRelayedMessagesDoNotLoop() {
+function testStatusMessagesAreNotRelayed() {
     const harness = createHarness(async () => gumroadResponse());
-    assert.equal(harness.dispatch({ type: 'STATUS_UPDATE', relayedByBackground: true }), false);
+    assert.equal(harness.dispatch({ type: 'STATUS_UPDATE' }), false);
+    assert.equal(harness.getRuntimeMessageCount(), 0);
 }
 
 async function testRefundedPurchaseIsRejected() {
@@ -180,7 +185,7 @@ async function testPeriodicRevalidationRefreshesPurchaseDate() {
 }
 
 (async () => {
-    testRelayedMessagesDoNotLoop();
+    testStatusMessagesAreNotRelayed();
     await testActivationAndCachedPlan();
     await testRefundedPurchaseIsRejected();
     await testPeriodicRevalidationRevokesChargeback();

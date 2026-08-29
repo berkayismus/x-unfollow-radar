@@ -16,7 +16,7 @@ Eklenti üç ana parçaya ayrılır:
 
 1. `content script` → Twitter/X sayfasında çalışan otomasyon motoru
 2. `popup` → Kullanıcı arayüzü (başlat/durdur, filtreler, istatistikler)
-3. `background service worker` → Mesaj relay ve durum güncellemeleri
+3. `background service worker` → Lisans doğrulama ve storage migration başlatma
 
 ## 2. Dosya Yapısı (Özet)
 
@@ -38,7 +38,7 @@ Eklenti üç ana parçaya ayrılır:
     - İstatistikler sekmesi: Son 30 gün grafiği ve CSV export.
 
 - `src/background/index.js`  
-  Content script → Popup mesajlarını relay eder, Gumroad lisans doğrulamasını yürütür ve storage migration'ını başlatır.
+  Gumroad lisans doğrulamasını yürütür ve storage migration'ını başlatır.
 
 - `src/shared/constants.js`  
   Zamanlama, limitler, selector'lar, metin pattern'leri, storage key'leri ve mesaj tipleri gibi merkezi sabit değerleri içerir.
@@ -68,7 +68,7 @@ Content script, çalışma sırasında popup'a iki kanal üzerinden bilgi gönde
     - Gerçek/dry-run işlemleri kullanıcı güncellemesi olarak; atlanan ve başarısız kayıtlar kalıcı çalışma durumu üzerinden gönderilir.
     - Popup, bu bilgiyi kullanarak \"Processed Users\" listesini günceller.
 
-Background service worker ( `src/background/index.js` ) bu mesajları dinler ve doğrudan popup'a relay eder. Böylece content script ile popup arasında gevşek bağlı (loosely coupled) bir iletişim katmanı oluşur.
+Content script mesajları popup'a doğrudan ulaşır. Background worker bu durum mesajlarını yeniden göndermez; böylece aynı kullanıcı güncellemesinin iki kez işlenmesi önlenir. Popup kullanıcı adı bazında tek satır tutar ve `queued → attempting → succeeded/failed` geçişlerinde aynı satırı günceller.
 
 ## 4. İş Akışı (Main Loop)
 

@@ -186,6 +186,7 @@ function testManifestScope() {
 function testCriticalRegressionGuards() {
     const popupSource = read('src/popup/popup.js');
     const contentSource = read('src/content/index.js');
+    const backgroundSource = read('src/background/index.js');
     const resetHandler = popupSource.slice(
         popupSource.indexOf('async function handleReset()'),
         popupSource.indexOf('async function handleDeleteAllData()')
@@ -219,6 +220,8 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /pauseIfRateLimited\(\)/);
     assert.match(contentSource, /RunStateUtils\.ITEM_STATUS\.ATTEMPTING/);
     assert.match(popupSource, /loadLastRunState\(\)/);
+    assert.match(popupSource, /userRenderStates\.get\(normalizedUsername\)/);
+    assert.doesNotMatch(backgroundSource, /relayMessage|relayedByBackground/);
     assert.match(popupSource, /Constants\.ACTIONS\.START/);
     assert.doesNotMatch(popupSource, /CandidateUtils/);
     assert.doesNotMatch(contentSource, /CandidateUtils/);

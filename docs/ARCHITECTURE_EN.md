@@ -16,7 +16,7 @@ The extension is split into three main parts:
 
 1. **Content script** → Automation engine that runs on the Twitter/X page
 2. **Popup** → UI for starting/stopping, filters, and statistics
-3. **Background service worker** → Message relay and status broadcasting
+3. **Background service worker** → License verification and storage migration startup
 
 ## 2. Directory Structure (Relevant Parts)
 
@@ -38,7 +38,7 @@ The extension is split into three main parts:
     - **Statistics tab**: last 30 days chart and CSV export.
 
 - `src/background/index.js`  
-  Service worker that relays runtime messages, verifies Gumroad licenses, and starts storage migrations.
+  Service worker that verifies Gumroad licenses and starts storage migrations.
 
 - `src/shared/constants.js`  
   Central configuration:
@@ -78,7 +78,7 @@ The content script pushes updates back via `chrome.runtime.sendMessage`:
     - Real and dry-run actions are emitted as per-user updates.
     - Skipped and failed records are represented in the persisted run state and summary.
 
-The background worker simply listens for these messages and relays them to the popup, creating a loose coupling between page context (content script) and UI context (popup).
+Content-script messages reach the popup directly. The background worker does not relay status messages, preventing the same user update from being processed twice. The popup keeps one row per username and updates that row across `queued → attempting → succeeded/failed` transitions.
 
 ## 4. Main Processing Loop
 

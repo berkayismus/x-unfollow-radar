@@ -19,24 +19,6 @@ const XUnfollowRadarBackground = (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════════
-    // PRIVATE METHODS — Message Relay
-    // ═══════════════════════════════════════════════════════════════
-
-    /**
-     * Relays a message to the runtime
-     * @param {Object} message - Message to relay
-     * @returns {void}
-     */
-    function relayMessage(message) {
-        Promise.resolve(chrome.runtime.sendMessage({ ...message, relayedByBackground: true })).catch((error) => {
-            // Popup might not be open, ignore error
-            if (!error.message?.includes('Could not establish connection')) {
-                console.error('Error relaying message:', error);
-            }
-        });
-    }
-
-    // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS — Gumroad License Verification
     // ═══════════════════════════════════════════════════════════════
 
@@ -228,29 +210,6 @@ const XUnfollowRadarBackground = (function () {
      */
     function handleMessage(message, sender, sendResponse) {
         console.log('Background received message:', message.type || message.action);
-
-        if (message.relayedByBackground) return false;
-
-        switch (message.type) {
-            case 'STATUS_UPDATE':
-                relayMessage(message);
-                break;
-
-            case 'RATE_LIMIT_HIT':
-                relayMessage(message);
-                break;
-
-            case 'USER_PROCESSED':
-                relayMessage(message);
-                break;
-
-            case 'RUN_STATE_UPDATED':
-                relayMessage(message);
-                break;
-
-            default:
-                break;
-        }
 
         switch (message.action) {
             case 'VERIFY_LICENSE':

@@ -121,7 +121,7 @@ x_unfollow_radar/
 │
 ├── src/                       # Source code
 │   ├── background/
-│   │   └── index.js           # Service worker for message relay
+│   │   └── index.js           # Service worker for license and storage setup
 │   ├── content/
 │   │   └── index.js           # Main automation logic
 │   ├── popup/
