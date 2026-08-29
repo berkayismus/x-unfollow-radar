@@ -1,7 +1,7 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Scan, select, and explicitly approve candidates"
+        "subtitle": "Find non-followers and unfollow with controlled pacing"
     },
     "trust": {
         "worksOnFollowing": "Works on Following",
@@ -35,7 +35,7 @@
         "dailyLimitDesc": "You've reached the rolling 24-hour limit. At least one action slot opens in about {hours} hours."
     },
     "buttons": {
-        "start": "Scan candidates",
+        "start": "Start unfollowing",
         "stop": "Stop",
         "continue": "Continue (50 more)",
         "undo": "Open profile",
@@ -49,29 +49,6 @@
     "controls": {
         "dryRunMode": "Dry run (no unfollow)",
         "dryRunDesc": "When enabled, simulates unfollowing without making changes"
-    },
-    "candidates": {
-        "title": "Candidate Preview",
-        "hint": "Select the accounts to process.",
-        "selectAll": "Select all",
-        "clearSelection": "Clear selection",
-        "execute": "Process selected",
-        "selectUser": "Select @{username}",
-        "selectionLimit": "You can select at most {count} users in the current safety window.",
-        "confirmExecution": "The selected {count} users will be processed. Continue?",
-        "scanComplete": "Found {count} candidates. Make your selection.",
-        "excluded": "{count} accounts were protected by filters.",
-        "truncated": "The preview is limited to the first 500 candidates.",
-        "status": {
-            "scanning": "Scanning candidates",
-            "ready": "Candidates are ready for selection",
-            "executing": "Processing selected accounts",
-            "completed": "Selected run completed; scan again for a new run",
-            "stopped": "Operation stopped; scan again",
-            "interrupted": "Scan interrupted; scan again",
-            "limit_reached": "Safety limit reached; scan again later",
-            "error": "Operation failed; scan again"
-        }
     },
     "filters": {
         "keywordsTitle": "Keywords",
@@ -192,8 +169,8 @@
         "current": "EN"
     },
     "aria": {
-        "startButton": "Scan non-follower candidates",
-        "stopButton": "Stop the active scan or operation",
+        "startButton": "Start the automatic unfollow operation",
+        "stopButton": "Stop the active unfollow operation",
         "continueButton": "Continue unfollowing 50 more users",
         "resetButton": "Reset statistics while preserving the active safety window",
         "deleteAllDataButton": "Delete all local data including filters and license information",

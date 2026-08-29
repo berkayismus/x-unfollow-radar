@@ -27,6 +27,10 @@ function createStorage(initialData) {
             async set(updates) {
                 writeCount++;
                 Object.assign(data, structuredClone(updates));
+            },
+            async remove(keys) {
+                writeCount++;
+                keys.forEach((key) => delete data[key]);
             }
         }
     };
@@ -38,13 +42,15 @@ async function testLegacyMigration() {
         sessionCount: 3,
         sessionStart: 500_000,
         keywords: 'invalid',
-        whitelist: null
+        whitelist: null,
+        candidateScan: { status: 'ready' }
     });
 
     const result = await migrations.migrate(storage.area, { now, maxLegacyCount: 500 });
     assert.equal(result.fromVersion, 0);
     assert.equal(result.toVersion, migrations.CURRENT_SCHEMA_VERSION);
-    assert.equal(storage.data.schemaVersion, 1);
+    assert.equal(storage.data.schemaVersion, 2);
+    assert.equal(storage.data.candidateScan, undefined);
     assert.deepEqual(storage.data.actionTimestamps, [500_000, 500_000, 500_000]);
     assert.deepEqual(storage.data.keywords, []);
     assert.deepEqual(storage.data.whitelist, {});
@@ -67,6 +73,7 @@ function testFutureSchemaIsPreserved() {
     assert.equal(result.fromVersion, 99);
     assert.equal(result.toVersion, 99);
     assert.deepEqual(Object.keys(result.updates), []);
+    assert.deepEqual(Array.from(result.removals), []);
 }
 
 (async () => {

@@ -35,9 +35,6 @@ const XUnfollowRadarPopup = (function () {
     /** @type {string} Current plan tier ('free' or 'pro') */
     let currentPlan = Constants.PLANS.FREE;
 
-    /** @type {Object|null} Persisted candidate preview state */
-    let candidateScan = null;
-
     // ═══════════════════════════════════════════════════════════════
     // PRIVATE METHODS - DOM Utilities
     // ═══════════════════════════════════════════════════════════════
@@ -61,15 +58,6 @@ const XUnfollowRadarPopup = (function () {
             undoBtn: document.getElementById('undoBtn'),
             undoCount: document.getElementById('undoCount'),
             dryRunMode: document.getElementById('dryRunMode'),
-            candidatePanel: document.getElementById('candidatePanel'),
-            candidateCount: document.getElementById('candidateCount'),
-            candidateHint: document.getElementById('candidateHint'),
-            candidateList: document.getElementById('candidateList'),
-            selectAllCandidatesBtn: document.getElementById('selectAllCandidatesBtn'),
-            clearCandidateSelectionBtn: document.getElementById('clearCandidateSelectionBtn'),
-            executeSelectedBtn: document.getElementById('executeSelectedBtn'),
-            selectedCandidateCount: document.getElementById('selectedCandidateCount'),
-
             sessionCount: document.getElementById('sessionCount'),
             totalCount: document.getElementById('totalCount'),
             lastRun: document.getElementById('lastRun'),
@@ -325,81 +313,6 @@ const XUnfollowRadarPopup = (function () {
                 data[Constants.STORAGE_KEYS.WHITELIST] || {}
             );
         }
-    }
-
-    function selectedCandidateUsernames() {
-        return CandidateUtils.selectedUsernames(candidateScan);
-    }
-
-    function availableActionSlots() {
-        if (elements.dryRunMode.checked) return Number.POSITIVE_INFINITY;
-        const used = Number.parseInt(elements.sessionCount.textContent.split('/')[0], 10) || 0;
-        return Math.max(0, Constants.getSessionLimit(currentPlan) - used);
-    }
-
-    async function persistCandidateSelection() {
-        if (!candidateScan) return;
-        await chrome.storage.local.set({ [Constants.STORAGE_KEYS.CANDIDATE_SCAN]: candidateScan });
-    }
-
-    function updateCandidateSelectionUi() {
-        const count = selectedCandidateUsernames().length;
-        elements.selectedCandidateCount.textContent = count;
-        elements.executeSelectedBtn.disabled = count === 0 || candidateScan?.status !== 'ready';
-    }
-
-    function renderCandidateScan() {
-        elements.candidateList.innerHTML = '';
-        if (!candidateScan) {
-            elements.candidatePanel.hidden = true;
-            return;
-        }
-
-        elements.candidatePanel.hidden = false;
-        elements.candidateCount.textContent = candidateScan.candidates?.length || 0;
-        const statusKey = `candidates.status.${candidateScan.status}`;
-        let hint = I18n.t(statusKey, {
-            count: candidateScan.candidates?.length || 0
-        });
-        const excludedCount = (candidateScan.excluded?.whitelist || 0) + (candidateScan.excluded?.keyword || 0);
-        if (excludedCount > 0) hint += ` ${I18n.t('candidates.excluded', { count: excludedCount })}`;
-        if (candidateScan.truncated) hint += ` ${I18n.t('candidates.truncated')}`;
-        elements.candidateHint.textContent = hint;
-
-        (candidateScan.candidates || []).forEach((candidate) => {
-            const item = createElement('li');
-            const checkbox = createElement('input', {
-                type: 'checkbox',
-                'aria-label': I18n.t('candidates.selectUser', { username: candidate.username })
-            });
-            checkbox.checked = !!candidate.selected;
-            checkbox.disabled = candidateScan.status !== 'ready';
-            checkbox.addEventListener('change', async () => {
-                if (checkbox.checked && selectedCandidateUsernames().length >= availableActionSlots()) {
-                    checkbox.checked = false;
-                    alert(I18n.t('candidates.selectionLimit', { count: availableActionSlots() }));
-                    return;
-                }
-                candidate.selected = checkbox.checked;
-                updateCandidateSelectionUi();
-                await persistCandidateSelection();
-            });
-
-            const details = createElement('div', { className: 'candidate-details' });
-            details.appendChild(createElement('strong', {}, `${candidate.displayName} · @${candidate.username}`));
-            details.appendChild(createElement('small', { title: candidate.preview }, candidate.preview));
-            item.appendChild(checkbox);
-            item.appendChild(details);
-            elements.candidateList.appendChild(item);
-        });
-
-        updateCandidateSelectionUi();
-    }
-
-    async function loadCandidateScan() {
-        const data = await chrome.storage.local.get([Constants.STORAGE_KEYS.CANDIDATE_SCAN]);
-        candidateScan = data[Constants.STORAGE_KEYS.CANDIDATE_SCAN] || null;
-        renderCandidateScan();
     }
 
     /**
@@ -759,13 +672,13 @@ const XUnfollowRadarPopup = (function () {
         if (!currentTab) return;
 
         try {
-            await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.SCAN_CANDIDATES });
+            await chrome.tabs.sendMessage(currentTab.id, { action: Constants.ACTIONS.START });
             isRunning = true;
             elements.startBtn.style.display = 'none';
             elements.stopBtn.style.display = 'block';
-            candidateScan = CandidateUtils.create(Date.now());
-            renderCandidateScan();
-            updateStatus('active', `🔍 ${I18n.t('candidates.status.scanning')}...`);
+            elements.userList.innerHTML = '';
+            displayedUsers.clear();
+            updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
         } catch (error) {
             console.error('Failed to start:', error);
             if (confirm(I18n.t('messages.confirmReload'))) {
@@ -775,52 +688,6 @@ const XUnfollowRadarPopup = (function () {
                 updateStatus('error', `❌ ${I18n.t('messages.startFailed')}`);
             }
         }
-    }
-
-    async function handleSelectAllCandidates() {
-        if (!candidateScan || candidateScan.status !== 'ready') return;
-        const limit = availableActionSlots();
-        const usernames = candidateScan.candidates
-            .slice(0, Number.isFinite(limit) ? limit : candidateScan.candidates.length)
-            .map((candidate) => candidate.username);
-        CandidateUtils.setSelection(candidateScan, usernames);
-        await persistCandidateSelection();
-        renderCandidateScan();
-    }
-
-    async function handleClearCandidateSelection() {
-        if (!candidateScan) return;
-        CandidateUtils.setSelection(candidateScan, []);
-        await persistCandidateSelection();
-        renderCandidateScan();
-    }
-
-    async function handleExecuteSelected() {
-        if (!currentTab || !candidateScan) return;
-        const usernames = selectedCandidateUsernames();
-        if (usernames.length === 0) return;
-        if (usernames.length > availableActionSlots()) {
-            alert(I18n.t('candidates.selectionLimit', { count: availableActionSlots() }));
-            return;
-        }
-        if (!confirm(I18n.t('candidates.confirmExecution', { count: usernames.length }))) return;
-
-        const response = await chrome.tabs.sendMessage(currentTab.id, {
-            action: Constants.ACTIONS.EXECUTE_SELECTED,
-            usernames
-        });
-        if (!response?.success) {
-            updateStatus('error', `❌ ${I18n.t('messages.startFailed')}`);
-            return;
-        }
-
-        candidateScan.status = 'executing';
-        await persistCandidateSelection();
-        renderCandidateScan();
-        isRunning = true;
-        elements.startBtn.style.display = 'none';
-        elements.stopBtn.style.display = 'block';
-        updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
     }
 
     /**
@@ -1560,9 +1427,6 @@ const XUnfollowRadarPopup = (function () {
                     );
                 }
                 break;
-            case Constants.MESSAGE_TYPES.CANDIDATES_UPDATED:
-                loadCandidateScan();
-                break;
         }
     }
 
@@ -1582,24 +1446,6 @@ const XUnfollowRadarPopup = (function () {
         }
 
         switch (data.status) {
-            case Constants.STATUS.CANDIDATE_SCANNING:
-                isRunning = true;
-                elements.startBtn.style.display = 'none';
-                elements.stopBtn.style.display = 'block';
-                updateStatus('active', `🔍 ${I18n.t('candidates.status.scanning')}...`);
-                break;
-            case Constants.STATUS.CANDIDATE_SCAN_COMPLETE:
-                isRunning = false;
-                elements.startBtn.style.display = 'block';
-                elements.stopBtn.style.display = 'none';
-                updateStatus(
-                    'ready',
-                    `✓ ${I18n.t('candidates.scanComplete', {
-                        count: data.candidateCount || 0
-                    })}`
-                );
-                loadCandidateScan();
-                break;
             case Constants.STATUS.STARTED:
                 updateStatus('active', `🔄 ${I18n.t('status.processing')}...`);
                 break;
@@ -1806,9 +1652,6 @@ const XUnfollowRadarPopup = (function () {
         elements.startBtn.addEventListener('click', handleStart);
         elements.stopBtn.addEventListener('click', handleStop);
         elements.continueBtn.addEventListener('click', handleContinue);
-        elements.selectAllCandidatesBtn.addEventListener('click', handleSelectAllCandidates);
-        elements.clearCandidateSelectionBtn.addEventListener('click', handleClearCandidateSelection);
-        elements.executeSelectedBtn.addEventListener('click', handleExecuteSelected);
         elements.resetBtn.addEventListener('click', handleReset);
         elements.deleteAllDataBtn.addEventListener('click', handleDeleteAllData);
         elements.undoBtn.addEventListener('click', handleUndo);
@@ -1888,7 +1731,6 @@ const XUnfollowRadarPopup = (function () {
         await loadDryRunMode();
         await loadUndoQueue();
         await loadLastRunState();
-        await loadCandidateScan();
 
         // Setup event listeners — always
         setupEventListeners();

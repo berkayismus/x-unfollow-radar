@@ -252,10 +252,6 @@ const XUnfollowRadarBackground = (function () {
                 relayMessage(message);
                 break;
 
-            case 'CANDIDATES_UPDATED':
-                relayMessage(message);
-                break;
-
             default:
                 break;
         }

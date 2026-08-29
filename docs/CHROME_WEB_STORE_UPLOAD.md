@@ -64,7 +64,7 @@ Güncel hesap adımları için [resmî kayıt rehberini](https://developer.chrom
 
 - Privacy Policy URL: `https://github.com/berkayismus/x-unfollow-radar/blob/main/PRIVACY_POLICY.md`
 - Privacy practices bölümünde yerel olarak işlenen X kullanıcı adı/sayfa içeriği verilerini ve Gumroad'a gönderilen lisans anahtarını politika ile aynı biçimde beyan edin.
-- Extension'ın tek amacını aday tarama ve kullanıcı onaylı following-listesi yönetimi olarak açıklayın.
+- Extension'ın tek amacını kullanıcı tarafından başlatılan, filtreli ve kontrollü following-listesi yönetimi olarak açıklayın.
 - Distribution görünürlüğünü ve bölgeleri seçin.
 - Dashboard'da doğrulanmış destek e-postasını girin.
 - İsteğe bağlı destek URL'si: `https://github.com/berkayismus/x-unfollow-radar/issues`

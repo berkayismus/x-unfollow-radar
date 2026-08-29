@@ -42,7 +42,6 @@ module.exports = [
             globals: {
                 Chartist: 'readonly',
                 Constants: 'readonly',
-                CandidateUtils: 'readonly',
                 CsvUtils: 'readonly',
                 DomUtils: 'readonly',
                 I18n: 'readonly',

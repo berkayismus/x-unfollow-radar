@@ -1,6 +1,6 @@
 # Privacy Policy - X Unfollow Radar
 
-**Last updated: August 28, 2026**
+**Last updated: August 29, 2026**
 
 X Unfollow Radar is a browser extension that analyzes the X/Twitter “Following” page and assists the user with managing accounts they follow. This policy describes the data used by the current documented version, 2.0.3.
 
@@ -13,7 +13,6 @@ The extension uses `chrome.storage.local` to keep the following information on t
 - Daily real-operation and dry-run statistics
 - Up to 30 days of unfollow history, including X usernames, timestamps, and action reasons
 - The latest run's queued, attempting, successful, failed, and skipped usernames, status timestamps, and reasons
-- The latest candidate preview, including candidate usernames, visible profile preview text, selection state, and scan timestamps
 - Up to 10 recently unfollowed usernames used by the “Open profile” feature
 - User-created keyword filters and whitelisted X usernames
 - Dry-run, language, and theme preferences
@@ -48,7 +47,6 @@ The extension operates inside the user's existing X/Twitter browser session. It 
 - Unfollow history is automatically limited to the most recent 30 days.
 - The recent-profile list is limited to 10 entries.
 - Detailed per-user run state is limited to the latest run, retains at most 500 action records and 500 skipped-user records, and is replaced when a new run starts. Aggregate counts for that run remain complete.
-- Candidate previews retain at most 500 records and are replaced when a new scan starts.
 - Successful-action timestamps leave the rolling safety window individually after 24 hours.
 - Aggregate statistics and history remain until the user resets statistics, deletes all local data, or uninstalls the extension.
 - Filters, preferences, and license information remain until the user deletes all local data or uninstalls the extension.

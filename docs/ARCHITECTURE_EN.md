@@ -4,7 +4,7 @@ This document describes the high-level architecture of the X Unfollow Radar Chro
 
 ## 1. Overview
 
-- **Goal**: Scan for accounts that appear not to follow back, then process only the candidates explicitly selected and approved by the user.
+- **Goal**: Scan for accounts that appear not to follow back and process them with controlled pacing in a user-started run.
 - **Tech stack**:
     - Chrome Extension Manifest V3
     - Vanilla JavaScript (no framework)
@@ -26,9 +26,9 @@ The extension is split into three main parts:
 - `src/content/index.js`  
   Core automation logic:
     - Scans user cells in the main column (`USER_CELL_MAIN`).
-    - Adds users without the \"Follows you\" badge to a filtered candidate preview.
+    - Adds users without the \"Follows you\" badge to a filtered processing queue.
     - Applies whitelist and keyword filters.
-    - Acts only on explicitly selected candidates and verifies that the confirmation dialog belongs to the target user.
+    - Processes queued accounts and verifies that the X confirmation dialog belongs to the target user.
     - Detects known rate-limit signals in visible X toast, alert, and dialog text and persists waiting/resume state.
 
 - `src/popup/popup.html / popup.js / popup.css`  
@@ -59,10 +59,8 @@ The extension is split into three main parts:
 
 The popup talks to the content script via `chrome.tabs.sendMessage`:
 
-- **Candidate scan**:
-    - `popup.js` sends `SCAN_CANDIDATES`; no account-changing action occurs during this stage.
-- **Approved execution**:
-    - After explicit selection and confirmation, `popup.js` sends `EXECUTE_SELECTED` with only the selected usernames.
+- **Start**:
+    - `popup.js` sends `START`; scanning and controlled processing run in the same user-started operation.
 
 - **Stop / Continue test / Dry-run toggle / Filters**:
     - Implemented as `ACTION` messages (`STOP`, `CONTINUE_TEST`, `TOGGLE_DRY_RUN`, `UPDATE_KEYWORDS`, `UPDATE_WHITELIST`).
@@ -76,7 +74,7 @@ The content script pushes updates back via `chrome.runtime.sendMessage`:
     - `sendStatus(status, data)` wraps current state (session count, total unfollowed, flags) plus additional info.
     - Popup’s `handleStatusUpdate` updates UI, button states, and alerts.
 
-2. **Per-user and persisted-run updates** (`USER_PROCESSED`, `RUN_STATE_UPDATED`, `CANDIDATES_UPDATED`):
+2. **Per-user and persisted-run updates** (`USER_PROCESSED`, `RUN_STATE_UPDATED`):
     - Real and dry-run actions are emitted as per-user updates.
     - Skipped and failed records are represented in the persisted run state and summary.
 
@@ -101,17 +99,16 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
     - Prunes each successful action timestamp individually after 24 hours and derives the safety count from the remaining records.
     - Initializes missing structures (stats, history).
 
-2. **Candidate scan**:
-    - Call `scanUsers()` to inspect currently visible user cells in the primary column without changing accounts.
+2. **Scan and queue**:
+    - Call `scanUsers()` to inspect currently visible user cells in the primary column.
     - For each user:
         - Extract username from the profile link.
         - Skip if already processed.
         - If user has a \"Follows you\" badge → skip.
         - Apply whitelist + keyword checks:
             - Whitelisted or matched keyword → mark as skipped (`USER_PROCESSED`), do not queue.
-            - Otherwise, persist the account in the candidate preview with selection disabled by default.
-3. **Explicitly approved execution**:
-    - After the user selects candidates and confirms, locate only those usernames again and push their cells into `unfollowQueue`.
+            - Otherwise, push the account into `unfollowQueue` and persist its queued run state.
+3. **Execution in the same run**:
     - Process the `unfollowQueue`:
         - Respect session and batch limits.
         - For each user, call `unfollowUser(cell)`:

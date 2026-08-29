@@ -72,8 +72,6 @@ const Constants = (function () {
         MAX_RUN_SKIPPED_RECORDS: 500,
         /** Maximum action-state records retained for the latest run */
         MAX_RUN_ITEM_RECORDS: 500,
-        /** Maximum candidates retained in one preview scan */
-        MAX_CANDIDATES: 500,
         /** Consecutive empty scans before stopping */
         MAX_EMPTY_SCANS: 8,
         /** Same user count streak before stopping scroll */
@@ -93,8 +91,6 @@ const Constants = (function () {
      * @constant {Object}
      */
     const UI = Object.freeze({
-        /** Scroll amount in pixels */
-        SCROLL_AMOUNT: 400,
         /** Probability of random human-like pause (0-1) */
         HUMAN_PAUSE_PROBABILITY: 0.15
     });
@@ -175,7 +171,6 @@ const Constants = (function () {
         UNFOLLOW_STATS: 'unfollowStats',
         UNFOLLOW_HISTORY: 'unfollowHistory',
         RUN_STATE: 'runState',
-        CANDIDATE_SCAN: 'candidateScan',
         THEME: 'theme',
         LANGUAGE: 'language',
         PLAN: 'plan',
@@ -197,8 +192,7 @@ const Constants = (function () {
         TEST_COMPLETE: 'TEST_COMPLETE',
         RATE_LIMIT_HIT: 'RATE_LIMIT_HIT',
         USER_PROCESSED: 'USER_PROCESSED',
-        RUN_STATE_UPDATED: 'RUN_STATE_UPDATED',
-        CANDIDATES_UPDATED: 'CANDIDATES_UPDATED'
+        RUN_STATE_UPDATED: 'RUN_STATE_UPDATED'
     });
 
     /**
@@ -206,8 +200,7 @@ const Constants = (function () {
      * @constant {Object}
      */
     const ACTIONS = Object.freeze({
-        SCAN_CANDIDATES: 'SCAN_CANDIDATES',
-        EXECUTE_SELECTED: 'EXECUTE_SELECTED',
+        START: 'START',
         STOP: 'STOP',
         CONTINUE_TEST: 'CONTINUE_TEST',
         GET_STATUS: 'GET_STATUS',
@@ -233,8 +226,6 @@ const Constants = (function () {
         IDLE: 'idle',
         STARTED: 'started',
         SCANNING: 'scanning',
-        CANDIDATE_SCANNING: 'candidate_scanning',
-        CANDIDATE_SCAN_COMPLETE: 'candidate_scan_complete',
         UNFOLLOWED: 'unfollowed',
         STOPPED: 'stopped',
         COMPLETED: 'completed',

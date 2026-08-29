@@ -1,7 +1,7 @@
 {
     "app": {
         "title": "X Unfollow Radar",
-        "subtitle": "Kandidaten scannen, auswählen und ausdrücklich bestätigen"
+        "subtitle": "Nicht-Folger finden und kontrolliert entfolgen"
     },
     "trust": {
         "worksOnFollowing": "Funktioniert auf „Following“",
@@ -35,7 +35,7 @@
         "dailyLimitDesc": "Du hast das gleitende 24-Stunden-Limit erreicht. In etwa {hours} Stunden wird mindestens eine Aktion frei."
     },
     "buttons": {
-        "start": "Kandidaten scannen",
+        "start": "Entfolgen starten",
         "stop": "Stopp",
         "continue": "Weiter (50 mehr)",
         "undo": "Profil öffnen",
@@ -49,29 +49,6 @@
     "controls": {
         "dryRunMode": "Dry‑Run (ohne Entfolgen)",
         "dryRunDesc": "Simuliert das Entfolgen, ohne Änderungen vorzunehmen"
-    },
-    "candidates": {
-        "title": "Kandidatenvorschau",
-        "hint": "Wähle die zu verarbeitenden Konten aus.",
-        "selectAll": "Alle auswählen",
-        "clearSelection": "Auswahl aufheben",
-        "execute": "Ausgewählte verarbeiten",
-        "selectUser": "@{username} auswählen",
-        "selectionLimit": "Im aktuellen Sicherheitsfenster können höchstens {count} Benutzer ausgewählt werden.",
-        "confirmExecution": "Die ausgewählten {count} Benutzer werden verarbeitet. Fortfahren?",
-        "scanComplete": "{count} Kandidaten gefunden. Triff deine Auswahl.",
-        "excluded": "{count} Konten wurden durch Filter geschützt.",
-        "truncated": "Die Vorschau ist auf die ersten 500 Kandidaten begrenzt.",
-        "status": {
-            "scanning": "Kandidaten werden gescannt",
-            "ready": "Kandidaten stehen zur Auswahl bereit",
-            "executing": "Ausgewählte Konten werden verarbeitet",
-            "completed": "Ausgewählter Lauf abgeschlossen; für einen neuen Lauf erneut scannen",
-            "stopped": "Vorgang gestoppt; erneut scannen",
-            "interrupted": "Scan unterbrochen; erneut scannen",
-            "limit_reached": "Sicherheitslimit erreicht; später erneut scannen",
-            "error": "Vorgang fehlgeschlagen; erneut scannen"
-        }
     },
     "filters": {
         "keywordsTitle": "Schlüsselwörter",
@@ -192,8 +169,8 @@
         "current": "DE"
     },
     "aria": {
-        "startButton": "Nicht-Folger als Kandidaten scannen",
-        "stopButton": "Aktiven Scan oder Vorgang stoppen",
+        "startButton": "Automatisches Entfolgen starten",
+        "stopButton": "Aktiven Entfolgungsvorgang stoppen",
         "continueButton": "Weiter 50 weitere Benutzer entfolgen",
         "resetButton": "Statistiken zurücksetzen und aktives Sicherheitsfenster beibehalten",
         "deleteAllDataButton": "Alle lokalen Daten einschließlich Filter und Lizenz löschen",

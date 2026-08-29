@@ -4,7 +4,7 @@
 const StorageMigrations = (function () {
     'use strict';
 
-    const CURRENT_SCHEMA_VERSION = 1;
+    const CURRENT_SCHEMA_VERSION = 2;
     const SCHEMA_VERSION_KEY = Constants.STORAGE_KEYS.SCHEMA_VERSION;
 
     function isPlainObject(value) {
@@ -41,8 +41,15 @@ const StorageMigrations = (function () {
         };
     }
 
+    function migrateVersionOne(snapshot) {
+        const next = { ...snapshot, [SCHEMA_VERSION_KEY]: 2 };
+        delete next.candidateScan;
+        return next;
+    }
+
     const migrations = Object.freeze({
-        0: migrateVersionZero
+        0: migrateVersionZero,
+        1: migrateVersionOne
     });
 
     function plan(snapshot = {}, options = {}) {
@@ -56,7 +63,8 @@ const StorageMigrations = (function () {
             return Object.freeze({
                 fromVersion: storedVersion,
                 toVersion: storedVersion,
-                updates: Object.freeze({})
+                updates: Object.freeze({}),
+                removals: Object.freeze([])
             });
         }
 
@@ -73,11 +81,13 @@ const StorageMigrations = (function () {
         Object.entries(next).forEach(([key, value]) => {
             if (!valuesEqual(snapshot[key], value)) updates[key] = value;
         });
+        const removals = Object.keys(snapshot).filter((key) => !Object.prototype.hasOwnProperty.call(next, key));
 
         return Object.freeze({
             fromVersion: storedVersion,
             toVersion: version,
-            updates: Object.freeze(updates)
+            updates: Object.freeze(updates),
+            removals: Object.freeze(removals)
         });
     }
 
@@ -86,6 +96,9 @@ const StorageMigrations = (function () {
         const migrationPlan = plan(snapshot, options);
         if (Object.keys(migrationPlan.updates).length > 0) {
             await storageArea.set(migrationPlan.updates);
+        }
+        if (migrationPlan.removals.length > 0) {
+            await storageArea.remove(migrationPlan.removals);
         }
         return migrationPlan;
     }

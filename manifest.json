@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "X Unfollow Radar",
     "version": "2.0.3",
-    "description": "Seni takip etmeyen adaylar\u0131 bulur ve yaln\u0131zca a\u00e7\u0131k onay\u0131ndan sonra se\u00e7tiklerini i\u015fler",
+    "description": "Seni takip etmeyenleri bulur ve filtrelere g\u00f6re kontroll\u00fc bi\u00e7imde takipten \u00e7\u0131kar\u0131r",
     "permissions": ["storage", "activeTab"],
     "host_permissions": ["https://twitter.com/*", "https://x.com/*", "*://api.gumroad.com/*"],
     "icons": {
@@ -28,7 +28,6 @@
                 "src/shared/user-detection.js",
                 "src/shared/safety-window.js",
                 "src/shared/run-state.js",
-                "src/shared/candidates.js",
                 "src/content/index.js"
             ],
             "run_at": "document_idle"

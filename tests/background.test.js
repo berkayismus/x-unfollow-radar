@@ -50,6 +50,9 @@ function createHarness(fetchImpl, initialStorage = {}) {
                     },
                     async set(values) {
                         Object.assign(storage, values);
+                    },
+                    async remove(keys) {
+                        keys.forEach((key) => delete storage[key]);
                     }
                 }
             }

@@ -1,13 +1,13 @@
 # X Unfollow Radar - Chrome Extension
 
-Seni takip etmeyen adayları tarayan ve yalnızca seçip açıkça onayladığın hesapları işleyen Chrome eklentisi.
+Seni takip etmeyen hesapları tespit edip filtrelere ve güvenlik limitlerine göre kontrollü biçimde takipten çıkaran Chrome eklentisi.
 
 ## 🎯 Özellikler
 
 ### Temel Özellikler
 
 - ✅ Otomatik scroll ve kullanıcı taraması
-- ✅ Aday önizleme, çoklu seçim ve işlem öncesi açık onay
+- ✅ Tek başlatma adımıyla tarama ve kontrollü takipten çıkarma
 - ✅ "Follows you" badge'i olmayan kullanıcıları tespit eder
 - ✅ İşlemler arasında 2-5 saniye kontrollü gecikme
 - ✅ Ücretsiz planda 50, Pro planda 500 işlem/24 saat limiti
@@ -57,12 +57,11 @@ Bu repoda henüz doğrulanmış bir Chrome Web Store bağlantısı belgelenmemi�
 3. Eklenti simgesine tıklayın
 4. **Opsiyonel:** Filtreler tab'ından keywords veya whitelist ekleyin
 5. **Opsiyonel:** Dry-run mode'u aktif edin (gerçekte takipten çıkmadan test için)
-6. "Adayları tara" butonuna tıklayın
-7. Önizleme listesinden işlem yapılacak hesapları seçin
-8. "Seçilenleri işle" butonuna basıp son onayı verin
-9. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
-10. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
-11. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
+6. "Takipten çıkarmayı başlat" butonuna tıklayın
+7. Eklenti görünür hesapları tarar; filtrelenmeyen ve sizi takip etmeyen hesapları kontrollü biçimde işler
+8. Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
+9. İstediğiniz zaman "Durdur" ile durdurabilirsiniz
+10. İstatistikler tab'ından geçmişi görebilir ve CSV olarak indirebilirsiniz
 
 ## ⚙️ Ayarlar ve Limitler
 
@@ -190,4 +189,4 @@ Sorun yaşarsanız veya öneriniz varsa [GitHub üzerinden issue açın](https:/
 
 **⚠️ UYARI**: Bu eklentiyi kendi sorumluluğunuzda kullanın. Aşırı kullanım Twitter/X tarafından hesap kısıtlamalarına yol açabilir.
 
-_Son güncelleme: 28 Ağustos 2026_
+_Son güncelleme: 29 Ağustos 2026_

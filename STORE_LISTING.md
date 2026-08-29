@@ -28,19 +28,19 @@ Seni takip etmeyen hesapları tespit et; filtreler, dry-run ve kontrollü işlem
 
 **X Unfollow Radar** - Sosyal Medya Yönetimini Kolaylaştırın! 🚀
 
-Görünür \"Follows you\" bilgisine göre adayları tespit edip following listenizi yönetmenize yardımcı olan bir Chrome eklentisi.
+Görünür \"Follows you\" bilgisine göre hesapları tespit edip following listenizi yönetmenize yardımcı olan bir Chrome eklentisi.
 
 ### 🎯 ÖZELLİKLER
 
-✅ **Aday Tespiti**: "Follows you" badge'i görünmeyen kullanıcıları aday olarak listeler
-✅ **Açık Kullanıcı Onayı**: Önizleme listesinden yalnızca seçtiğiniz hesapları işler
+✅ **Takip Etmeyenleri Tespit**: "Follows you" badge'i görünmeyen kullanıcıları belirler
+✅ **Tek Adımlı Akış**: Kullanıcı başlattığında tarama ve kontrollü işlem aynı çalışmada ilerler
 ✅ **Kontrollü Tempo**: İşlemler arasında 2-5 saniye rastgele gecikme
 ✅ **Plan Limitleri**: Ücretsiz 50 / Pro 500 gerçek işlem, 24 saatlik pencere
 ✅ **Batch Onayı**: Pro planda ilk 50 gerçek işlemden sonra devam onayı
 ✅ **İstatistik Takibi**: Toplam ve oturum bazlı istatistikler
 ✅ **Çalışma Özeti**: Gerçek, dry-run, atlanan ve başarısız sonuçları ayrı gösterir
 ✅ **Kayan Güvenlik Penceresi**: Her gerçek işlem 24 saat sonra sayaçtan çıkar
-✅ **Dry-run**: Hesapta değişiklik yapmadan adayları test eder
+✅ **Dry-run**: Hesapta değişiklik yapmadan akışı test eder
 
 ### 🔒 GÜVENLİK VE GİZLİLİK
 
@@ -55,16 +55,15 @@ Görünür \"Follows you\" bilgisine göre adayları tespit edip following liste
 1. Twitter/X hesabınıza giriş yapın
 2. "Following" (Takip Edilenler) sayfanıza gidin
 3. Eklenti simgesine tıklayın
-4. "Adayları tara" butonuna basın
-5. Önizleme listesinden hesapları seçip işlemi açıkça onaylayın
+4. "Takipten çıkarmayı başlat" butonuna basın
 
 ### 📊 NASIL ÇALIŞIR?
 
-Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri aday listesine ekler. Whitelist ve keyword filtrelerini uygular; yalnızca önizlemede seçip açıkça onayladığınız hesapları kontrollü gecikmelerle işler.
+Extension sayfanızı kaydırır, yeni kullanıcıları yükler ve "Follows you" badge'i olmayan profilleri tespit eder. Whitelist ve keyword filtrelerini uygular; filtrelenmeyen hesapları kontrollü gecikmelerle işler.
 
 ### ⚠️ ÖNEMLİ NOTLAR
 
-- Tespit, X'in görünür "Follows you" bilgisine dayanır; işlem öncesinde aday listesini kontrol edin
+- Tespit, X'in görünür "Follows you" bilgisine dayanır; önce dry-run ile sonucu kontrol edin
 - Ücretsiz plan 50 işlemde durur; Pro plan ilk 50 işlemden sonra devam onayı ister
 - Günlük Twitter/X limitlerine dikkat edin
 - Aşırı kullanım hesap kısıtlamalarına yol açabilir
@@ -89,19 +88,19 @@ Sorun yaşarsanız veya öneriniz varsa:
 
 **X Unfollow Radar** - Simplify Your Social Media Management! 🚀
 
-A Chrome extension that identifies candidates from the visible "Follows you" state and helps manage your Following list.
+A Chrome extension that identifies non-followers from the visible "Follows you" state and helps manage your Following list.
 
 ### 🎯 FEATURES
 
-✅ **Candidate Detection**: Lists users whose cards do not show the "Follows you" badge
-✅ **Explicit User Approval**: Processes only the accounts selected in the preview
+✅ **Non-follower Detection**: Identifies users whose cards do not show the "Follows you" badge
+✅ **Single-step Flow**: Scanning and controlled processing proceed in the run started by the user
 ✅ **Controlled Pacing**: Random 2-5 second delays between actions
 ✅ **Plan Limits**: Free 50 / Pro 500 real actions per 24-hour window
 ✅ **Batch Confirmation**: Pro asks for confirmation after the first 50 real actions
 ✅ **Statistics Tracking**: Total and session-based statistics
 ✅ **Run Summary**: Separates real, dry-run, skipped, and failed results
 ✅ **Rolling Safety Window**: Each real action leaves the count after 24 hours
-✅ **Dry Run**: Tests candidates without changing the account
+✅ **Dry Run**: Tests the flow without changing the account
 
 ### 🔒 SECURITY & PRIVACY
 
@@ -116,8 +115,7 @@ A Chrome extension that identifies candidates from the visible "Follows you" sta
 1. Log in to your Twitter/X account
 2. Go to your "Following" page
 3. Click the extension icon
-4. Press "Scan candidates"
-5. Select accounts in the preview and explicitly confirm the operation
+4. Press "Start unfollowing"
 
 ---
 

@@ -54,7 +54,6 @@ Amaç: Kod, ürün beyanı ve mağaza açıklamalarını aynı gerçeğe bağlam
 - [x] Lisans doğrulamasını 24 saatlik periyodik entitlement kontrolüyle güçlendir.
 - [x] Refund, chargeback, dispute, subscription-ended, expired ve çevrimdışı lisans durumlarını tanımla.
 - [x] Gumroad ürün kimliği doğrulandıktan sonra yeni ürünler için `product_permalink` yerine `product_id` kullan.
-- [x] X otomasyon politikası riskini azaltan kullanıcı seçimli/onaylı ürün akışını yayın varsayılanı yap.
 
 **Faz 2 çıkış kriteri:** Kod, manifest, mağaza metni ve gizlilik politikası birbiriyle tutarlıdır.
 

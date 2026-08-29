@@ -53,7 +53,7 @@ Yeni sürüm yüklemeden önce gerekirse `npm run release -- patch` çalıştır
 ## Dashboard kontrol listesi
 
 - [ ] ZIP içindeki `manifest.json` arşiv kökünde
-- [ ] Store açıklaması gerçek iki-aşamalı “tara → seç → onayla” davranışını anlatıyor
+- [ ] Store açıklaması gerçek tek-adımlı “başlat → tara ve işle” davranışını anlatıyor
 - [ ] Privacy practices, `PRIVACY_POLICY.md` ile aynı veri türlerini ve Gumroad aktarımını bildiriyor
 - [ ] En az bir ekran görüntüsü ve küçük promo yüklendi
 - [ ] Destek e-postası ve gizlilik politikası URL'si erişilebilir

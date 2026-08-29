@@ -96,15 +96,6 @@ const RunStateUtils = (function () {
         return record;
     }
 
-    function skipQueued(run, username, reason, timestamp, maxRecords) {
-        if (!run) return null;
-        const index = run.items.findIndex((item) => item.username === username && item.status === ITEM_STATUS.QUEUED);
-        if (index === -1) return null;
-        run.items.splice(index, 1);
-        run.summary.queued--;
-        return skip(run, username, reason, timestamp, maxRecords);
-    }
-
     function setStatus(run, status, timestamp, finished = false) {
         if (!run) return;
         run.status = status;
@@ -123,7 +114,7 @@ const RunStateUtils = (function () {
         }
     }
 
-    return Object.freeze({ ITEM_STATUS, create, queue, transition, skip, skipQueued, setStatus, trimCompleted });
+    return Object.freeze({ ITEM_STATUS, create, queue, transition, skip, setStatus, trimCompleted });
 })();
 
 if (typeof window !== 'undefined') window.RunStateUtils = RunStateUtils;

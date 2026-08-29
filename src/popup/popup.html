@@ -53,7 +53,9 @@
                         </button>
                     </div>
                 </div>
-                <p class="subtitle" data-i18n="app.subtitle">Adayları tara, seç ve onaylayarak işle</p>
+                <p class="subtitle" data-i18n="app.subtitle">
+                    Seni takip etmeyenleri bul ve kontrollü biçimde takipten çık
+                </p>
                 <div class="trust-row" role="note" aria-label="Product highlights">
                     <span class="trust-pill" data-i18n="trust.worksOnFollowing">Works on Following</span>
                     <span class="trust-pill" data-i18n="trust.rateLimitSafe">Controlled pacing</span>
@@ -226,7 +228,7 @@
                 <!-- Primary action — full width -->
                 <div class="controls" role="group" aria-label="Main controls">
                     <button id="startBtn" class="btn btn-primary" type="button" data-i18n-aria="aria.startButton">
-                        ▶ <span data-i18n="buttons.start">Adayları tara</span>
+                        ▶ <span data-i18n="buttons.start">Takipten çıkarmayı başlat</span>
                     </button>
                     <button
                         id="stopBtn"
@@ -238,40 +240,6 @@
                         ■ <span data-i18n="buttons.stop">Durdur</span>
                     </button>
                 </div>
-
-                <section id="candidatePanel" class="candidate-panel" hidden aria-labelledby="candidateTitle">
-                    <div class="candidate-header">
-                        <h3 id="candidateTitle" data-i18n="candidates.title">Aday Önizleme</h3>
-                        <span id="candidateCount">0</span>
-                    </div>
-                    <p id="candidateHint" class="candidate-hint" data-i18n="candidates.hint">
-                        İşlem yapılacak hesapları seçin.
-                    </p>
-                    <div class="candidate-actions">
-                        <button
-                            id="selectAllCandidatesBtn"
-                            type="button"
-                            class="btn btn-ghost"
-                            data-i18n="candidates.selectAll"
-                        >
-                            Tümünü seç
-                        </button>
-                        <button
-                            id="clearCandidateSelectionBtn"
-                            type="button"
-                            class="btn btn-ghost"
-                            data-i18n="candidates.clearSelection"
-                        >
-                            Seçimi kaldır
-                        </button>
-                    </div>
-                    <ul id="candidateList" class="candidate-list" role="list"></ul>
-                    <button id="executeSelectedBtn" class="btn btn-success candidate-execute" type="button" disabled>
-                        <span data-i18n="candidates.execute">Seçilenleri işle</span> (<span id="selectedCandidateCount"
-                            >0</span
-                        >)
-                    </button>
-                </section>
 
                 <!-- Undo — full width, only shown when items available -->
                 <div class="controls-undo">
@@ -526,7 +494,6 @@
         <script src="../shared/csv.js"></script>
         <script src="../shared/safety-window.js"></script>
         <script src="../shared/run-state.js"></script>
-        <script src="../shared/candidates.js"></script>
         <script src="../shared/i18n.js"></script>
         <script src="popup.js"></script>
     </body>

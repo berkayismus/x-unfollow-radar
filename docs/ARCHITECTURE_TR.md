@@ -4,7 +4,7 @@ Bu dokümanda X Unfollow Radar Chrome eklentisinin yüksek seviye mimarisi, ana 
 
 ## 1. Genel Bakış
 
-- **Amaç**: Twitter/X üzerinde seni takip etmeyen adayları taramak ve yalnızca kullanıcının seçip açıkça onayladığı hesapları kontrollü biçimde işlemek.
+- **Amaç**: Twitter/X üzerinde seni takip etmeyen hesapları taramak ve kullanıcı tarafından başlatılan çalışmada kontrollü biçimde takipten çıkarmak.
 - **Teknolojiler**:
     - Chrome Extension Manifest V3
     - Vanilla JavaScript (framework yok)
@@ -26,9 +26,9 @@ Eklenti üç ana parçaya ayrılır:
 - `src/content/index.js`  
   Asıl iş yükü burada:
     - Sayfadaki kullanıcı kartlarını (`USER_CELL_MAIN`) tarar.
-    - \"Follows you\" badge'i olmayanları filtrelerden geçirip aday önizlemesine ekler.
+    - \"Follows you\" badge'i olmayanları filtrelerden geçirip işlem kuyruğuna ekler.
     - Whitelist ve keyword filtrelerini uygular.
-    - Yalnızca açıkça seçilmiş adaylar için \"Following\" ve hedef kullanıcıya ait onay butonunu kullanır.
+    - Kuyruktaki hesaplar için \"Following\" ve hedef kullanıcıya ait X onay butonunu kullanır.
     - X'in görünür toast, alert ve dialog metinlerinden rate-limit sinyallerini algılar; bekleme/devam durumunu saklar.
 
 - `src/popup/popup.html / popup.js / popup.css`  
@@ -51,9 +51,8 @@ Eklenti üç ana parçaya ayrılır:
 
 ### 3.1. Popup → Content Script
 
-- Kullanıcı **Adayları tara**'ya bastığında popup `SCAN_CANDIDATES` gönderir; content script yalnızca aday önizlemesini oluşturur.
-- Kullanıcı listeden seçim yapıp açık onay verdiğinde popup `EXECUTE_SELECTED` mesajıyla yalnızca seçilen kullanıcı adlarını gönderir.
-- Content script ikinci aşamada seçilen hesapları sayfada yeniden bulur ve işlem kuyruğuna alır.
+- Kullanıcı **Takipten çıkarmayı başlat**'a bastığında popup `START` gönderir.
+- Content script görünür hesapları tarar ve uygun olanları aynı çalışma içinde işlem kuyruğuna alır.
 
 - **Durdur**, **Devam Et (50 kişi daha)**, **Dry-run toggle** ve filtre güncellemeleri de benzer şekilde `chrome.tabs.sendMessage` ile content script'e iletilir.
 
@@ -65,7 +64,7 @@ Content script, çalışma sırasında popup'a iki kanal üzerinden bilgi gönde
     - `sendStatus(status, data)` fonksiyonu ile `chrome.runtime.sendMessage` kullanılır.
     - Örnek: `STATUS.SCANNING`, `STATUS.UNFOLLOWED`, `STATUS.LIMIT_REACHED` gibi.
 
-2. **Kullanıcı ve çalışma güncellemeleri** (`USER_PROCESSED`, `RUN_STATE_UPDATED`, `CANDIDATES_UPDATED`):
+2. **Kullanıcı ve çalışma güncellemeleri** (`USER_PROCESSED`, `RUN_STATE_UPDATED`):
     - Gerçek/dry-run işlemleri kullanıcı güncellemesi olarak; atlanan ve başarısız kayıtlar kalıcı çalışma durumu üzerinden gönderilir.
     - Popup, bu bilgiyi kullanarak \"Processed Users\" listesini günceller.
 
@@ -78,19 +77,18 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 1. `initStorage()`
     - Son 24 saatteki gerçek işlem zamanlarını, son çalışma durumunu, toplam takipten çıkma, keyword'ler, whitelist ve dry-run modu gibi değerleri `chrome.storage.local` üzerinden okur.
     - `schemaVersion` tabanlı idempotent migration katmanı eski sayaç verilerini yeni aksiyon zamanı şemasına güvenle taşır.
-    - Her aday için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
+    - Her uygun hesap için `queued → attempting → succeeded/failed` geçişlerini saklar; atlananları ayrı sonuç olarak tutar.
     - Her gerçek işlemi kendi zamanından 24 saat sonra güvenlik sayacından çıkarır.
 
-2. Tarama aşamasında:
+2. Tarama ve kuyruk oluşturma:
     - `scanUsers()` ile ekrandaki kullanıcı kartlarını tarar.
-    - \"Follows you\" badge'i olmayanları whitelist/keyword kontrolünden geçirip kalıcı aday önizlemesine ekler; hesap değişikliği yapmaz.
+    - \"Follows you\" badge'i olmayanları whitelist/keyword kontrolünden geçirip `unfollowQueue`'ya ekler.
 
-3. Kullanıcı onaylı yürütme aşamasında:
-    - Yalnızca seçilmiş kullanıcı adları sayfada yeniden bulunup `unfollowQueue`'ya eklenir.
+3. Aynı çalışma içindeki yürütme aşamasında:
     - Kuyruktaki her kullanıcı için `unfollowUser()` çağrılır:
         - Dry-run ise sadece simüle eder ve istatistikleri günceller.
         - Normal modda \"Following\" butonu + onay butonu tıklanır; istatistikler, geçmiş ve son profiller kuyruğu güncellenir.
-    - Seçilen kullanıcılar tükendiğinde veya sayfanın sonuna gelindiğinde çalışma tamamlanır.
+    - Sayfanın sonuna gelindiğinde çalışma tamamlanır.
     - Rate limit veya 24 saatlik limit dolduğunda uygun STATUS değerleri gönderilir ve döngü sonlandırılır / duraklatılır.
 
 ## 5. Rate Limit ve Güvenlik
