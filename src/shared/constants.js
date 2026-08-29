@@ -118,6 +118,8 @@ const Constants = (function () {
         DIALOG: '[role="dialog"]',
         /** X surfaces commonly used for errors and rate-limit notices */
         RATE_LIMIT_SIGNAL: '[data-testid="toast"], [role="alert"], [role="dialog"]',
+        /** X surfaces used for action failure notices after a dialog closes */
+        ACTION_FAILURE_SIGNAL: '[data-testid="toast"], [role="alert"]',
         /** Button with role attribute */
         ROLE_BUTTON: 'button[role="button"]',
         /** Link with role attribute */
@@ -141,6 +143,15 @@ const Constants = (function () {
         CONFIRM_UNFOLLOW_BUTTON: ['Unfollow', 'Takibi bırak'],
         /** Unfollow cancellation button patterns */
         CANCEL_UNFOLLOW_BUTTON: ['Cancel', 'İptal'],
+        /** Generic action failure messages shown by X */
+        ACTION_FAILURE: [
+            'something went wrong',
+            'please try again',
+            'bir hata oluştu',
+            'lütfen tekrar dene',
+            'etwas ist schiefgelaufen',
+            'bitte versuche es erneut'
+        ],
         /** X rate-limit/error messages in supported UI languages */
         RATE_LIMIT: [
             'rate limit',

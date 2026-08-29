@@ -87,7 +87,7 @@ Background service worker ( `src/background/index.js` ) bu mesajları dinler ve 
 3. Aynı çalışma içindeki yürütme aşamasında:
     - Kuyruktaki her kullanıcı için `unfollowUser()` çağrılır:
         - Dry-run ise sadece simüle eder ve istatistikleri günceller.
-        - Normal modda \"Following\" butonu + onay butonu tıklanır; istatistikler, geçmiş ve son profiller kuyruğu güncellenir.
+        - Normal modda \"Following\" butonu + X onay butonu otomatik tıklanır. Hedef dialogun kapanması, buton/cell değişimi ve görünür hata sinyalleri birlikte değerlendirilerek sayaçlar, geçmiş ve son profiller kuyruğu güncellenir.
     - Sayfanın sonuna gelindiğinde çalışma tamamlanır.
     - Rate limit veya 24 saatlik limit dolduğunda uygun STATUS değerleri gönderilir ve döngü sonlandırılır / duraklatılır.
 

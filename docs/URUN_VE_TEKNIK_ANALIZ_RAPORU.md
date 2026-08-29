@@ -15,7 +15,7 @@ Planlanan geliştirme kapsamı Faz 1-3 ile tamamlanmıştır. Bu rapor güncel u
 
 - X/Twitter Following sayfasındaki ana sütunda görünen `UserCell` kartlarını tarar.
 - Görünür “Follows you” metni bulunmayan ve filtrelere takılmayan hesapları işlem kuyruğuna ekler.
-- İşlem öncesinde hedef kullanıcıya ait dialog'u doğrular ve buton durumundan sonucu kontrol eder.
+- İşlem öncesinde hedef kullanıcıya ait dialog'u doğrular; dialog kapanması, buton/cell değişimi ve görünür X hata sinyallerinden sonucu belirler.
 - Free plan için 50, Pro plan için 500 gerçek işlemden oluşan kayan 24 saat güvenlik penceresi uygular.
 - Dry-run sonuçlarını gerçek işlemlerden ve güvenlik sayacından ayırır.
 - Gerçek, dry-run, atlanan ve başarısız kayıtları kalıcı son çalışma özetinde ayrı tutar.

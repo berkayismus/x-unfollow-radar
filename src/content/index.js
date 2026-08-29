@@ -162,6 +162,17 @@ const XUnfollowRadarContent = (function () {
         );
     }
 
+    function findActionFailureSignal() {
+        return (
+            Array.from(document.querySelectorAll(Constants.SELECTORS.ACTION_FAILURE_SIGNAL)).find((element) =>
+                DomUtils.containsAnyPattern(
+                    element.innerText || element.textContent,
+                    Constants.TEXT_PATTERNS.ACTION_FAILURE
+                )
+            ) || null
+        );
+    }
+
     async function pauseIfRateLimited() {
         if (!findRateLimitSignal()) return false;
         await handleRateLimit();
@@ -464,16 +475,33 @@ const XUnfollowRadarContent = (function () {
             );
             if (confirmationDialog && confirmBtn) {
                 confirmBtn.click();
-                const actionSucceeded = await waitForCondition(
-                    () => !document.contains(confirmationDialog) && !findFollowingButton(userCell),
+                const dialogClosed = await waitForCondition(
+                    () => !document.contains(confirmationDialog),
                     Constants.TIMING.ACTION_VERIFY_TIMEOUT
                 );
 
-                if (!actionSucceeded) {
-                    console.warn(`Unfollow could not be verified for ${username}`);
+                if (!dialogClosed) {
+                    console.warn(`Unfollow dialog did not close for ${username}`);
                     await dismissUnfollowDialog(confirmationDialog);
                     await pauseIfRateLimited();
                     return false;
+                }
+
+                // X may keep a virtualized UserCell's old "Following" text in
+                // the detached/stale DOM after the server accepted the action.
+                // Prefer the button/cell change, but accept a closed target
+                // dialog when X did not emit an error or rate-limit signal.
+                const visibleStateChanged = await waitForCondition(
+                    () => !document.contains(userCell) || !findFollowingButton(userCell),
+                    Constants.TIMING.BUTTON_CLICK_MAX
+                );
+                if (!visibleStateChanged) {
+                    if (await pauseIfRateLimited()) return false;
+                    if (findActionFailureSignal()) {
+                        console.warn(`X reported an unfollow failure for ${username}`);
+                        return false;
+                    }
+                    console.warn(`Accepted closed confirmation dialog for ${username}; UserCell state was stale`);
                 }
 
                 if (suppressPersistence) return false;

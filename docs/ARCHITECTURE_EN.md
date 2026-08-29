@@ -112,7 +112,7 @@ The heart of the extension is `mainLoop()` in `src/content/index.js`:
         - Respect the rolling 24-hour plan limit.
         - For each user, call `unfollowUser(cell)`:
             - Dry-run: simulate delay, send status and `USER_PROCESSED` (DRY_RUN), and update a separate dry-run statistic without consuming the real-operation limit.
-            - Real mode: click \"Following\" and confirmation button, update counters, store recent-profile info, write stats/history, send status + `USER_PROCESSED` (UNFOLLOWED).
+            - Real mode: click \"Following\" and X's confirmation button automatically; combine dialog closure, button/cell changes, and visible failure signals before updating counters, history, and `USER_PROCESSED`.
     - Scroll the page using `autoScroll()` when queue empties, wait a random scroll delay, and repeat scanning.
     - Stop when:
         - 24h session limit is reached (`STATUS.LIMIT_REACHED`), or

@@ -76,6 +76,7 @@ function testDomInterpretation() {
 
     assert.equal(dom.containsAnyPattern('Try again later.', ['try again later']), true);
     assert.equal(dom.containsAnyPattern('Regular confirmation', ['rate limit']), false);
+    assert.equal(dom.containsAnyPattern('Bir hata oluştu. Lütfen tekrar dene.', ['bir hata oluştu']), true);
 
     const textDialog = {
         innerText: 'Unfollow @TargetUser?',
@@ -212,6 +213,8 @@ function testCriticalRegressionGuards() {
     assert.match(contentSource, /Constants\.TIMING\.PLAN_LOOKUP_TIMEOUT/);
     assert.doesNotMatch(startHandler, /window\.scrollTo\(0, 0\)/);
     assert.match(contentSource, /findConfirmationDialog\(username\)/);
+    assert.match(contentSource, /Accepted closed confirmation dialog/);
+    assert.match(contentSource, /findActionFailureSignal\(\)/);
     assert.match(contentSource, /MAX_CONSECUTIVE_FAILURES/);
     assert.match(contentSource, /pauseIfRateLimited\(\)/);
     assert.match(contentSource, /RunStateUtils\.ITEM_STATUS\.ATTEMPTING/);
